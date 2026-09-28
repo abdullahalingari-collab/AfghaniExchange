@@ -19,3 +19,4 @@ class CurrencyService {
     return (data['rate'] as num).toDouble();
   }
 }
+ 
