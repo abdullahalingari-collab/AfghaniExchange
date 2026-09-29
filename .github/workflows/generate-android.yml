@@ -1,0 +1,31 @@
+name: Generate Android
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Generate Android
+        run: flutter create --platforms=android .
+
+      - name: Commit Android folder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android
+          git commit -m "Add Android platform" || echo "No changes to commit"
+          git push
