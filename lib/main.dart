@@ -1676,3 +1676,5 @@ class _HomePageState
     );
   }
 }
+
+const String backendUrl = '';
