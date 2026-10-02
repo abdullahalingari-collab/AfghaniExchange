@@ -7,12 +7,33 @@ void main() {
   runApp(const AfghaniExchangeApp());
 }
 
+// ============================================================
+// APP CONFIG
+// ============================================================
+
+// دلته وروسته خپل خوندي Backend URL واچوه.
+// مثال:
+// https://your-domain.com/api/latest
+//
+// API Key دلته مه لیکئ.
+const String backendUrl = '';
+
+const Duration refreshInterval = Duration(minutes: 1);
+
+// ============================================================
+// CURRENCIES
+// ============================================================
+
 class Currency {
   final String code;
   final String name;
   final String flag;
 
-  const Currency(this.code, this.name, this.flag);
+  const Currency(
+    this.code,
+    this.name,
+    this.flag,
+  );
 }
 
 const currencies = <Currency>[
@@ -58,6 +79,10 @@ const currencies = <Currency>[
   Currency('GEL', 'ګرجستاني لاري', '🇬🇪'),
 ];
 
+// ============================================================
+// APP
+// ============================================================
+
 class AfghaniExchangeApp extends StatefulWidget {
   const AfghaniExchangeApp({super.key});
 
@@ -66,7 +91,8 @@ class AfghaniExchangeApp extends StatefulWidget {
       _AfghaniExchangeAppState();
 }
 
-class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
+class _AfghaniExchangeAppState
+    extends State<AfghaniExchangeApp> {
   ThemeMode themeMode = ThemeMode.light;
 
   @override
@@ -78,27 +104,50 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
 
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.green,
         brightness: Brightness.light,
+        colorSchemeSeed: Colors.green,
+        scaffoldBackgroundColor:
+            const Color(0xffF5F8F6),
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
+        ),
+        inputDecorationTheme:
+            InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius:
+                BorderRadius.all(
+              Radius.circular(18),
+            ),
+            borderSide: BorderSide.none,
+          ),
+        ),
       ),
 
       darkTheme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.green,
         brightness: Brightness.dark,
+        colorSchemeSeed: Colors.green,
       ),
 
       home: HomePage(
         onThemeChanged: (dark) {
           setState(() {
-            themeMode =
-                dark ? ThemeMode.dark : ThemeMode.light;
+            themeMode = dark
+                ? ThemeMode.dark
+                : ThemeMode.light;
           });
         },
       ),
     );
   }
 }
+
+// ============================================================
+// HOME
+// ============================================================
 
 class HomePage extends StatefulWidget {
   final ValueChanged<bool> onThemeChanged;
@@ -109,15 +158,17 @@ class HomePage extends StatefulWidget {
   });
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() =>
+      _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState
+    extends State<HomePage> {
   String from = 'AFN';
   String to = 'USD';
 
-  double rate = 0;
   double amount = 1;
+  double rate = 0;
 
   bool loading = false;
   String? error;
@@ -148,12 +199,9 @@ class _HomePageState extends State<HomePage> {
 
     loadRate();
 
-    // هر 60 ثانیې نوی نرخ غواړي
     timer = Timer.periodic(
-      const Duration(seconds: 60),
-      (_) {
-        loadRate();
-      },
+      refreshInterval,
+      (_) => loadRate(),
     );
   }
 
@@ -165,6 +213,10 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  // ==========================================================
+  // RATE
+  // ==========================================================
+
   Future<void> loadRate() async {
     if (loading) return;
 
@@ -174,25 +226,31 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      /*
-       IMPORTANT:
+      if (from == to) {
+        if (!mounted) return;
 
-       resolution=1m = every 60 seconds.
+        setState(() {
+          rate = 1;
+          lastUpdated = DateTime.now();
+          loading = false;
+        });
 
-       API Key باید دلته په عامه APK کې ونه لیکل شي.
-       وروسته به خوندي server/proxy ورسره وصل کړو.
-      */
+        return;
+      }
 
-      final uri = Uri.https(
-        'api.fxratesapi.com',
-        '/latest',
-        {
+      if (backendUrl.trim().isEmpty) {
+        throw Exception(
+          'Backend URL is not configured',
+        );
+      }
+
+      final uri = Uri.parse(
+        backendUrl,
+      ).replace(
+        queryParameters: {
           'base': from,
           'currencies': to,
           'resolution': '1m',
-          'amount': '1',
-          'places': '8',
-          'format': 'json',
         },
       );
 
@@ -213,18 +271,13 @@ class _HomePageState extends State<HomePage> {
 
       if (data is! Map) {
         throw Exception(
-          'Invalid API response',
+          'Invalid response',
         );
       }
 
-      if (data['success'] == false) {
-        throw Exception(
-          data['error']?.toString() ??
-              'API error',
-        );
-      }
-
-      final rates = data['rates'];
+      dynamic rates =
+          data['rates'] ??
+          data['results'];
 
       if (rates is! Map) {
         throw Exception(
@@ -232,11 +285,12 @@ class _HomePageState extends State<HomePage> {
         );
       }
 
-      final value = rates[to];
+      final value =
+          rates[to];
 
       if (value == null) {
         throw Exception(
-          'Rate not found',
+          'Currency not found',
         );
       }
 
@@ -251,19 +305,25 @@ class _HomePageState extends State<HomePage> {
         loading = false;
         error = null;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         loading = false;
         error =
             'نرخ ترلاسه نه شو.\n'
-            'د انټرنېټ یا API اتصال وګورئ.';
+            'انټرنېټ یا د نرخ سرور وګورئ.';
       });
     }
   }
 
-  Currency getCurrency(String code) {
+  // ==========================================================
+  // HELPERS
+  // ==========================================================
+
+  Currency getCurrency(
+    String code,
+  ) {
     return currencies.firstWhere(
       (c) => c.code == code,
     );
@@ -279,7 +339,9 @@ class _HomePageState extends State<HomePage> {
     loadRate();
   }
 
-  void updateAmount(String value) {
+  void updateAmount(
+    String value,
+  ) {
     final number =
         double.tryParse(
       value.replaceAll(',', ''),
@@ -292,37 +354,45 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  String formattedResult() {
-    final result = amount * rate;
+  String formatNumber(
+    double value,
+  ) {
+    if (value == 0) return '0';
 
-    if (result == 0) {
-      return '0';
+    if (value >= 1000000) {
+      return value.toStringAsFixed(2);
     }
 
-    if (result >= 1000000) {
-      return result.toStringAsFixed(2);
+    if (value >= 1000) {
+      return value.toStringAsFixed(2);
     }
 
-    if (result >= 1000) {
-      return result.toStringAsFixed(2);
+    if (value >= 1) {
+      return value.toStringAsFixed(4);
     }
 
-    if (result >= 1) {
-      return result.toStringAsFixed(4);
-    }
+    return value.toStringAsFixed(6);
+  }
 
-    return result.toStringAsFixed(6);
+  String resultText() {
+    return formatNumber(
+      amount * rate,
+    );
   }
 
   void saveConversion() {
     if (rate <= 0) return;
 
     final item =
-        '${amount.toStringAsFixed(2)} '
-        '$from = ${formattedResult()} $to';
+        '${formatNumber(amount)} $from'
+        '  =  '
+        '${resultText()} $to';
 
     setState(() {
-      conversionHistory.insert(0, item);
+      conversionHistory.insert(
+        0,
+        item,
+      );
 
       if (conversionHistory.length > 20) {
         conversionHistory.removeLast();
@@ -330,11 +400,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // ==========================================================
+  // BUILD
+  // ==========================================================
+
   @override
-  Widget build(BuildContext context) {
-    final filtered = currencies.where((c) {
+  Widget build(
+    BuildContext context,
+  ) {
+    final filtered =
+        currencies.where((c) {
       final q =
-          searchController.text.toLowerCase();
+          searchController.text
+              .toLowerCase()
+              .trim();
 
       return c.code
               .toLowerCase()
@@ -346,8 +425,6 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-
         title: const Text(
           'Afghani Exchange',
           style: TextStyle(
@@ -357,23 +434,22 @@ class _HomePageState extends State<HomePage> {
 
         actions: [
           IconButton(
-            tooltip: 'Dark mode',
             onPressed: () {
-              final isLight =
+              final dark =
                   Theme.of(context)
-                          .brightness ==
-                      Brightness.light;
+                      .brightness ==
+                  Brightness.dark;
 
               widget.onThemeChanged(
-                isLight,
+                !dark,
               );
             },
             icon: Icon(
               Theme.of(context)
-                      .brightness ==
-                  Brightness.light
-                  ? Icons.dark_mode_outlined
-                  : Icons.light_mode_outlined,
+                          .brightness ==
+                      Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
             ),
           ),
         ],
@@ -383,35 +459,43 @@ class _HomePageState extends State<HomePage> {
         onRefresh: loadRate,
 
         child: ListView(
+          physics:
+              const AlwaysScrollableScrollPhysics(),
+
           padding:
-              const EdgeInsets.all(16),
+              const EdgeInsets.fromLTRB(
+            16,
+            8,
+            16,
+            40,
+          ),
 
           children: [
-            _header(),
+            _hero(),
 
             const SizedBox(height: 18),
 
-            _converter(),
+            _converterCard(),
 
             const SizedBox(height: 22),
 
-            _searchBox(),
+            _search(),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
 
-            _sectionTitle(
+            _title(
               '⭐ خوښ اسعار',
-              Icons.star_outline,
+              Icons.star,
             ),
 
             const SizedBox(height: 10),
 
-            _favoriteCurrencies(),
+            _favorites(),
 
             const SizedBox(height: 24),
 
-            _sectionTitle(
-              '🌍 د نړۍ اسعار',
+            _title(
+              '🌍 ټول اسعار',
               Icons.public,
             ),
 
@@ -431,36 +515,37 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 18),
 
-            _aboutDeveloper(),
+            _developer(),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _header() {
+  // ==========================================================
+  // HERO
+  // ==========================================================
+
+  Widget _hero() {
     return Container(
       padding:
-          const EdgeInsets.all(24),
+          const EdgeInsets.all(25),
 
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         borderRadius:
-            BorderRadius.circular(30),
+            BorderRadius.circular(32),
 
-        gradient: LinearGradient(
+        gradient:
+            const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-
           colors: [
-            Theme.of(context)
-                .colorScheme
-                .primary,
-
-            Theme.of(context)
-                .colorScheme
-                .secondary,
+            Color(0xff087F5B),
+            Color(0xff12B886),
+            Color(0xff20C997),
           ],
         ),
 
@@ -470,27 +555,44 @@ class _HomePageState extends State<HomePage> {
             offset:
                 const Offset(0, 12),
             color:
-                Colors.black.withOpacity(.16),
+                Colors.black26,
           ),
         ],
       ),
 
       child: Column(
         children: [
-          const Text(
-            '🇦🇫',
-            style:
-                TextStyle(fontSize: 58),
+          Container(
+            width: 76,
+            height: 76,
+            decoration:
+                BoxDecoration(
+              color:
+                  Colors.white24,
+              shape:
+                  BoxShape.circle,
+            ),
+            child: const Center(
+              child: Text(
+                '🇦🇫',
+                style:
+                    TextStyle(
+                  fontSize: 43,
+                ),
+              ),
+            ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(height: 13),
 
           const Text(
             'Afghani Exchange',
-            style: TextStyle(
+            style:
+                TextStyle(
               color: Colors.white,
               fontSize: 28,
-              fontWeight: FontWeight.w900,
+              fontWeight:
+                  FontWeight.w900,
             ),
           ),
 
@@ -498,8 +600,10 @@ class _HomePageState extends State<HomePage> {
 
           const Text(
             'د اسعارو چټک او هوښیار تبدیل',
-            textAlign: TextAlign.center,
-            style: TextStyle(
+            textAlign:
+                TextAlign.center,
+            style:
+                TextStyle(
               color: Colors.white70,
               fontSize: 15,
             ),
@@ -510,15 +614,16 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding:
                 const EdgeInsets.symmetric(
-              horizontal: 16,
+              horizontal: 15,
               vertical: 10,
             ),
 
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color:
-                  Colors.white.withOpacity(.17),
+                  Colors.white.withOpacity(.16),
               borderRadius:
-                  BorderRadius.circular(50),
+                  BorderRadius.circular(30),
             ),
 
             child: Row(
@@ -527,9 +632,9 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Icon(
                   Icons.circle,
-                  size: 10,
+                  size: 9,
                   color: loading
-                      ? Colors.orange
+                      ? Colors.orangeAccent
                       : Colors.lightGreenAccent,
                 ),
 
@@ -538,7 +643,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   loading
                       ? 'نرخ تازه کېږي...'
-                      : 'ژوندی نرخ • هره دقیقه',
+                      : 'نرخ هره دقیقه تازه کېږي',
                   style:
                       const TextStyle(
                     color: Colors.white,
@@ -554,7 +659,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _converter() {
+  // ==========================================================
+  // CONVERTER
+  // ==========================================================
+
+  Widget _converterCard() {
     final f =
         getCurrency(from);
 
@@ -562,12 +671,12 @@ class _HomePageState extends State<HomePage> {
         getCurrency(to);
 
     return Card(
-      elevation: 4,
+      elevation: 3,
 
       shape:
           RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.circular(28),
+            BorderRadius.circular(30),
       ),
 
       child: Padding(
@@ -580,27 +689,34 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child:
-                      _currencyButton(
+                      _currencySelector(
                     f,
                     true,
                   ),
                 ),
 
-                const SizedBox(width: 5),
+                Padding(
+                  padding:
+                      const EdgeInsets
+                          .symmetric(
+                    horizontal: 5,
+                  ),
 
-                IconButton.filled(
-                  onPressed:
-                      swapCurrencies,
-                  icon: const Icon(
-                    Icons.swap_horiz,
+                  child:
+                      IconButton.filled(
+                    onPressed:
+                        swapCurrencies,
+                    icon:
+                        const Icon(
+                      Icons
+                          .swap_horiz_rounded,
+                    ),
                   ),
                 ),
 
-                const SizedBox(width: 5),
-
                 Expanded(
                   child:
-                      _currencyButton(
+                      _currencySelector(
                     t,
                     false,
                   ),
@@ -624,50 +740,52 @@ class _HomePageState extends State<HomePage> {
                   updateAmount,
 
               decoration:
-                  InputDecoration(
-                labelText: 'مقدار',
-
+                  const InputDecoration(
+                labelText:
+                    'د پیسو مقدار',
                 prefixIcon:
-                    const Icon(
-                  Icons.calculate_outlined,
-                ),
-
-                filled: true,
-
-                border:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    18,
-                  ),
-                  borderSide:
-                      BorderSide.none,
+                    Icon(
+                  Icons
+                      .calculate_outlined,
                 ),
               ),
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
 
             Container(
               width: double.infinity,
 
               padding:
-                  const EdgeInsets.all(20),
+                  const EdgeInsets.all(
+                22,
+              ),
 
-              decoration: BoxDecoration(
+              decoration:
+                  BoxDecoration(
                 borderRadius:
-                    BorderRadius.circular(23),
+                    BorderRadius.circular(
+                  25,
+                ),
 
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest,
+                gradient:
+                    LinearGradient(
+                  colors: [
+                    Theme.of(context)
+                        .colorScheme
+                        .primaryContainer,
+                    Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                  ],
+                ),
               ),
 
               child: Column(
                 children: [
                   Text(
                     '${f.flag} '
-                    '${amount.toStringAsFixed(2)} '
+                    '${formatNumber(amount)} '
                     '$from',
 
                     style:
@@ -678,21 +796,26 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
 
                   Icon(
                     Icons
-                        .arrow_downward_rounded,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary,
+                        .keyboard_double_arrow_down_rounded,
+                    color:
+                        Theme.of(context)
+                            .colorScheme
+                            .primary,
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
 
                   Text(
                     '${t.flag} '
-                    '${formattedResult()} $to',
+                    '${resultText()} '
+                    '$to',
+
+                    textAlign:
+                        TextAlign.center,
 
                     style:
                         const TextStyle(
@@ -702,45 +825,93 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  if (error != null) ...[
-                    const SizedBox(height: 12),
-
-                    Text(
-                      error!,
-                      textAlign:
-                          TextAlign.center,
-                      style:
-                          const TextStyle(
-                        color: Colors.red,
-                        fontWeight:
-                            FontWeight.bold,
+                  if (rate > 0)
+                    Padding(
+                      padding:
+                          const EdgeInsets
+                              .only(
+                        top: 10,
+                      ),
+                      child: Text(
+                        '1 $from = '
+                        '${formatNumber(rate)} $to',
+                        style:
+                            const TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ],
+
+                  if (error != null)
+                    Padding(
+                      padding:
+                          const EdgeInsets
+                              .only(
+                        top: 12,
+                      ),
+                      child: Text(
+                        error!,
+                        textAlign:
+                            TextAlign.center,
+                        style:
+                            const TextStyle(
+                          color: Colors.red,
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
 
             const SizedBox(height: 14),
 
-            SizedBox(
-              width: double.infinity,
+            Row(
+              children: [
+                Expanded(
+                  child:
+                      FilledButton.icon(
+                    onPressed:
+                        loading
+                            ? null
+                            : loadRate,
 
-              child:
-                  FilledButton.icon(
-                onPressed: () {
-                  loadRate();
-                  saveConversion();
-                },
+                    icon: loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child:
+                                CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons
+                                .refresh_rounded,
+                          ),
 
-                icon: const Icon(
-                  Icons.refresh,
+                    label:
+                        const Text(
+                      'نرخ تازه کول',
+                    ),
+                  ),
                 ),
 
-                label: const Text(
-                  'نرخ تازه کول',
+                const SizedBox(width: 10),
+
+                IconButton.filledTonal(
+                  onPressed:
+                      saveConversion,
+                  icon: const Icon(
+                    Icons
+                        .bookmark_add_outlined,
+                  ),
+                  tooltip:
+                      'تبدیل ثبت کړه',
                 ),
-              ),
+              ],
             ),
 
             if (lastUpdated != null)
@@ -749,16 +920,13 @@ class _HomePageState extends State<HomePage> {
                     const EdgeInsets.only(
                   top: 10,
                 ),
-
                 child: Text(
                   'وروستی تازه کول: '
-                  '${lastUpdated!.hour.toString().padLeft(2, '0')}:'
-                  '${lastUpdated!.minute.toString().padLeft(2, '0')}:'
-                  '${lastUpdated!.second.toString().padLeft(2, '0')}',
-
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall,
+                  '${_time(lastUpdated!)}',
+                  style:
+                      Theme.of(context)
+                          .textTheme
+                          .bodySmall,
                 ),
               ),
           ],
@@ -767,32 +935,41 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _currencyButton(
+  String _time(
+    DateTime time,
+  ) {
+    return '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}:'
+        '${time.second.toString().padLeft(2, '0')}';
+  }
+
+  Widget _currencySelector(
     Currency currency,
     bool isFrom,
   ) {
     return InkWell(
       borderRadius:
-          BorderRadius.circular(20),
+          BorderRadius.circular(22),
 
-      onTap: () {
-        _showCurrencyPicker(
-          isFrom,
-        );
-      },
+      onTap: () =>
+          _showCurrencyPicker(
+        isFrom,
+      ),
 
       child: Container(
         padding:
-            const EdgeInsets.all(12),
+            const EdgeInsets.all(13),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           borderRadius:
-              BorderRadius.circular(20),
+              BorderRadius.circular(22),
 
           border: Border.all(
-            color: Theme.of(context)
-                .colorScheme
-                .outlineVariant,
+            color:
+                Theme.of(context)
+                    .colorScheme
+                    .outlineVariant,
           ),
         ),
 
@@ -802,7 +979,7 @@ class _HomePageState extends State<HomePage> {
               currency.flag,
               style:
                   const TextStyle(
-                fontSize: 30,
+                fontSize: 31,
               ),
             ),
 
@@ -819,7 +996,7 @@ class _HomePageState extends State<HomePage> {
 
             const Icon(
               Icons
-                  .keyboard_arrow_down,
+                  .keyboard_arrow_down_rounded,
               size: 18,
             ),
           ],
@@ -828,7 +1005,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _searchBox() {
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
+
+  Widget _search() {
     return TextField(
       controller:
           searchController,
@@ -841,12 +1022,10 @@ class _HomePageState extends State<HomePage> {
           InputDecoration(
         hintText:
             'د اسعارو لټون...',
-
         prefixIcon:
             const Icon(
-          Icons.search,
+          Icons.search_rounded,
         ),
-
         suffixIcon:
             searchController
                     .text
@@ -856,7 +1035,6 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () {
                       searchController
                           .clear();
-
                       setState(() {});
                     },
                     icon:
@@ -864,37 +1042,32 @@ class _HomePageState extends State<HomePage> {
                       Icons.clear,
                     ),
                   ),
-
-        filled: true,
-
-        border:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(20),
-          borderSide:
-              BorderSide.none,
-        ),
       ),
     );
   }
 
-  Widget _sectionTitle(
-    String title,
+  // ==========================================================
+  // SECTION TITLE
+  // ==========================================================
+
+  Widget _title(
+    String text,
     IconData icon,
   ) {
     return Row(
       children: [
         Icon(
           icon,
-          color: Theme.of(context)
-              .colorScheme
-              .primary,
+          color:
+              Theme.of(context)
+                  .colorScheme
+                  .primary,
         ),
 
         const SizedBox(width: 8),
 
         Text(
-          title,
+          text,
           style:
               const TextStyle(
             fontSize: 20,
@@ -906,16 +1079,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _favoriteCurrencies() {
-    final list = currencies
-        .where(
-          (c) =>
-              favorites.contains(c.code),
-        )
-        .toList();
+  // ==========================================================
+  // FAVORITES
+  // ==========================================================
+
+  Widget _favorites() {
+    final list =
+        currencies.where(
+      (c) =>
+          favorites.contains(
+        c.code,
+      ),
+    ).toList();
 
     return SizedBox(
-      height: 105,
+      height: 112,
 
       child: ListView.separated(
         scrollDirection:
@@ -926,14 +1104,19 @@ class _HomePageState extends State<HomePage> {
 
         separatorBuilder:
             (_, __) =>
-                const SizedBox(width: 10),
+                const SizedBox(
+          width: 10,
+        ),
 
         itemBuilder: (_, index) {
-          final c = list[index];
+          final c =
+              list[index];
 
           return InkWell(
             borderRadius:
-                BorderRadius.circular(20),
+                BorderRadius.circular(
+              22,
+            ),
 
             onTap: () {
               setState(() {
@@ -944,33 +1127,36 @@ class _HomePageState extends State<HomePage> {
             },
 
             child: Container(
-              width: 100,
+              width: 105,
 
               padding:
-                  const EdgeInsets.all(12),
+                  const EdgeInsets.all(
+                12,
+              ),
 
               decoration:
                   BoxDecoration(
+                color:
+                    Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
                 borderRadius:
                     BorderRadius.circular(
-                  20,
+                  22,
                 ),
-
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest,
               ),
 
               child: Column(
                 mainAxisAlignment:
-                    MainAxisAlignment.center,
+                    MainAxisAlignment
+                        .center,
 
                 children: [
                   Text(
                     c.flag,
                     style:
                         const TextStyle(
-                      fontSize: 28,
+                      fontSize: 29,
                     ),
                   ),
 
@@ -981,7 +1167,7 @@ class _HomePageState extends State<HomePage> {
                     style:
                         const TextStyle(
                       fontWeight:
-                          FontWeight.bold,
+                          FontWeight.w900,
                     ),
                   ),
                 ],
@@ -993,10 +1179,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ==========================================================
+  // CURRENCY TILE
+  // ==========================================================
+
   Widget _currencyTile(
     Currency c,
   ) {
-    final isFavorite =
+    final favorite =
         favorites.contains(
       c.code,
     );
@@ -1010,11 +1200,17 @@ class _HomePageState extends State<HomePage> {
       ),
 
       child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 2,
+        ),
+
         leading: Text(
           c.flag,
           style:
               const TextStyle(
-            fontSize: 29,
+            fontSize: 30,
           ),
         ),
 
@@ -1034,7 +1230,7 @@ class _HomePageState extends State<HomePage> {
             IconButton(
           onPressed: () {
             setState(() {
-              if (isFavorite) {
+              if (favorite) {
                 favorites.remove(
                   c.code,
                 );
@@ -1047,11 +1243,10 @@ class _HomePageState extends State<HomePage> {
           },
 
           icon: Icon(
-            isFavorite
+            favorite
                 ? Icons.star_rounded
                 : Icons.star_border_rounded,
-
-            color: isFavorite
+            color: favorite
                 ? Colors.amber
                 : null,
           ),
@@ -1068,11 +1263,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ==========================================================
+  // CONVERSION HISTORY
+  // ==========================================================
+
   Widget _conversionHistory() {
     return Card(
       child: Padding(
         padding:
-            const EdgeInsets.all(18),
+            const EdgeInsets.all(
+          18,
+        ),
 
         child: Column(
           crossAxisAlignment:
@@ -1082,7 +1283,7 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 const Icon(
-                  Icons.history,
+                  Icons.history_rounded,
                 ),
 
                 const SizedBox(width: 8),
@@ -1108,10 +1309,10 @@ class _HomePageState extends State<HomePage> {
                             .clear();
                       });
                     },
-
                     icon:
                         const Icon(
-                      Icons.delete_outline,
+                      Icons
+                          .delete_outline,
                     ),
                   ),
               ],
@@ -1119,21 +1320,24 @@ class _HomePageState extends State<HomePage> {
 
             const Divider(),
 
-            if (conversionHistory.isEmpty)
-              const Text(
-                'تر اوسه کوم تبدیل نه دی ثبت شوی.',
+            if (conversionHistory
+                .isEmpty)
+              const Padding(
+                padding:
+                    EdgeInsets.all(8),
+                child: Text(
+                  'تر اوسه کوم تبدیل نه دی ثبت شوی.',
+                ),
               )
             else
               ...conversionHistory.map(
                 (item) => ListTile(
                   dense: true,
-
                   leading:
                       const Icon(
                     Icons
                         .currency_exchange,
                   ),
-
                   title:
                       Text(item),
                 ),
@@ -1143,6 +1347,10 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  // ==========================================================
+  // CURRENCY HISTORY
+  // ==========================================================
 
   Widget _currencyHistory() {
     return Card(
@@ -1161,12 +1369,12 @@ class _HomePageState extends State<HomePage> {
               CrossAxisAlignment.start,
 
           children: [
-            _sectionTitle(
+            _title(
               '📚 د اسعارو تاریخ',
               Icons.auto_stories,
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
             _historyItem(
               '۱۲۹۸ هـ ش',
@@ -1221,12 +1429,14 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   year,
-                  style: TextStyle(
+                  style:
+                      TextStyle(
                     fontWeight:
                         FontWeight.w900,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary,
+                    color:
+                        Theme.of(context)
+                            .colorScheme
+                            .primary,
                   ),
                 ),
 
@@ -1241,15 +1451,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _aboutDeveloper() {
+  // ==========================================================
+  // DEVELOPER
+  // ==========================================================
+
+  Widget _developer() {
     return Container(
       padding:
-          const EdgeInsets.all(24),
+          const EdgeInsets.all(25),
 
       decoration:
           BoxDecoration(
         borderRadius:
-            BorderRadius.circular(28),
+            BorderRadius.circular(30),
 
         gradient:
             LinearGradient(
@@ -1257,7 +1471,6 @@ class _HomePageState extends State<HomePage> {
             Theme.of(context)
                 .colorScheme
                 .primaryContainer,
-
             Theme.of(context)
                 .colorScheme
                 .tertiaryContainer,
@@ -1269,14 +1482,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           const CircleAvatar(
             radius: 43,
-
             child: Icon(
-              Icons.person,
+              Icons.person_rounded,
               size: 48,
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 13),
 
           const Text(
             'Afghani Exchange',
@@ -1288,7 +1500,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          const SizedBox(height: 7),
+          const SizedBox(height: 5),
 
           const Text(
             'د اپ جوړونکی',
@@ -1300,7 +1512,6 @@ class _HomePageState extends State<HomePage> {
             'Abdullah ALOKOZAI',
             textAlign:
                 TextAlign.center,
-
             style:
                 TextStyle(
               fontSize: 24,
@@ -1309,7 +1520,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           const Text(
             'Made with Flutter 🇦🇫',
@@ -1324,6 +1535,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ==========================================================
+  // CURRENCY PICKER
+  // ==========================================================
+
   void _showCurrencyPicker(
     bool isFrom,
   ) {
@@ -1331,9 +1546,7 @@ class _HomePageState extends State<HomePage> {
 
     showModalBottomSheet(
       context: context,
-
       isScrollControlled: true,
-
       showDragHandle: true,
 
       builder: (context) {
@@ -1341,24 +1554,28 @@ class _HomePageState extends State<HomePage> {
           builder:
               (context, setModalState) {
             final list =
-                currencies.where((c) {
-              final q =
-                  search.toLowerCase();
+                currencies.where(
+              (c) {
+                final q =
+                    search
+                        .toLowerCase()
+                        .trim();
 
-              return c.code
-                      .toLowerCase()
-                      .contains(q) ||
-                  c.name
-                      .toLowerCase()
-                      .contains(q);
-            }).toList();
+                return c.code
+                        .toLowerCase()
+                        .contains(q) ||
+                    c.name
+                        .toLowerCase()
+                        .contains(q);
+              },
+            ).toList();
 
             return SizedBox(
               height:
                   MediaQuery.of(context)
                           .size
                           .height *
-                      .80,
+                      .82,
 
               child: Column(
                 children: [
@@ -1382,22 +1599,12 @@ class _HomePageState extends State<HomePage> {
                       },
 
                       decoration:
-                          InputDecoration(
+                          const InputDecoration(
                         hintText:
                             'د اسعارو لټون...',
-
                         prefixIcon:
-                            const Icon(
+                            Icon(
                           Icons.search,
-                        ),
-
-                        border:
-                            OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            18,
-                          ),
                         ),
                       ),
                     ),
@@ -1420,7 +1627,7 @@ class _HomePageState extends State<HomePage> {
                             c.flag,
                             style:
                                 const TextStyle(
-                              fontSize: 28,
+                              fontSize: 29,
                             ),
                           ),
 
