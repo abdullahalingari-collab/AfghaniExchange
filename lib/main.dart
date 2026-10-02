@@ -4,88 +4,333 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-const String workerUrl =
-    'https://afghani-exchange-api.abdullah-alingari.workers.dev';
-
-const List<Currency> currencies = [
-  Currency('AFN', 'افغانۍ', '🇦🇫'),
-  Currency('USD', 'امریکایي ډالر', '🇺🇸'),
-  Currency('EUR', 'یورو', '🇪🇺'),
-  Currency('GBP', 'برتانوي پونډ', '🇬🇧'),
-  Currency('PKR', 'پاکستانۍ روپۍ', '🇵🇰'),
-  Currency('INR', 'هندي روپۍ', '🇮🇳'),
-  Currency('AED', 'اماراتي درهم', '🇦🇪'),
-  Currency('SAR', 'سعودي ریال', '🇸🇦'),
-  Currency('QAR', 'قطري ریال', '🇶🇦'),
-  Currency('KWD', 'کویتي دینار', '🇰🇼'),
-  Currency('BHD', 'بحریني دینار', '🇧🇭'),
-  Currency('OMR', 'عماني ریال', '🇴🇲'),
-  Currency('TRY', 'ترکي لیره', '🇹🇷'),
-  Currency('CNY', 'چینایي یوان', '🇨🇳'),
-  Currency('JPY', 'جاپاني ین', '🇯🇵'),
-  Currency('KRW', 'کوریایي وون', '🇰🇷'),
-  Currency('RUB', 'روسي روبل', '🇷🇺'),
-  Currency('CAD', 'کاناډایي ډالر', '🇨🇦'),
-  Currency('AUD', 'اسټرالیايي ډالر', '🇦🇺'),
-  Currency('NZD', 'نیوزیلنډ ډالر', '🇳🇿'),
-  Currency('CHF', 'سویسي فرانک', '🇨🇭'),
-  Currency('SEK', 'سویډني کرونا', '🇸🇪'),
-  Currency('NOK', 'ناروېژي کرونا', '🇳🇴'),
-  Currency('DKK', 'ډنمارکي کرونا', '🇩🇰'),
-  Currency('SGD', 'سنګاپوري ډالر', '🇸🇬'),
-  Currency('MYR', 'مالیزیايي رینګټ', '🇲🇾'),
-  Currency('THB', 'تایلنډي بات', '🇹🇭'),
-  Currency('IDR', 'اندونیزیايي روپیه', '🇮🇩'),
-  Currency('IRR', 'ایراني ریال', '🇮🇷'),
-  Currency('IQD', 'عراقي دینار', '🇮🇶'),
-  Currency('EGP', 'مصري پونډ', '🇪🇬'),
-  Currency('ZAR', 'سویلي افریقایي رنډ', '🇿🇦'),
-  Currency('BRL', 'برازیلي ریال', '🇧🇷'),
-  Currency('MXN', 'مکسیکوي پېسو', '🇲🇽'),
-  Currency('PLN', 'پولنډي زلوټي', '🇵🇱'),
-  Currency('CZK', 'چېکي کرونا', '🇨🇿'),
-  Currency('HUF', 'هنګري فورینټ', '🇭🇺'),
-  Currency('ILS', 'اسرائیلي شیکل', '🇮🇱'),
-  Currency('HKD', 'هانګ کانګ ډالر', '🇭🇰'),
-  Currency('VND', 'ویتنامي دونګ', '🇻🇳'),
-];
-
-class Currency {
-  final String code;
-  final String name;
-  final String flag;
-
-  const Currency(this.code, this.name, this.flag);
-}
-
-class HistoryItem {
-  final String from;
-  final String to;
-  final double amount;
-  final double result;
-  final DateTime time;
-
-  HistoryItem({
-    required this.from,
-    required this.to,
-    required this.amount,
-    required this.result,
-    required this.time,
-  });
-}
-
 void main() {
   runApp(const AfghaniExchangeApp());
 }
+
+const String workerUrl =
+    'https://afghani-exchange-api.abdullah-alingari.workers.dev';
+
+enum AppLanguage {
+  pashto,
+  dari,
+  english,
+}
+
+class CurrencyInfo {
+  final String code;
+  final String ps;
+  final String fa;
+  final String en;
+  final String flag;
+
+  const CurrencyInfo({
+    required this.code,
+    required this.ps,
+    required this.fa,
+    required this.en,
+    required this.flag,
+  });
+}
+
+/*
+  مشهور اسعار.
+  که API کې نور اسعار هم وي، اپلیکیشن یې هم ښکاره کوي.
+  د هغو نوم به د ISO code په شکل ښکاره شي.
+*/
+const Map<String, CurrencyInfo> currencyInfo = {
+  'AFN': CurrencyInfo(
+    code: 'AFN',
+    ps: 'افغانۍ',
+    fa: 'افغانی',
+    en: 'Afghan Afghani',
+    flag: '🇦🇫',
+  ),
+  'USD': CurrencyInfo(
+    code: 'USD',
+    ps: 'امریکايي ډالر',
+    fa: 'دالر امریکا',
+    en: 'US Dollar',
+    flag: '🇺🇸',
+  ),
+  'EUR': CurrencyInfo(
+    code: 'EUR',
+    ps: 'یورو',
+    fa: 'یورو',
+    en: 'Euro',
+    flag: '🇪🇺',
+  ),
+  'GBP': CurrencyInfo(
+    code: 'GBP',
+    ps: 'برتانوي پونډ',
+    fa: 'پوند بریتانیا',
+    en: 'British Pound',
+    flag: '🇬🇧',
+  ),
+  'PKR': CurrencyInfo(
+    code: 'PKR',
+    ps: 'پاکستانۍ روپۍ',
+    fa: 'روپیه پاکستان',
+    en: 'Pakistani Rupee',
+    flag: '🇵🇰',
+  ),
+  'INR': CurrencyInfo(
+    code: 'INR',
+    ps: 'هندي روپۍ',
+    fa: 'روپیه هند',
+    en: 'Indian Rupee',
+    flag: '🇮🇳',
+  ),
+  'AED': CurrencyInfo(
+    code: 'AED',
+    ps: 'اماراتي درهم',
+    fa: 'درهم امارات',
+    en: 'UAE Dirham',
+    flag: '🇦🇪',
+  ),
+  'SAR': CurrencyInfo(
+    code: 'SAR',
+    ps: 'سعودي ریال',
+    fa: 'ریال سعودی',
+    en: 'Saudi Riyal',
+    flag: '🇸🇦',
+  ),
+  'QAR': CurrencyInfo(
+    code: 'QAR',
+    ps: 'قطري ریال',
+    fa: 'ریال قطر',
+    en: 'Qatari Riyal',
+    flag: '🇶🇦',
+  ),
+  'KWD': CurrencyInfo(
+    code: 'KWD',
+    ps: 'کویتي دینار',
+    fa: 'دینار کویت',
+    en: 'Kuwaiti Dinar',
+    flag: '🇰🇼',
+  ),
+  'BHD': CurrencyInfo(
+    code: 'BHD',
+    ps: 'بحریني دینار',
+    fa: 'دینار بحرین',
+    en: 'Bahraini Dinar',
+    flag: '🇧🇭',
+  ),
+  'OMR': CurrencyInfo(
+    code: 'OMR',
+    ps: 'عماني ریال',
+    fa: 'ریال عمان',
+    en: 'Omani Rial',
+    flag: '🇴🇲',
+  ),
+  'TRY': CurrencyInfo(
+    code: 'TRY',
+    ps: 'ترکي لیره',
+    fa: 'لیر ترکیه',
+    en: 'Turkish Lira',
+    flag: '🇹🇷',
+  ),
+  'IRR': CurrencyInfo(
+    code: 'IRR',
+    ps: 'ایراني ریال',
+    fa: 'ریال ایران',
+    en: 'Iranian Rial',
+    flag: '🇮🇷',
+  ),
+  'CNY': CurrencyInfo(
+    code: 'CNY',
+    ps: 'چینایي یوان',
+    fa: 'یوان چین',
+    en: 'Chinese Yuan',
+    flag: '🇨🇳',
+  ),
+  'JPY': CurrencyInfo(
+    code: 'JPY',
+    ps: 'جاپاني ین',
+    fa: 'ین ژاپن',
+    en: 'Japanese Yen',
+    flag: '🇯🇵',
+  ),
+  'KRW': CurrencyInfo(
+    code: 'KRW',
+    ps: 'کوریایي وان',
+    fa: 'وون کوریای جنوبی',
+    en: 'South Korean Won',
+    flag: '🇰🇷',
+  ),
+  'CAD': CurrencyInfo(
+    code: 'CAD',
+    ps: 'کاناډايي ډالر',
+    fa: 'دالر کانادا',
+    en: 'Canadian Dollar',
+    flag: '🇨🇦',
+  ),
+  'AUD': CurrencyInfo(
+    code: 'AUD',
+    ps: 'اسټرالیايي ډالر',
+    fa: 'دالر استرالیا',
+    en: 'Australian Dollar',
+    flag: '🇦🇺',
+  ),
+  'NZD': CurrencyInfo(
+    code: 'NZD',
+    ps: 'نیوزیلنډي ډالر',
+    fa: 'دالر نیوزیلند',
+    en: 'New Zealand Dollar',
+    flag: '🇳🇿',
+  ),
+  'CHF': CurrencyInfo(
+    code: 'CHF',
+    ps: 'سویسي فرانک',
+    fa: 'فرانک سوئیس',
+    en: 'Swiss Franc',
+    flag: '🇨🇭',
+  ),
+  'RUB': CurrencyInfo(
+    code: 'RUB',
+    ps: 'روسي روبل',
+    fa: 'روبل روسیه',
+    en: 'Russian Ruble',
+    flag: '🇷🇺',
+  ),
+  'MYR': CurrencyInfo(
+    code: 'MYR',
+    ps: 'مالیزیايي رینګیټ',
+    fa: 'رینگیت مالیزیا',
+    en: 'Malaysian Ringgit',
+    flag: '🇲🇾',
+  ),
+  'THB': CurrencyInfo(
+    code: 'THB',
+    ps: 'تایلنډي بات',
+    fa: 'بات تایلند',
+    en: 'Thai Baht',
+    flag: '🇹🇭',
+  ),
+  'BDT': CurrencyInfo(
+    code: 'BDT',
+    ps: 'بنګله دېشي ټکه',
+    fa: 'تاکای بنگلادیش',
+    en: 'Bangladeshi Taka',
+    flag: '🇧🇩',
+  ),
+  'NPR': CurrencyInfo(
+    code: 'NPR',
+    ps: 'نیپالي روپۍ',
+    fa: 'روپیه نپال',
+    en: 'Nepalese Rupee',
+    flag: '🇳🇵',
+  ),
+  'LKR': CurrencyInfo(
+    code: 'LKR',
+    ps: 'سریلانکايي روپۍ',
+    fa: 'روپیه سریلانکا',
+    en: 'Sri Lankan Rupee',
+    flag: '🇱🇰',
+  ),
+  'IDR': CurrencyInfo(
+    code: 'IDR',
+    ps: 'اندونیزیايي روپیه',
+    fa: 'روپیه اندونیزیا',
+    en: 'Indonesian Rupiah',
+    flag: '🇮🇩',
+  ),
+  'SGD': CurrencyInfo(
+    code: 'SGD',
+    ps: 'سنګاپوري ډالر',
+    fa: 'دالر سنگاپور',
+    en: 'Singapore Dollar',
+    flag: '🇸🇬',
+  ),
+  'HKD': CurrencyInfo(
+    code: 'HKD',
+    ps: 'هانګ کانګ ډالر',
+    fa: 'دالر هنگ کنگ',
+    en: 'Hong Kong Dollar',
+    flag: '🇭🇰',
+  ),
+  'SEK': CurrencyInfo(
+    code: 'SEK',
+    ps: 'سویډني کرونا',
+    fa: 'کرون سویدن',
+    en: 'Swedish Krona',
+    flag: '🇸🇪',
+  ),
+  'NOK': CurrencyInfo(
+    code: 'NOK',
+    ps: 'ناروېژي کرونا',
+    fa: 'کرون نروژ',
+    en: 'Norwegian Krone',
+    flag: '🇳🇴',
+  ),
+  'DKK': CurrencyInfo(
+    code: 'DKK',
+    ps: 'ډنمارکي کرونا',
+    fa: 'کرون دنمارک',
+    en: 'Danish Krone',
+    flag: '🇩🇰',
+  ),
+  'ZAR': CurrencyInfo(
+    code: 'ZAR',
+    ps: 'د سویلي افریقا رنډ',
+    fa: 'رند آفریقای جنوبی',
+    en: 'South African Rand',
+    flag: '🇿🇦',
+  ),
+  'BRL': CurrencyInfo(
+    code: 'BRL',
+    ps: 'برازیلي ریال',
+    fa: 'رئال برزیل',
+    en: 'Brazilian Real',
+    flag: '🇧🇷',
+  ),
+  'MXN': CurrencyInfo(
+    code: 'MXN',
+    ps: 'مکسیکوي پېسو',
+    fa: 'پزوی مکزیک',
+    en: 'Mexican Peso',
+    flag: '🇲🇽',
+  ),
+  'EGP': CurrencyInfo(
+    code: 'EGP',
+    ps: 'مصري پونډ',
+    fa: 'پوند مصر',
+    en: 'Egyptian Pound',
+    flag: '🇪🇬',
+  ),
+  'IQD': CurrencyInfo(
+    code: 'IQD',
+    ps: 'عراقي دینار',
+    fa: 'دینار عراق',
+    en: 'Iraqi Dinar',
+    flag: '🇮🇶',
+  ),
+  'KZT': CurrencyInfo(
+    code: 'KZT',
+    ps: 'قزاقستاني ټېنګې',
+    fa: 'تنگه قزاقستان',
+    en: 'Kazakhstani Tenge',
+    flag: '🇰🇿',
+  ),
+  'TJS': CurrencyInfo(
+    code: 'TJS',
+    ps: 'تاجکستاني سوموني',
+    fa: 'سامانی تاجیکستان',
+    en: 'Tajikistani Somoni',
+    flag: '🇹🇯',
+  ),
+};
 
 class AfghaniExchangeApp extends StatefulWidget {
   const AfghaniExchangeApp({super.key});
 
   @override
-  State<AfghaniExchangeApp> createState() => _AfghaniExchangeAppState();
+  State<AfghaniExchangeApp> createState() =>
+      _AfghaniExchangeAppState();
 }
 
 class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
+  AppLanguage language = AppLanguage.pashto;
   bool darkMode = false;
 
   @override
@@ -96,132 +341,154 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF087F5B),
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF4F7F6),
-        cardTheme: const CardThemeData(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-        ),
+        colorSchemeSeed: Colors.green,
+        brightness: Brightness.light,
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
+        colorSchemeSeed: Colors.green,
         brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF16A085),
-          brightness: Brightness.dark,
-        ),
-        cardTheme: const CardThemeData(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-        ),
       ),
-      home: HomePage(
+      home: ExchangePage(
+        language: language,
         darkMode: darkMode,
-        onDarkModeChanged: (value) {
-          setState(() {
-            darkMode = value;
-          });
+        onLanguageChanged: (v) {
+          setState(() => language = v);
+        },
+        onDarkModeChanged: (v) {
+          setState(() => darkMode = v);
         },
       ),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class ExchangePage extends StatefulWidget {
+  final AppLanguage language;
   final bool darkMode;
+  final ValueChanged<AppLanguage> onLanguageChanged;
   final ValueChanged<bool> onDarkModeChanged;
 
-  const HomePage({
+  const ExchangePage({
     super.key,
+    required this.language,
     required this.darkMode,
+    required this.onLanguageChanged,
     required this.onDarkModeChanged,
   });
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ExchangePage> createState() => _ExchangePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
-  Currency fromCurrency = currencies[0];
-  Currency toCurrency = currencies[1];
-
-  final TextEditingController amountController =
-      TextEditingController(text: '1');
-
-  double rate = 0;
-  double result = 0;
-
-  bool loading = false;
-  String error = '';
-
-  DateTime? lastUpdated;
-
+class _ExchangePageState extends State<ExchangePage> {
   Timer? timer;
 
-  final Set<String> favorites = {
+  Map<String, double> rates = {};
+
+  String fromCurrency = 'AFN';
+  String toCurrency = 'USD';
+
+  double amount = 1;
+
+  bool loading = true;
+  String? error;
+  DateTime? lastUpdated;
+
+  String search = '';
+
+  Set<String> favorites = {
     'USD',
+    'EUR',
     'PKR',
     'INR',
-    'EUR',
     'AED',
     'SAR',
   };
 
-  final List<HistoryItem> history = [];
+  List<String> history = [];
 
-  late AnimationController animationController;
+  final TextEditingController amountController =
+      TextEditingController(text: '1');
 
   @override
   void initState() {
     super.initState();
 
-    animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    animationController.forward();
-
-    loadRate();
+    loadRates();
 
     timer = Timer.periodic(
       const Duration(seconds: 60),
-      (_) {
-        loadRate();
-      },
+      (_) => loadRates(),
     );
   }
 
   @override
   void dispose() {
     timer?.cancel();
-    animationController.dispose();
     amountController.dispose();
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> fetchRate() async {
-    final uri = Uri.parse(workerUrl).replace(
-      queryParameters: {
-        'base': fromCurrency.code,
-        'currencies': toCurrency.code,
-      },
-    );
+  String tr(String ps, String fa, String en) {
+    switch (widget.language) {
+      case AppLanguage.pashto:
+        return ps;
+      case AppLanguage.dari:
+        return fa;
+      case AppLanguage.english:
+        return en;
+    }
+  }
 
-    final client = HttpClient();
+  CurrencyInfo info(String code) {
+    return currencyInfo[code] ??
+        CurrencyInfo(
+          code: code,
+          ps: code,
+          fa: code,
+          en: code,
+          flag: '🌐',
+        );
+  }
+
+  String nameOf(String code) {
+    final c = info(code);
+
+    switch (widget.language) {
+      case AppLanguage.pashto:
+        return c.ps;
+      case AppLanguage.dari:
+        return c.fa;
+      case AppLanguage.english:
+        return c.en;
+    }
+  }
+
+  Future<void> loadRates() async {
+    if (!mounted) return;
+
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    HttpClient? client;
 
     try {
-      final request = await client.getUrl(uri);
+      client = HttpClient();
 
-      request.headers.set(
-        HttpHeaders.acceptHeader,
-        'application/json',
+      final uri = Uri.parse(
+        '$workerUrl?base=AFN&t=${DateTime.now().millisecondsSinceEpoch}',
       );
 
-      final response = await request.close();
+      final request = await client
+          .getUrl(uri)
+          .timeout(const Duration(seconds: 20));
+
+      final response = await request.close().timeout(
+            const Duration(seconds: 20),
+          );
 
       final body = await response
           .transform(utf8.decoder)
@@ -230,493 +497,759 @@ class _HomePageState extends State<HomePage>
       if (response.statusCode < 200 ||
           response.statusCode >= 300) {
         throw Exception(
-          'Server status ${response.statusCode}',
+          'HTTP ${response.statusCode}',
         );
       }
 
-      final decoded = jsonDecode(body);
+      final data = jsonDecode(body);
 
-      if (decoded is! Map<String, dynamic>) {
-        throw Exception('Invalid response');
-      }
+      final dynamic raw = data['rates'] ?? data['results'];
 
-      return decoded;
-    } finally {
-      client.close(force: true);
-    }
-  }
-
-  Future<void> loadRate() async {
-    if (!mounted) return;
-
-    if (fromCurrency.code == toCurrency.code) {
-      final amount =
-          double.tryParse(amountController.text) ?? 0;
-
-      setState(() {
-        rate = 1;
-        result = amount;
-        loading = false;
-        error = '';
-        lastUpdated = DateTime.now();
-      });
-
-      return;
-    }
-
-    setState(() {
-      loading = true;
-      error = '';
-    });
-
-    try {
-      final data = await fetchRate();
-
-      dynamic rates = data['rates'];
-
-      if (rates == null) {
-        rates = data['results'];
-      }
-
-      if (rates is! Map) {
+      if (raw == null || raw is! Map) {
         throw Exception('No rates');
       }
 
-      final raw = rates[toCurrency.code];
+      final Map<String, double> newRates = {
+        'AFN': 1.0,
+      };
 
-      if (raw == null) {
-        throw Exception('Currency rate not found');
+      for (final item in raw.entries) {
+        final code = item.key.toString().toUpperCase();
+
+        final value = item.value;
+
+        double? number;
+
+        if (value is num) {
+          number = value.toDouble();
+        } else {
+          number = double.tryParse(
+            value.toString(),
+          );
+        }
+
+        if (number != null &&
+            number.isFinite &&
+            number > 0) {
+          newRates[code] = number;
+        }
       }
 
-      final newRate =
-          double.tryParse(raw.toString());
-
-      if (newRate == null) {
-        throw Exception('Invalid rate');
+      if (newRates.length < 2) {
+        throw Exception('Too few currencies');
       }
-
-      final amount =
-          double.tryParse(
-                amountController.text.replaceAll(',', '.'),
-              ) ??
-              0;
 
       if (!mounted) return;
 
       setState(() {
-        rate = newRate;
-        result = amount * newRate;
+        rates = newRates;
         lastUpdated = DateTime.now();
         loading = false;
-        error = '';
+        error = null;
       });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
         loading = false;
-        error = 'د نرخ ترلاسه کولو کې ستونزه راغله';
+        error = tr(
+          'نرخونه نه شي راوړل کېدای',
+          'نرخ‌ها دریافت نشدند',
+          'Unable to load rates',
+        );
+      });
+    } finally {
+      client?.close(force: true);
+    }
+  }
+
+  double rateOf(String code) {
+    if (code == 'AFN') return 1;
+
+    return rates[code] ?? 0;
+  }
+
+  double convertedValue() {
+    if (fromCurrency == toCurrency) {
+      return amount;
+    }
+
+    final fromRate = rateOf(fromCurrency);
+    final toRate = rateOf(toCurrency);
+
+    if (fromRate <= 0 || toRate <= 0) {
+      return 0;
+    }
+
+    return (amount / fromRate) * toRate;
+  }
+
+  String number(double value) {
+    if (!value.isFinite) return '0';
+
+    if (value == 0) return '0';
+
+    if (value.abs() >= 1000) {
+      return value.toStringAsFixed(2);
+    }
+
+    if (value.abs() >= 1) {
+      return value.toStringAsFixed(4);
+    }
+
+    return value.toStringAsFixed(8);
+  }
+
+  void swap() {
+    setState(() {
+      final temp = fromCurrency;
+
+      fromCurrency = toCurrency;
+      toCurrency = temp;
+    });
+  }
+
+  void saveHistory() {
+    final result = convertedValue();
+
+    final text =
+        '${number(amount)} $fromCurrency  →  '
+        '${number(result)} $toCurrency';
+
+    setState(() {
+      history.insert(0, text);
+
+      if (history.length > 15) {
+        history.removeLast();
+      }
+    });
+  }
+
+  List<String> get allCurrencies {
+    final list = rates.keys.toList();
+
+    list.sort();
+
+    return list;
+  }
+
+  List<String> get filteredCurrencies {
+    final q = search.trim().toLowerCase();
+
+    if (q.isEmpty) {
+      return allCurrencies;
+    }
+
+    return allCurrencies.where((code) {
+      return code.toLowerCase().contains(q) ||
+          nameOf(code).toLowerCase().contains(q);
+    }).toList();
+  }
+
+  Future<void> chooseCurrency({
+    required bool from,
+  }) async {
+    String localSearch = '';
+
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final q = localSearch.toLowerCase();
+
+            final list = allCurrencies.where((code) {
+              return q.isEmpty ||
+                  code.toLowerCase().contains(q) ||
+                  nameOf(code).toLowerCase().contains(q);
+            }).toList();
+
+            return SafeArea(
+              child: SizedBox(
+                height:
+                    MediaQuery.of(context).size.height * .85,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TextField(
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          prefixIcon:
+                              const Icon(Icons.search),
+                          hintText: tr(
+                            'اسعار ولټوه',
+                            'جستجوی ارز',
+                            'Search currency',
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(18),
+                          ),
+                        ),
+                        onChanged: (v) {
+                          setModalState(() {
+                            localSearch = v;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          final code = list[index];
+                          final c = info(code);
+
+                          return ListTile(
+                            leading: Text(
+                              c.flag,
+                              style:
+                                  const TextStyle(fontSize: 28),
+                            ),
+                            title: Text(
+                              '$code  •  ${nameOf(code)}',
+                            ),
+                            subtitle: code == 'AFN'
+                                ? const Text('1 AFN = 1 AFN')
+                                : Text(
+                                    '1 AFN = '
+                                    '${number(rateOf(code))} $code',
+                                  ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                favorites.contains(code)
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color:
+                                    favorites.contains(code)
+                                        ? Colors.amber
+                                        : null,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (favorites
+                                      .contains(code)) {
+                                    favorites.remove(code);
+                                  } else {
+                                    favorites.add(code);
+                                  }
+                                });
+
+                                setModalState(() {});
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.pop(
+                                context,
+                                code,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        if (from) {
+          fromCurrency = result;
+        } else {
+          toCurrency = result;
+        }
       });
     }
   }
 
-  void calculate() {
-    final amount =
-        double.tryParse(
-              amountController.text.replaceAll(',', '.'),
-            ) ??
-            0;
-
-    setState(() {
-      result = amount * rate;
-    });
-  }
-
-  void swap() {
-    final old = fromCurrency;
-
-    setState(() {
-      fromCurrency = toCurrency;
-      toCurrency = old;
-    });
-
-    loadRate();
-  }
-
-  void saveHistory() {
-    final amount =
-        double.tryParse(amountController.text) ?? 0;
-
-    if (amount <= 0 || rate <= 0) return;
-
-    setState(() {
-      history.insert(
-        0,
-        HistoryItem(
-          from: fromCurrency.code,
-          to: toCurrency.code,
-          amount: amount,
-          result: result,
-          time: DateTime.now(),
-        ),
-      );
-
-      if (history.length > 20) {
-        history.removeLast();
-      }
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تبدیل تاریخچه کې خوندي شو'),
-      ),
-    );
-  }
-
-  void toggleFavorite(String code) {
-    setState(() {
-      if (favorites.contains(code)) {
-        favorites.remove(code);
-      } else {
-        favorites.add(code);
-      }
-    });
-  }
-
-  String number(double value) {
-    if (value == value.roundToDouble()) {
-      return value.toStringAsFixed(0);
-    }
-
-    return value.toStringAsFixed(4);
-  }
-
-  String updatedText() {
-    if (lastUpdated == null) {
-      return 'تر اوسه تازه شوی نه دی';
-    }
-
-    final h =
-        lastUpdated!.hour.toString().padLeft(2, '0');
-
-    final m =
-        lastUpdated!.minute.toString().padLeft(2, '0');
-
-    final s =
-        lastUpdated!.second.toString().padLeft(2, '0');
-
-    return '$h:$m:$s';
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Row(
-            children: [
-              Text(
-                '🇦🇫',
-                style: TextStyle(fontSize: 25),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Afghani Exchange',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          PopupMenuButton<AppLanguage>(
+            icon: const Icon(Icons.language),
+            onSelected: widget.onLanguageChanged,
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: AppLanguage.pashto,
+                child: Text('🇦🇫 پښتو'),
               ),
-              SizedBox(width: 8),
+              PopupMenuItem(
+                value: AppLanguage.dari,
+                child: Text('🇦🇫 دری'),
+              ),
+              PopupMenuItem(
+                value: AppLanguage.english,
+                child: Text('🇬🇧 English'),
+              ),
+            ],
+          ),
+          IconButton(
+            onPressed: () {
+              widget.onDarkModeChanged(
+                !widget.darkMode,
+              );
+            },
+            icon: Icon(
+              widget.darkMode
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: loadRates,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _header(),
+
+            const SizedBox(height: 16),
+
+            _status(),
+
+            const SizedBox(height: 18),
+
+            Text(
+              tr(
+                'د اسعارو تبدیل',
+                'تبدیل ارز',
+                'Currency Converter',
+              ),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            _converter(),
+
+            const SizedBox(height: 22),
+
+            Text(
+              tr(
+                '⭐ خوښ اسعار',
+                '⭐ ارزهای مورد علاقه',
+                '⭐ Favorite Currencies',
+              ),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            _favorites(),
+
+            const SizedBox(height: 22),
+
+            Text(
+              tr(
+                '🌍 ټول موجود اسعار',
+                '🌍 تمام ارزهای موجود',
+                '🌍 All Available Currencies',
+              ),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: tr(
+                  'د اسعارو نوم یا کوډ ولټوه',
+                  'نام یا کد ارز را جستجو کنید',
+                  'Search currency name or code',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+              onChanged: (v) {
+                setState(() {
+                  search = v;
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            if (loading && rates.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(30),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+
+            if (error != null && rates.isEmpty)
+              _errorCard(),
+
+            ...filteredCurrencies.map(
+              (code) => _currencyTile(code),
+            ),
+
+            if (history.isNotEmpty) ...[
+              const SizedBox(height: 25),
+
               Text(
-                'Afghani Exchange',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
+                tr(
+                  '📜 د تبدیلولو تاریخچه',
+                  '📜 تاریخچه تبدیل',
+                  '📜 Conversion History',
+                ),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Card(
+                child: Column(
+                  children: history.map(
+                    (item) {
+                      return ListTile(
+                        leading:
+                            const Icon(Icons.history),
+                        title: Text(item),
+                      );
+                    },
+                  ).toList(),
                 ),
               ),
             ],
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                widget.onDarkModeChanged(
-                  !widget.darkMode,
-                );
-              },
-              icon: Icon(
-                widget.darkMode
-                    ? Icons.light_mode_rounded
-                    : Icons.dark_mode_rounded,
-              ),
-            ),
+
+            const SizedBox(height: 25),
+
+            _developerCard(),
+
+            const SizedBox(height: 20),
           ],
-        ),
-        body: RefreshIndicator(
-          onRefresh: loadRate,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              FadeTransition(
-                opacity: animationController,
-                child: heroCard(),
-              ),
-              const SizedBox(height: 16),
-              converterCard(),
-              const SizedBox(height: 14),
-              statusCard(),
-              const SizedBox(height: 22),
-              sectionTitle(
-                '⭐ خوښ اسعار',
-                'ستاسو مهم اسعار',
-              ),
-              const SizedBox(height: 10),
-              favoritesCard(),
-              const SizedBox(height: 22),
-              sectionTitle(
-                '🌍 ۴۰ مهم اسعار',
-                'د هر اسعارو لټون او انتخاب',
-              ),
-              const SizedBox(height: 10),
-              searchCard(),
-              const SizedBox(height: 22),
-              sectionTitle(
-                '📜 د تبدیلولو تاریخچه',
-                'وروستي تبدیلونه',
-              ),
-              const SizedBox(height: 10),
-              historyCard(),
-              const SizedBox(height: 22),
-              sectionTitle(
-                '📚 د اسعارو معلومات',
-                'مهم نړیوال اسعار',
-              ),
-              const SizedBox(height: 10),
-              currencyInfoCard(),
-              const SizedBox(height: 22),
-              developerCard(),
-              const SizedBox(height: 25),
-            ],
-          ),
         ),
       ),
     );
   }
 
-  Widget heroCard() {
+  Widget _header() {
     return Container(
-      padding: const EdgeInsets.all(23),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(30),
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF087F5B),
-            Color(0xFF0B7285),
-            Color(0xFF1864AB),
+            Color(0xFF075E1D),
+            Color(0xFF16A63A),
+            Color(0xFF41C96A),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            blurRadius: 22,
-            offset: const Offset(0, 10),
+            blurRadius: 20,
+            offset: Offset(0, 8),
             color: Colors.black26,
           ),
         ],
       ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
+          const Icon(
+            Icons.currency_exchange,
+            color: Colors.white,
+            size: 48,
+          ),
+          const SizedBox(height: 12),
           Text(
-            '🇦🇫 AFN',
-            style: TextStyle(
-              color: Colors.white70,
+            tr(
+              'افغاني تبادله',
+              'تبدیل افغانی',
+              'Afghani Exchange',
+            ),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 29,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 7),
+          const SizedBox(height: 7),
           Text(
-            'Afghani Exchange',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 29,
-              fontWeight: FontWeight.w900,
+            tr(
+              'د نړۍ د اسعارو تازه نرخونه',
+              'نرخ‌های تازه ارزهای جهان',
+              'Live world currency rates',
             ),
-          ),
-          SizedBox(height: 7),
-          Text(
-            'د نړۍ اسعار په ساده او چټک ډول تبدیل کړئ',
-            style: TextStyle(
-              color: Colors.white,
+            style: const TextStyle(
+              color: Colors.white70,
               fontSize: 15,
             ),
-          ),
-          SizedBox(height: 18),
-          Row(
-            children: [
-              Text(
-                '🔄 هر ۶۰ ثانیې',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(width: 20),
-              Text(
-                '🌍 ۴۰ اسعار',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget converterCard() {
+  Widget _status() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            if (loading)
+              const SizedBox(
+                width: 23,
+                height: 23,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                ),
+              )
+            else
+              Icon(
+                error == null
+                    ? Icons.check_circle
+                    : Icons.error,
+                color: error == null
+                    ? Colors.green
+                    : Colors.red,
+              ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    error ??
+                        tr(
+                          'نرخونه تازه دي',
+                          'نرخ‌ها تازه هستند',
+                          'Rates are up to date',
+                        ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    lastUpdated == null
+                        ? tr(
+                            'د تازه کېدو په تمه...',
+                            'در انتظار به‌روزرسانی...',
+                            'Waiting for update...',
+                          )
+                        : '${tr(
+                            'وروستی تازه کول',
+                            'آخرین به‌روزرسانی',
+                            'Last Updated',
+                          )}: ${timeText()}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed:
+                  loading ? null : loadRates,
+              icon: const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String timeText() {
+    if (lastUpdated == null) return '';
+
+    final d = lastUpdated!;
+
+    return '${d.hour.toString().padLeft(2, '0')}:'
+        '${d.minute.toString().padLeft(2, '0')}:'
+        '${d.second.toString().padLeft(2, '0')}';
+  }
+
+  Widget _converter() {
+    final result = convertedValue();
+
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            _currencySelector(
+              title: tr(
+                'له',
+                'از',
+                'From',
+              ),
+              code: fromCurrency,
+              onTap: () {
+                chooseCurrency(from: true);
+              },
+            ),
+
+            const SizedBox(height: 10),
+
             Row(
               children: [
-                const Expanded(
-                  child: Text(
-                    '💱 Currency Conversion',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline,
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary,
+                  ),
+                  child: IconButton(
+                    onPressed: swap,
+                    color: Colors.white,
+                    icon: const Icon(
+                      Icons.swap_vert,
                     ),
                   ),
                 ),
-                IconButton.filledTonal(
-                  onPressed: loading ? null : swap,
-                  icon: const Icon(
-                    Icons.swap_horiz_rounded,
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
-            currencyButton(
-              'له',
-              fromCurrency,
-              () {
-                openPicker(
-                  fromCurrency,
-                  (c) {
-                    setState(() {
-                      fromCurrency = c;
-                    });
-                    loadRate();
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 10),
+
             TextField(
               controller: amountController,
               keyboardType:
                   const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              onChanged: (_) => calculate(),
               decoration: InputDecoration(
-                labelText: 'مقدار',
-                prefixIcon: const Icon(
-                  Icons.calculate_rounded,
+                labelText: tr(
+                  'مقدار',
+                  'مقدار',
+                  'Amount',
                 ),
-                suffixText: fromCurrency.code,
+                prefixIcon:
+                    const Icon(Icons.calculate),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius:
+                      BorderRadius.circular(18),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            currencyButton(
-              'ته',
-              toCurrency,
-              () {
-                openPicker(
-                  toCurrency,
-                  (c) {
-                    setState(() {
-                      toCurrency = c;
-                    });
-                    loadRate();
-                  },
-                );
+              onChanged: (v) {
+                setState(() {
+                  amount =
+                      double.tryParse(v) ?? 0;
+                });
               },
             ),
+
+            const SizedBox(height: 14),
+
+            _currencySelector(
+              title: tr(
+                'ته',
+                'به',
+                'To',
+              ),
+              code: toCurrency,
+              onTap: () {
+                chooseCurrency(from: false);
+              },
+            ),
+
             const SizedBox(height: 18),
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius:
+                    BorderRadius.circular(22),
                 color: Theme.of(context)
                     .colorScheme
-                    .primary
-                    .withOpacity(.10),
+                    .primaryContainer,
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'تبدیل شوې اندازه',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 7),
-                  FittedBox(
-                    child: Text(
-                      '${number(result)} ${toCurrency.code}',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary,
-                      ),
+                  Text(
+                    tr(
+                      'نتیجه',
+                      'نتیجه',
+                      'Result',
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    rate > 0
-                        ? '1 ${fromCurrency.code} = ${number(rate)} ${toCurrency.code}'
-                        : 'نرخ ترلاسه کېږي...',
+                    '${number(result)} $toCurrency',
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed:
-                        loading ? null : loadRate,
-                    icon: loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child:
-                                CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(
-                            Icons.refresh_rounded,
-                          ),
-                    label: const Text(
-                      'تازه کول',
-                    ),
+
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: saveHistory,
+                icon:
+                    const Icon(Icons.save_alt),
+                label: Text(
+                  tr(
+                    'تبدیل ثبت کړه',
+                    'ثبت تبدیل',
+                    'Save Conversion',
                   ),
                 ),
-                const SizedBox(width: 10),
-                IconButton.filledTonal(
-                  onPressed: saveHistory,
-                  icon: const Icon(
-                    Icons.bookmark_add_rounded,
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -724,32 +1257,35 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget currencyButton(
-    String title,
-    Currency currency,
-    VoidCallback onTap,
-  ) {
+  Widget _currencySelector({
+    required String title,
+    required String code,
+    required VoidCallback onTap,
+  }) {
+    final c = info(code);
+
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
       onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: Theme.of(context)
                 .colorScheme
-                .outline
-                .withOpacity(.35),
+                .outline,
           ),
+          borderRadius:
+              BorderRadius.circular(18),
         ),
         child: Row(
           children: [
             Text(
-              currency.flag,
-              style: const TextStyle(fontSize: 28),
+              c.flag,
+              style:
+                  const TextStyle(fontSize: 32),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment:
@@ -757,21 +1293,26 @@ class _HomePageState extends State<HomePage>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 11),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
-                    '${currency.code} • ${currency.name}',
-                    overflow: TextOverflow.ellipsis,
+                    '$code • ${nameOf(code)}',
                     style: const TextStyle(
-                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
             const Icon(
-              Icons.keyboard_arrow_down_rounded,
+              Icons.keyboard_arrow_down,
             ),
           ],
         ),
@@ -779,291 +1320,181 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget statusCard() {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          child: Icon(
-            loading
-                ? Icons.sync_rounded
-                : Icons.check_circle_rounded,
-          ),
-        ),
-        title: Text(
-          loading
-              ? 'نرخونه تازه کېږي...'
-              : 'نرخونه فعال دي',
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        subtitle: Text(
-          '🕐 Last Updated: ${updatedText()}',
-        ),
-        trailing: error.isNotEmpty
-            ? const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-              )
-            : null,
-      ),
-    );
-  }
-
-  Widget sectionTitle(
-    String title,
-    String subtitle,
-  ) {
-    return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withOpacity(.60),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget favoritesCard() {
-    final list = currencies
+  Widget _favorites() {
+    final list = allCurrencies
         .where(
-          (c) => favorites.contains(c.code),
+          (code) => favorites.contains(code),
         )
+        .take(10)
         .toList();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: list.map(
-            (currency) {
-              return ActionChip(
-                avatar: Text(currency.flag),
-                label: Text(
-                  currency.code,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    toCurrency = currency;
-                  });
-                  loadRate();
-                },
-              );
-            },
-          ).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget searchCard() {
-    return Card(
-      child: ListTile(
-        leading: const CircleAvatar(
-          child: Icon(Icons.search_rounded),
-        ),
-        title: const Text(
-          'د اسعارو لټون',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        subtitle: const Text(
-          'USD • PKR • INR • EUR • CNY او نور',
-        ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 17,
-        ),
-        onTap: showCurrencySearch,
-      ),
-    );
-  }
-
-  void showCurrencySearch() {
-    showSearch(
-      context: context,
-      delegate: CurrencyDelegate(
-        favorites: favorites,
-        onFavorite: toggleFavorite,
-        onSelect: (currency) {
-          setState(() {
-            toCurrency = currency;
-          });
-          loadRate();
-        },
-      ),
-    );
-  }
-
-  Widget historyCard() {
-    if (history.isEmpty) {
+    if (list.isEmpty) {
       return Card(
         child: Padding(
-          padding: const EdgeInsets.all(25),
-          child: Center(
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.history_rounded,
-                  size: 45,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'تر اوسه تاریخچه نشته',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            tr(
+              'تر اوسه خوښ اسعار نشته.',
+              'هنوز ارز مورد علاقه‌ای نیست.',
+              'No favorite currencies yet.',
             ),
           ),
         ),
       );
     }
 
-    return Card(
-      child: Column(
-        children: history.take(8).map(
-          (item) {
-            return ListTile(
-              leading: CircleAvatar(
-                child: Text(
-                  item.to.substring(0, 1),
-                ),
-              ),
-              title: Text(
-                '${item.amount} ${item.from} → ${number(item.result)} ${item.to}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              subtitle: Text(
-                '${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')}',
-              ),
-            );
-          },
-        ).toList(),
-      ),
-    );
-  }
+    return SizedBox(
+      height: 112,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: list.length,
+        separatorBuilder: (_, __) =>
+            const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final code = list[index];
+          final c = info(code);
 
-  Widget currencyInfoCard() {
-    final important = [
-      currencies[0],
-      currencies[1],
-      currencies[4],
-      currencies[5],
-      currencies[6],
-      currencies[7],
-      currencies[13],
-      currencies[14],
-    ];
-
-    return Card(
-      child: Column(
-        children: important.map(
-          (currency) {
-            return ListTile(
-              leading: Text(
-                currency.flag,
-                style: const TextStyle(fontSize: 27),
+          return InkWell(
+            onTap: () {
+              setState(() {
+                toCurrency = code;
+              });
+            },
+            borderRadius:
+                BorderRadius.circular(20),
+            child: Container(
+              width: 155,
+              padding: const EdgeInsets.all(13),
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(20),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest,
               ),
-              title: Text(
-                '${currency.code} • ${currency.name}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              trailing: IconButton(
-                onPressed: () {
-                  toggleFavorite(currency.code);
-                },
-                icon: Icon(
-                  favorites.contains(currency.code)
-                      ? Icons.star_rounded
-                      : Icons.star_border_rounded,
-                ),
-              ),
-            );
-          },
-        ).toList(),
-      ),
-    );
-  }
-
-  Widget developerCard() {
-    return Card(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withOpacity(.12),
-              Theme.of(context)
-                  .colorScheme
-                  .secondary
-                  .withOpacity(.08),
-            ],
-          ),
-        ),
-        child: const Row(
-          children: [
-            CircleAvatar(
-              radius: 28,
-              child: Icon(
-                Icons.person_rounded,
-                size: 30,
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        c.flag,
+                        style: const TextStyle(
+                          fontSize: 25,
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        code,
+                        style: const TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${number(rateOf(code))}',
+                    style: const TextStyle(
+                      fontWeight:
+                          FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+                  const Text(
+                    '1 AFN',
+                    style: TextStyle(
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 14),
-            Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '👤 Developer',
-                  style: TextStyle(fontSize: 12),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _currencyTile(String code) {
+    final c = info(code);
+    final favorite = favorites.contains(code);
+
+    return Card(
+      margin:
+          const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Text(
+          c.flag,
+          style:
+              const TextStyle(fontSize: 28),
+        ),
+        title: Text(
+          '$code  •  ${nameOf(code)}',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          code == 'AFN'
+              ? '1 AFN = 1 AFN'
+              : '1 AFN = '
+                  '${number(rateOf(code))} $code',
+        ),
+        trailing: IconButton(
+          onPressed: () {
+            setState(() {
+              if (favorite) {
+                favorites.remove(code);
+              } else {
+                favorites.add(code);
+              }
+            });
+          },
+          icon: Icon(
+            favorite
+                ? Icons.star
+                : Icons.star_border,
+            color: favorite
+                ? Colors.amber
+                : null,
+          ),
+        ),
+        onTap: () {
+          setState(() {
+            toCurrency = code;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _errorCard() {
+    return Card(
+      color: Theme.of(context)
+          .colorScheme
+          .errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Icon(
+              Icons.wifi_off,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onErrorContainer,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                tr(
+                  'انټرنېټ یا د نرخونو سرور ستونزه لري. بیا هڅه وکړه.',
+                  'اینترنت یا سرور نرخ‌ها مشکل دارد. دوباره تلاش کنید.',
+                  'Internet or rate server problem. Please try again.',
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Abdullah ALOKOZAI',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  'Afghani Exchange',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -1071,181 +1502,54 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void openPicker(
-    Currency selected,
-    ValueChanged<Currency> onSelected,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: SizedBox(
-            height:
-                MediaQuery.of(context).size.height * .78,
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    '🌍 اسعار انتخاب کړئ',
-                    style: TextStyle(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-                ...currencies.map(
-                  (currency) {
-                    return ListTile(
-                      leading: Text(
-                        currency.flag,
-                        style: const TextStyle(
-                          fontSize: 27,
-                        ),
-                      ),
-                      title: Text(
-                        currency.code,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      subtitle: Text(currency.name),
-                      trailing:
-                          selected.code == currency.code
-                              ? const Icon(
-                                  Icons
-                                      .check_circle_rounded,
-                                  color: Colors.green,
-                                )
-                              : null,
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSelected(currency);
-                      },
-                    );
-                  },
-                ),
-              ],
+  Widget _developerCard() {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(25),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF111827),
+            Color(0xFF263449),
+          ],
+        ),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.code,
+            color: Colors.white,
+            size: 35,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Abdullah Eman',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class CurrencyDelegate
-    extends SearchDelegate<Currency?> {
-  final Set<String> favorites;
-  final ValueChanged<String> onFavorite;
-  final ValueChanged<Currency> onSelect;
-
-  CurrencyDelegate({
-    required this.favorites,
-    required this.onFavorite,
-    required this.onSelect,
-  });
-
-  @override
-  List<Widget>? buildActions(
-    BuildContext context,
-  ) {
-    return [
-      if (query.isNotEmpty)
-        IconButton(
-          onPressed: () {
-            query = '';
-          },
-          icon: const Icon(Icons.clear_rounded),
-        ),
-    ];
-  }
-
-  @override
-  Widget? buildLeading(
-    BuildContext context,
-  ) {
-    return IconButton(
-      onPressed: () {
-        close(context, null);
-      },
-      icon: const Icon(
-        Icons.arrow_back_rounded,
-      ),
-    );
-  }
-
-  @override
-  Widget buildResults(
-    BuildContext context,
-  ) {
-    return results();
-  }
-
-  @override
-  Widget buildSuggestions(
-    BuildContext context,
-  ) {
-    return results();
-  }
-
-  Widget results() {
-    final search = query.toLowerCase().trim();
-
-    final list = currencies.where(
-      (currency) {
-        if (search.isEmpty) return true;
-
-        return currency.code
-                .toLowerCase()
-                .contains(search) ||
-            currency.name
-                .toLowerCase()
-                .contains(search);
-      },
-    ).toList();
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: ListView.builder(
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          final currency = list[index];
-
-          return ListTile(
-            leading: Text(
-              currency.flag,
-              style: const TextStyle(
-                fontSize: 27,
-              ),
+          const SizedBox(height: 5),
+          Text(
+            tr(
+              'جوړونکی',
+              'سازنده',
+              'Developer',
             ),
-            title: Text(
-              currency.code,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-              ),
+            style: const TextStyle(
+              color: Colors.white70,
             ),
-            subtitle: Text(currency.name),
-            trailing: IconButton(
-              onPressed: () {
-                onFavorite(currency.code);
-              },
-              icon: Icon(
-                favorites.contains(currency.code)
-                    ? Icons.star_rounded
-                    : Icons.star_border_rounded,
-              ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Afghani Exchange 🇦🇫',
+            style: TextStyle(
+              color: Colors.white54,
             ),
-            onTap: () {
-              onSelect(currency);
-              close(context, currency);
-            },
-          );
-        },
+          ),
+        ],
       ),
     );
   }
