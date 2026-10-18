@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const ExchangeApp());
+  runApp(const AfghaniExchangeApp());
 }
+
+const Color bg = Color(0xFF031329);
+const Color panel = Color(0xFF08264A);
+const Color blue = Color(0xFF087BFF);
+const Color cyan = Color(0xFF08D9D0);
 
 class Currency {
   final String code;
@@ -10,60 +15,29 @@ class Currency {
   final String flag;
   final double rate;
 
-  const Currency({
-    required this.code,
-    required this.name,
-    required this.flag,
-    required this.rate,
-  });
+  const Currency(this.code, this.name, this.flag, this.rate);
 }
 
 const List<Currency> currencies = [
-  Currency(code: 'AFN', name: 'Afghan Afghani', flag: '🇦🇫', rate: 70.0),
-  Currency(code: 'USD', name: 'US Dollar', flag: '🇺🇸', rate: 1.0),
-  Currency(code: 'EUR', name: 'Euro', flag: '🇪🇺', rate: 0.86),
-  Currency(code: 'GBP', name: 'British Pound', flag: '🇬🇧', rate: 0.75),
-  Currency(code: 'PKR', name: 'Pakistani Rupee', flag: '🇵🇰', rate: 280.0),
-  Currency(code: 'IRR', name: 'Iranian Rial', flag: '🇮🇷', rate: 42000.0),
-  Currency(code: 'INR', name: 'Indian Rupee', flag: '🇮🇳', rate: 88.0),
-  Currency(code: 'CNY', name: 'Chinese Yuan', flag: '🇨🇳', rate: 7.1),
-  Currency(code: 'TRY', name: 'Turkish Lira', flag: '🇹🇷', rate: 42.0),
-  Currency(code: 'SAR', name: 'Saudi Riyal', flag: '🇸🇦', rate: 3.75),
-  Currency(code: 'AED', name: 'UAE Dirham', flag: '🇦🇪', rate: 3.67),
-  Currency(code: 'QAR', name: 'Qatari Riyal', flag: '🇶🇦', rate: 3.64),
-  Currency(code: 'KWD', name: 'Kuwaiti Dinar', flag: '🇰🇼', rate: 0.31),
-  Currency(code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦', rate: 1.38),
-  Currency(code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺', rate: 1.52),
-  Currency(code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', rate: 150.0),
-  Currency(code: 'CHF', name: 'Swiss Franc', flag: '🇨🇭', rate: 0.80),
-  Currency(code: 'RUB', name: 'Russian Ruble', flag: '🇷🇺', rate: 82.0),
-  Currency(code: 'BDT', name: 'Bangladeshi Taka', flag: '🇧🇩', rate: 122.0),
-  Currency(code: 'LKR', name: 'Sri Lankan Rupee', flag: '🇱🇰', rate: 300.0),
-  Currency(code: 'NPR', name: 'Nepalese Rupee', flag: '🇳🇵', rate: 140.0),
-  Currency(code: 'MYR', name: 'Malaysian Ringgit', flag: '🇲🇾', rate: 4.25),
-  Currency(code: 'IDR', name: 'Indonesian Rupiah', flag: '🇮🇩', rate: 16500.0),
-  Currency(code: 'THB', name: 'Thai Baht', flag: '🇹🇭', rate: 33.0),
-  Currency(code: 'SGD', name: 'Singapore Dollar', flag: '🇸🇬', rate: 1.29),
-  Currency(code: 'NZD', name: 'New Zealand Dollar', flag: '🇳🇿', rate: 1.75),
-  Currency(code: 'HKD', name: 'Hong Kong Dollar', flag: '🇭🇰', rate: 7.8),
-  Currency(code: 'KRW', name: 'South Korean Won', flag: '🇰🇷', rate: 1400.0),
-  Currency(code: 'EGP', name: 'Egyptian Pound', flag: '🇪🇬', rate: 48.0),
-  Currency(code: 'IQD', name: 'Iraqi Dinar', flag: '🇮🇶', rate: 1310.0),
-  Currency(code: 'KWD', name: 'Kuwaiti Dinar', flag: '🇰🇼', rate: 0.31),
-  Currency(code: 'OMR', name: 'Omani Rial', flag: '🇴🇲', rate: 0.38),
-  Currency(code: 'BHD', name: 'Bahraini Dinar', flag: '🇧🇭', rate: 0.38),
-  Currency(code: 'JOD', name: 'Jordanian Dinar', flag: '🇯🇴', rate: 0.71),
-  Currency(code: 'ZAR', name: 'South African Rand', flag: '🇿🇦', rate: 17.5),
-  Currency(code: 'BRL', name: 'Brazilian Real', flag: '🇧🇷', rate: 5.4),
-  Currency(code: 'MXN', name: 'Mexican Peso', flag: '🇲🇽', rate: 18.5),
-  Currency(code: 'ARS', name: 'Argentine Peso', flag: '🇦🇷', rate: 1200.0),
-  Currency(code: 'SEK', name: 'Swedish Krona', flag: '🇸🇪', rate: 9.5),
-  Currency(code: 'NOK', name: 'Norwegian Krone', flag: '🇳🇴', rate: 10.0),
-  Currency(code: 'DKK', name: 'Danish Krone', flag: '🇩🇰', rate: 6.4),
+  Currency('AFN', 'Afghan Afghani', '🇦🇫', 1),
+  Currency('USD', 'US Dollar', '🇺🇸', 68.50),
+  Currency('EUR', 'Euro', '🇪🇺', 78.12),
+  Currency('GBP', 'British Pound', '🇬🇧', 92.34),
+  Currency('PKR', 'Pakistani Rupee', '🇵🇰', 0.25),
+  Currency('INR', 'Indian Rupee', '🇮🇳', 0.78),
+  Currency('AED', 'UAE Dirham', '🇦🇪', 18.64),
+  Currency('SAR', 'Saudi Riyal', '🇸🇦', 18.25),
+  Currency('IRR', 'Iranian Rial', '🇮🇷', 0.00016),
+  Currency('TRY', 'Turkish Lira', '🇹🇷', 2.12),
+  Currency('CNY', 'Chinese Yuan', '🇨🇳', 9.58),
+  Currency('CAD', 'Canadian Dollar', '🇨🇦', 49.50),
+  Currency('AUD', 'Australian Dollar', '🇦🇺', 44.70),
+  Currency('JPY', 'Japanese Yen', '🇯🇵', 0.46),
+  Currency('QAR', 'Qatari Riyal', '🇶🇦', 18.80),
 ];
 
-class ExchangeApp extends StatelessWidget {
-  const ExchangeApp({super.key});
+class AfghaniExchangeApp extends StatelessWidget {
+  const AfghaniExchangeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +45,13 @@ class ExchangeApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Afghani Exchange',
       theme: ThemeData(
-        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: bg,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00C9A7),
+          seedColor: blue,
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: const Color(0xFF071521),
+        useMaterial3: true,
       ),
       home: const ExchangeHome(),
     );
@@ -91,380 +66,248 @@ class ExchangeHome extends StatefulWidget {
 }
 
 class _ExchangeHomeState extends State<ExchangeHome> {
-  int _page = 0;
-  int _fromIndex = 0;
-  int _toIndex = 1;
-  double _amount = 1000;
-  String _search = '';
-  final TextEditingController _amountController =
+  Currency from = currencies[0];
+  Currency to = currencies[1];
+
+  final amountController =
       TextEditingController(text: '1000');
-  final TextEditingController _searchController = TextEditingController();
-  final List<String> _history = [];
-  final Set<String> _favorites = {'USD', 'EUR', 'PKR'};
 
-  Currency get _from => currencies[_fromIndex];
-  Currency get _to => currencies[_toIndex];
+  final searchController = TextEditingController();
 
-  double get _result => _amount / _from.rate * _to.rate;
+  int bottomIndex = 0;
+  int categoryIndex = 0;
+
+  String language = 'پښتو';
+  String search = '';
+
+  final Set<String> favorites = {'USD', 'EUR'};
+  final List<String> history = [];
+
+  double get amount =>
+      double.tryParse(amountController.text.trim()) ?? 0;
+
+  double get result => amount * from.rate / to.rate;
+
+  String format(double value) {
+    if (value != 0 && value.abs() < 0.01) {
+      return value.toStringAsPrecision(4);
+    }
+    return value.toStringAsFixed(2);
+  }
 
   @override
   void dispose() {
-    _amountController.dispose();
-    _searchController.dispose();
+    amountController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
-  void _swap() {
+  void swapCurrencies() {
     setState(() {
-      final old = _fromIndex;
-      _fromIndex = _toIndex;
-      _toIndex = old;
+      final old = from;
+      from = to;
+      to = old;
     });
   }
 
-  void _convert() {
-    setState(() {
-      _history.insert(
-        0,
-        '${_amount.toStringAsFixed(2)} ${_from.code} = '
-        '${_result.toStringAsFixed(2)} ${_to.code}',
-      );
-      _page = 0;
-    });
-  }
+  void openCurrencyPicker({required bool isFrom}) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: panel,
+      builder: (sheetContext) {
+        String query = '';
 
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final filtered = currencies.where((c) {
+              return c.code
+                      .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  c.name
+                      .toLowerCase()
+                      .contains(query.toLowerCase());
+            }).toList();
+
+            return SafeArea(
+              child: SizedBox(
+                height:
+                    MediaQuery.of(context).size.height * 0.72,
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(18),
+                      child: Text(
+                        'Select Currency / اسعار وټاکئ',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      child: TextField(
+                        onChanged: (v) {
+                          setModalState(() => query = v);
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search currency...',
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: bg,
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final c = filtered[index];
+
+                          return ListTile(
+                            leading: Text(
+                              c.flag,
+                              style:
+                                  const TextStyle(fontSize: 30),
+                            ),
+                            title: Text(
+                              '${c.code} - ${c.name}',
+                            ),
+                            subtitle: Text(
+                              '1 ${c.code} = ${c.rate} AFN',
+                            ),
+                            onTap: () {
+                              Navigator.pop(sheetContext);
+
+                              setState(() {
+                                if (isFrom) {
+                                  from = c;
+                                } else {
+                                  to = c;
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D2231),
-        title: const Row(
+      body: SafeArea(
+        child: IndexedStack(
+          index: bottomIndex,
           children: [
-            Icon(Icons.currency_exchange, color: Color(0xFF00D6AE)),
-            SizedBox(width: 10),
-            Text(
-              'Afghani Exchange',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            homePage(),
+            converterPage(),
+            marketPage(),
+            historyPage(),
+            settingsPage(),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () => setState(() => _page = 3),
-            icon: const Icon(Icons.settings_outlined),
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _page,
-        children: [
-          _homePage(),
-          _currenciesPage(),
-          _historyPage(),
-          _settingsPage(),
-        ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _page,
-        onDestinationSelected: (value) => setState(() => _page = value),
+        backgroundColor: const Color(0xFF061B35),
+        indicatorColor: blue.withOpacity(0.22),
+        selectedIndex: bottomIndex,
+        onDestinationSelected: (index) {
+          setState(() => bottomIndex = index);
+        },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.swap_horiz),
-            label: 'تبادله',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home, color: cyan),
+            label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.public),
-            label: 'پیسې',
+            icon: Icon(Icons.swap_horiz),
+            label: 'Converter',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.show_chart),
+            label: 'Market',
           ),
           NavigationDestination(
             icon: Icon(Icons.history),
-            label: 'تاریخچه',
+            label: 'History',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'تنظیمات',
+            icon: Icon(Icons.settings_outlined),
+            label: 'Settings',
           ),
         ],
       ),
     );
   }
 
-  Widget _homePage() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF123C4C), Color(0xFF087E80)],
-            ),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'د اسعارو تبادله',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'خپل اسعار په اسانۍ بدل کړئ',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'د خپلې خوښې اسعار وټاکئ او اندازه ولیکئ.',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 22),
-        _sectionTitle('د تبادلې حساب'),
-        const SizedBox(height: 12),
-        _currencyCard(
-          title: 'له دې اسعارو',
-          index: _fromIndex,
-          onChanged: (value) => setState(() => _fromIndex = value),
-          child: TextField(
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: 'اندازه ولیکئ',
-            ),
-            onChanged: (value) {
-              setState(() {
-                _amount = double.tryParse(value) ?? 0;
-              });
-            },
-          ),
-        ),
-        Center(
-          child: IconButton.filled(
-            onPressed: _swap,
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF00BFA5),
-              foregroundColor: Colors.black,
-            ),
-            icon: const Icon(Icons.swap_vert, size: 28),
-          ),
-        ),
-        _currencyCard(
-          title: 'دې اسعارو ته',
-          index: _toIndex,
-          onChanged: (value) => setState(() => _toIndex = value),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _result.toStringAsFixed(2),
-                style: const TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF00D6AE),
-                ),
-              ),
-              Text(
-                '${_to.code} — ${_to.name}',
-                style: const TextStyle(color: Colors.white60),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
-          child: FilledButton.icon(
-            onPressed: _convert,
-            icon: const Icon(Icons.currency_exchange),
-            label: const Text(
-              'تبادله حساب کړه',
-              style: TextStyle(fontSize: 17),
-            ),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF00BFA5),
-              foregroundColor: Colors.black,
-            ),
-          ),
-        ),
-        const SizedBox(height: 22),
-        _sectionTitle('د خوښې اسعار'),
-        const SizedBox(height: 8),
-        ...currencies
-            .where((c) => _favorites.contains(c.code))
-            .map(_currencyTile),
-        const SizedBox(height: 20),
-        const Text(
-          'یادونه: د تبادلې نرخونه د نمونې لپاره دي، ژوندی بازار نرخونه نه دي.',
-          style: TextStyle(color: Colors.orangeAccent, fontSize: 12),
-        ),
-      ],
-    );
-  }
+  Widget homePage() {
+    final visible = currencies.where((c) {
+      final matches =
+          c.code.toLowerCase().contains(search.toLowerCase()) ||
+          c.name.toLowerCase().contains(search.toLowerCase());
 
-  Widget _currencyCard({
-    required String title,
-    required int index,
-    required ValueChanged<int> onChanged,
-    required Widget child,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF102635),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(color: Colors.white60)),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<int>(
-            value: index,
-            isExpanded: true,
-            dropdownColor: const Color(0xFF102635),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
-            items: List.generate(currencies.length, (i) {
-              final c = currencies[i];
-              return DropdownMenuItem(
-                value: i,
-                child: Text('${c.flag}  ${c.code} — ${c.name}'),
-              );
-            }),
-            onChanged: (value) {
-              if (value != null) onChanged(value);
-            },
-          ),
-          const Divider(color: Colors.white12),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _currenciesPage() {
-    final filtered = currencies.where((c) {
-      final query = _search.toLowerCase();
-      return c.name.toLowerCase().contains(query) ||
-          c.code.toLowerCase().contains(query);
+      if (!matches) return false;
+      if (categoryIndex == 1) return favorites.contains(c.code);
+      if (categoryIndex == 2) {
+        return ['EUR', 'GBP', 'USD'].contains(c.code);
+      }
+      if (categoryIndex == 3) {
+        return ['PKR', 'INR', 'CNY', 'JPY'].contains(c.code);
+      }
+      if (categoryIndex == 4) {
+        return !['AFN', 'USD', 'EUR', 'GBP'].contains(c.code);
+      }
+      return true;
     }).toList();
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'د اسعارو لټون...',
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: const Color(0xFF102635),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: header()),
+        SliverToBoxAdapter(child: converterCard()),
+        SliverToBoxAdapter(child: searchBar()),
+        SliverToBoxAdapter(child: categoryTabs()),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'World Currencies (${visible.length})',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            onChanged: (value) => setState(() => _search = value),
           ),
         ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: filtered.length,
-            itemBuilder: (context, index) => _currencyTile(filtered[index]),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => currencyRow(visible[index]),
+            childCount: visible.length,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _currencyTile(Currency currency) {
-    final isFavorite = _favorites.contains(currency.code);
-
-    return Card(
-      color: const Color(0xFF102635),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      child: ListTile(
-        leading: Text(currency.flag, style: const TextStyle(fontSize: 28)),
-        title: Text(
-          currency.name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(currency.code),
-        trailing: IconButton(
-          onPressed: () {
-            setState(() {
-              if (isFavorite) {
-                _favorites.remove(currency.code);
-              } else {
-                _favorites.add(currency.code);
-              }
-            });
-          },
-          icon: Icon(
-            isFavorite ? Icons.star : Icons.star_border,
-            color: isFavorite ? Colors.amber : Colors.white54,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _historyPage() {
-    if (_history.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.history, size: 65, color: Colors.white30),
-            SizedBox(height: 12),
-            Text(
-              'تر اوسه د تبادلې تاریخچه نشته',
-              style: TextStyle(color: Colors.white60),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _sectionTitle('د تبادلې تاریخچه'),
-            TextButton(
-              onPressed: () => setState(() => _history.clear()),
-              child: const Text('پاکول'),
-            ),
-          ],
-        ),
-        ..._history.map(
-          (item) => Card(
-            color: const Color(0xFF102635),
-            child: ListTile(
-              leading: const Icon(
-                Icons.check_circle_outline,
-                color: Color(0xFF00D6AE),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(22),
+            child: Center(
+              child: Text(
+                'Closer to the World 🌍',
+                style: TextStyle(color: cyan, fontSize: 16),
               ),
-              title: Text(item),
             ),
           ),
         ),
@@ -472,61 +315,97 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     );
   }
 
-  Widget _settingsPage() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const SizedBox(height: 10),
-        const CircleAvatar(
-          radius: 42,
-          backgroundColor: Color(0xFF123C4C),
-          child: Icon(
-            Icons.currency_exchange,
-            size: 45,
-            color: Color(0xFF00D6AE),
+  Widget header() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF104B8A),
+            Color(0xFF06162F),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        children: [
+          const Wrap(
+            alignment: WrapAlignment.center,
+            children: [
+              Text(
+                'Afghani ',
+                style: TextStyle(
+                  fontSize: 29,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                'Exchange',
+                style: TextStyle(
+                  fontSize: 29,
+                  fontWeight: FontWeight.w900,
+                  color: cyan,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 14),
-        const Center(
-          child: Text(
-            'Afghani Exchange',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          const SizedBox(height: 8),
+          const Text(
+            'د نړۍ ټول اسعار په یو ځای کې',
+            style: TextStyle(fontSize: 19),
           ),
-        ),
-        const SizedBox(height: 24),
-        _settingTile(Icons.language, 'ژبه', 'پښتو'),
-        _settingTile(Icons.palette_outlined, 'بڼه', 'تیاره بڼه'),
-        _settingTile(Icons.notifications_outlined, 'خبرتیاوې', 'فعالې'),
-        _settingTile(Icons.info_outline, 'د اپلیکیشن په اړه', 'نسخه 1.0.0'),
-        const SizedBox(height: 20),
-        const Text(
-          'دا اپلیکیشن د اسعارو د تبادلې د نمونې لپاره جوړ شوی دی.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white54),
-        ),
-      ],
-    );
-  }
-
-  Widget _settingTile(IconData icon, String title, String subtitle) {
-    return Card(
-      color: const Color(0xFF102635),
-      child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF00D6AE)),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+          const SizedBox(height: 5),
+          const Text(
+            'All World Currencies in One Place',
+            style: TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 15),
+          Wrap(
+            spacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              languageButton('🇦🇫 پښتو'),
+              languageButton('🇦🇫 دري'),
+              languageButton('🇬🇧 English'),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            '🌍 Created by Abdullah ALOKOZAI',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 19,
-        fontWeight: FontWeight.bold,
+  Widget languageButton(String label) {
+    final selected = label.contains(language);
+
+    return OutlinedButton(
+      onPressed: () {
+        setState(() {
+          if (label.contains('پښتو')) {
+            language = 'پښتو';
+          } else if (label.contains('دري')) {
+            language = 'دري';
+          } else {
+            language = 'English';
+          }
+        });
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor:
+            selected ? cyan.withOpacity(0.15) : bg,
+        side: BorderSide(
+          color: selected ? cyan : blue,
+        ),
       ),
+      child: Text(label),
     );
   }
-}
