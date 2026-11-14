@@ -1,2 +1,19 @@
+name: afghani_exchange
+description: Afghani Exchange currency converter
+publish_to: 'none'
+version: 1.0.0+1
+
 environment:
   sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
