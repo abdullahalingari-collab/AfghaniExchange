@@ -17,14 +17,18 @@ class AfghaniExchangeApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF087E70),
-        scaffoldBackgroundColor: const Color(0xFFF3F7F7),
+        scaffoldBackgroundColor: const Color(0xFFF4F7F8),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF4F7F8),
+          elevation: 0,
+        ),
       ),
-      home: const ExchangeHome(),
+      home: const ExchangePage(),
     );
   }
 }
 
-const Map<String, String> currencyNames = {
+const Map<String, String> names = {
   'AFN': 'Afghan Afghani',
   'USD': 'US Dollar',
   'EUR': 'Euro',
@@ -64,6 +68,39 @@ const Map<String, String> currencyNames = {
   'IQD': 'Iraqi Dinar',
   'BHD': 'Bahraini Dinar',
   'JOD': 'Jordanian Dinar',
+  'ALL': 'Albanian Lek',
+  'AMD': 'Armenian Dram',
+  'ARS': 'Argentine Peso',
+  'AZN': 'Azerbaijani Manat',
+  'BAM': 'Bosnia Mark',
+  'BGN': 'Bulgarian Lev',
+  'BWP': 'Botswana Pula',
+  'CLP': 'Chilean Peso',
+  'COP': 'Colombian Peso',
+  'CZK': 'Czech Koruna',
+  'DZD': 'Algerian Dinar',
+  'GEL': 'Georgian Lari',
+  'GHS': 'Ghanaian Cedi',
+  'HUF': 'Hungarian Forint',
+  'KES': 'Kenyan Shilling',
+  'KZT': 'Kazakhstani Tenge',
+  'MAD': 'Moroccan Dirham',
+  'MMK': 'Myanmar Kyat',
+  'MNT': 'Mongolian Tugrik',
+  'NGN': 'Nigerian Naira',
+  'PHP': 'Philippine Peso',
+  'PLN': 'Polish Zloty',
+  'RON': 'Romanian Leu',
+  'RSD': 'Serbian Dinar',
+  'TWD': 'Taiwan Dollar',
+  'TZS': 'Tanzanian Shilling',
+  'UAH': 'Ukrainian Hryvnia',
+  'UGX': 'Ugandan Shilling',
+  'UYU': 'Uruguayan Peso',
+  'VND': 'Vietnamese Dong',
+  'XAF': 'Central African CFA Franc',
+  'XOF': 'West African CFA Franc',
+  'XPF': 'CFP Franc',
 };
 
 const Map<String, String> flags = {
@@ -80,86 +117,119 @@ const Map<String, String> flags = {
   'NOK': '🇳🇴', 'DKK': '🇩🇰', 'NZD': '🇳🇿',
   'MXN': '🇲🇽', 'HKD': '🇭🇰', 'IDR': '🇮🇩',
   'IQD': '🇮🇶', 'BHD': '🇧🇭', 'JOD': '🇯🇴',
+  'ALL': '🇦🇱', 'AMD': '🇦🇲', 'ARS': '🇦🇷',
+  'AZN': '🇦🇿', 'BAM': '🇧🇦', 'BGN': '🇧🇬',
+  'CLP': '🇨🇱', 'COP': '🇨🇴', 'CZK': '🇨🇿',
+  'DZD': '🇩🇿', 'GEL': '🇬🇪', 'GHS': '🇬🇭',
+  'HUF': '🇭🇺', 'KES': '🇰🇪', 'KZT': '🇰🇿',
+  'MAD': '🇲🇦', 'MMK': '🇲🇲', 'MNT': '🇲🇳',
+  'NGN': '🇳🇬', 'PHP': '🇵🇭', 'PLN': '🇵🇱',
+  'RON': '🇷🇴', 'RSD': '🇷🇸', 'TWD': '🇹🇼',
+  'TZS': '🇹🇿', 'UAH': '🇺🇦', 'UGX': '🇺🇬',
+  'UYU': '🇺🇾', 'VND': '🇻🇳',
 };
 
-const Map<String, Map<String, String>> translations = {
+const Map<String, Map<String, String>> words = {
   'ps': {
     'title': 'افغاني اېکسچېنج',
-    'subtitle': 'د نړۍ د اسعارو نرخونه',
-    'one': 'د یوې افغانۍ ارزښت',
-    'list': 'د ټولو اسعارو نرخونه',
-    'search': 'اسعار ولټوئ...',
-    'loading': 'نرخونه ترلاسه کېږي...',
-    'refresh': 'نرخونه تازه کړئ',
-    'updated': 'وروستی تازه شوی وخت',
-    'history': 'د افغانستان تاریخ',
-    'world': 'د نړۍ تاریخ',
-    'creator': 'د اپ جوړوونکی',
     'home': 'کور',
-    'info': 'تاریخ او معلومات',
-    'error': 'د نرخونو په ترلاسه کولو کې ستونزه ده',
-    'noRates': 'تر اوسه نرخونه نشته',
-    'afghanText':
-        'افغانستان یو لرغونی تاریخ لري. کابل، بلخ، هرات، غزني او کندهار د دې خاورې له مهمو تاریخي ښارونو څخه دي. افغانستان د ورېښمو لارې او د بېلابېلو تمدنونو د تېرېدو مهمه سیمه وه.',
-    'worldText':
-        'د نړۍ تاریخ د لرغونو تمدنونو، علمي پرمختګونو، سوداګرۍ او د ملتونو د اړیکو کیسې رانغاړي. د مصر، یونان، روم، چین او هند تمدنونو د نړۍ په تاریخ کې مهم رول لوبولی دی.',
+    'history': 'تاریخ',
+    'about': 'زموږ په اړه',
+    'convert': 'د پیسو تبدیلول',
+    'amount': 'د پیسو اندازه ولیکئ',
+    'from': 'له کوم اسعارو',
+    'to': 'کوم اسعارو ته',
+    'result': 'د تبدیل پایله',
+    'rates': 'د ټولو اسعارو نرخونه',
+    'search': 'اسعار ولټوئ...',
+    'refresh': 'نرخونه تازه کړئ',
+    'loading': 'نرخونه ترلاسه کېږي...',
+    'updated': 'وروستی تازه شوی وخت',
+    'afghanHistory': 'د افغانستان تاریخ',
+    'worldHistory': 'د نړۍ تاریخ',
+    'creator': 'د اپ جوړوونکی',
+    'quote': 'افغانستان زموږ ویاړ، تاریخ زموږ هویت او راتلونکی زموږ په لاس کې دی.',
+    'afghanText': 'افغانستان د لرغوني تاریخ، بډایه کلتور او ښکلو طبیعي سیمو لرونکی هېواد دی. کابل، بلخ، هرات، غزني او کندهار د دې خاورې له مشهورو تاریخي ښارونو څخه دي. افغانستان د ورېښمو لارې پر مهمه برخه پروت و او د بېلابېلو تمدنونو د تګ راتګ مرکز پاتې شوی دی.',
+    'worldText': 'د نړۍ تاریخ د لرغونو تمدنونو، علمي پرمختګونو، سوداګرۍ او د ملتونو د اړیکو کیسې رانغاړي. د مصر، یونان، روم، چین او هند تمدنونو د نړۍ په کلتور، علم او ټولنیز ژوند کې مهم رول لوبولی دی.',
     'source': 'د نرخونو سرچینه: ExchangeRate-API',
+    'error': 'د نرخونو په ترلاسه کولو کې ستونزه ده',
+    'noRates': 'نرخونه پیدا نه شول',
+    'swap': 'بدلول',
+    'calculate': 'حساب کړه',
+    'saved': 'د تبدیل تاریخچه',
   },
   'fa': {
     'title': 'افغانی اکسچنج',
-    'subtitle': 'نرخ ارزهای جهان',
-    'one': 'ارزش یک افغانی',
-    'list': 'نرخ تمام ارزها',
-    'search': 'جستجوی ارز...',
-    'loading': 'دریافت نرخ‌ها...',
-    'refresh': 'تازه کردن نرخ‌ها',
-    'updated': 'آخرین بروزرسانی',
-    'history': 'تاریخ افغانستان',
-    'world': 'تاریخ جهان',
-    'creator': 'سازنده برنامه',
     'home': 'خانه',
-    'info': 'تاریخ و معلومات',
-    'error': 'مشکل در دریافت نرخ‌ها',
-    'noRates': 'هنوز نرخی موجود نیست',
-    'afghanText':
-        'افغانستان دارای تاریخ کهن است. کابل، بلخ، هرات، غزنی و قندهار از شهرهای تاریخی مهم این سرزمین هستند. افغانستان منطقه مهمی در مسیر جاده ابریشم و رفت‌وآمد تمدن‌های گوناگون بوده است.',
-    'worldText':
-        'تاریخ جهان داستان تمدن‌های باستانی، پیشرفت علمی، تجارت و روابط ملت‌ها را در بر می‌گیرد. تمدن‌های مصر، یونان، روم، چین و هند نقش مهمی در تاریخ جهان داشته‌اند.',
+    'history': 'تاریخ',
+    'about': 'درباره ما',
+    'convert': 'تبدیل پول',
+    'amount': 'مقدار پول را وارد کنید',
+    'from': 'از کدام ارز',
+    'to': 'به کدام ارز',
+    'result': 'نتیجه تبدیل',
+    'rates': 'نرخ تمام ارزها',
+    'search': 'جستجوی ارز...',
+    'refresh': 'تازه کردن نرخ‌ها',
+    'loading': 'دریافت نرخ‌ها...',
+    'updated': 'آخرین بروزرسانی',
+    'afghanHistory': 'تاریخ افغانستان',
+    'worldHistory': 'تاریخ جهان',
+    'creator': 'سازنده برنامه',
+    'quote': 'افغانستان افتخار ما، تاریخ هویت ما و آینده در دستان ماست.',
+    'afghanText': 'افغانستان کشوری با تاریخ کهن، فرهنگ غنی و طبیعت زیبا است. کابل، بلخ، هرات، غزنی و قندهار از شهرهای تاریخی مشهور این سرزمین هستند. افغانستان در مسیر مهم جاده ابریشم قرار داشت و مرکز رفت‌وآمد تمدن‌های گوناگون بوده است.',
+    'worldText': 'تاریخ جهان داستان تمدن‌های باستانی، پیشرفت علمی، تجارت و روابط ملت‌ها را در بر می‌گیرد. تمدن‌های مصر، یونان، روم، چین و هند نقش مهمی در فرهنگ، دانش و زندگی اجتماعی جهان داشته‌اند.',
     'source': 'منبع نرخ‌ها: ExchangeRate-API',
+    'error': 'مشکل در دریافت نرخ‌ها',
+    'noRates': 'نرخی پیدا نشد',
+    'swap': 'تعویض',
+    'calculate': 'محاسبه',
+    'saved': 'تاریخچه تبدیل',
   },
   'en': {
     'title': 'Afghani Exchange',
-    'subtitle': 'World currency exchange rates',
-    'one': 'Value of one Afghani',
-    'list': 'All currency rates',
-    'search': 'Search currencies...',
-    'loading': 'Loading rates...',
-    'refresh': 'Refresh rates',
-    'updated': 'Last updated',
-    'history': 'Afghanistan History',
-    'world': 'World History',
-    'creator': 'App Creator',
     'home': 'Home',
-    'info': 'History & Information',
-    'error': 'Problem getting rates',
-    'noRates': 'No rates available yet',
-    'afghanText':
-        'Afghanistan has a long history. Kabul, Balkh, Herat, Ghazni and Kandahar are among its important historic cities. Afghanistan was an important region along the Silk Road and a meeting place for different civilizations.',
-    'worldText':
-        'World history includes ancient civilizations, scientific progress, trade and relationships between nations. The civilizations of Egypt, Greece, Rome, China and India played important roles in world history.',
+    'history': 'History',
+    'about': 'About',
+    'convert': 'Currency Converter',
+    'amount': 'Enter amount',
+    'from': 'From currency',
+    'to': 'To currency',
+    'result': 'Conversion result',
+    'rates': 'All currency rates',
+    'search': 'Search currencies...',
+    'refresh': 'Refresh rates',
+    'loading': 'Loading rates...',
+    'updated': 'Last updated',
+    'afghanHistory': 'History of Afghanistan',
+    'worldHistory': 'World History',
+    'creator': 'App Creator',
+    'quote': 'Afghanistan is our pride, history is our identity, and the future is in our hands.',
+    'afghanText': 'Afghanistan is a country with an ancient history, rich culture and beautiful landscapes. Kabul, Balkh, Herat, Ghazni and Kandahar are among its famous historic cities. Afghanistan stood along an important part of the Silk Road and connected many civilizations.',
+    'worldText': 'World history includes ancient civilizations, scientific progress, trade and relationships between nations. The civilizations of Egypt, Greece, Rome, China and India played important roles in world culture, knowledge and social life.',
     'source': 'Rate source: ExchangeRate-API',
+    'error': 'Problem getting exchange rates',
+    'noRates': 'No rates found',
+    'swap': 'Swap',
+    'calculate': 'Calculate',
+    'saved': 'Conversion history',
   },
 };
 
-class ExchangeHome extends StatefulWidget {
-  const ExchangeHome({super.key});
+class ExchangePage extends StatefulWidget {
+  const ExchangePage({super.key});
 
   @override
-  State<ExchangeHome> createState() => _ExchangeHomeState();
+  State<ExchangePage> createState() => _ExchangePageState();
 }
 
-class _ExchangeHomeState extends State<ExchangeHome> {
+class _ExchangePageState extends State<ExchangePage> {
+  final amountController = TextEditingController(text: '100');
+  final searchController = TextEditingController();
+
   String language = 'ps';
+  String fromCode = 'USD';
+  String toCode = 'AFN';
   String search = '';
   int page = 0;
 
@@ -168,15 +238,17 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   String error = '';
   DateTime? updated;
   Timer? timer;
+  final List<String> historyItems = [];
 
-  String t(String key) => translations[language]![key]!;
+  String tr(String key) => words[language]![key]!;
 
   @override
   void initState() {
     super.initState();
     loadRates();
+    // د وړیا API نرخونه عموماً ورځ کې یو ځل تازه کېږي.
     timer = Timer.periodic(
-      const Duration(minutes: 1),
+      const Duration(hours: 12),
       (_) => loadRates(),
     );
   }
@@ -184,6 +256,8 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   @override
   void dispose() {
     timer?.cancel();
+    amountController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -215,77 +289,187 @@ class _ExchangeHomeState extends State<ExchangeHome> {
       final data = jsonDecode(body) as Map<String, dynamic>;
 
       if (data['result'] != 'success') {
-        throw Exception('Rate service unavailable');
+        throw Exception('API error');
       }
 
       final rawRates = data['rates'] as Map<String, dynamic>;
-      final newRates = <String, double>{'AFN': 1};
+      final result = <String, double>{'AFN': 1};
 
-      for (final entry in rawRates.entries) {
-        if (entry.value is num && (entry.value as num) > 0) {
-          newRates[entry.key] = (entry.value as num).toDouble();
+      for (final item in rawRates.entries) {
+        if (item.value is num && (item.value as num) > 0) {
+          result[item.key] = (item.value as num).toDouble();
         }
       }
 
       if (!mounted) return;
 
       setState(() {
-        rates = newRates;
+        rates = result;
         updated = DateTime.now();
         loading = false;
       });
     } catch (_) {
       if (!mounted) return;
-
       setState(() {
         loading = false;
-        error = t('error');
+        error = tr('error');
       });
     } finally {
       client?.close(force: true);
     }
   }
 
-  String getFlag(String code) => flags[code] ?? '🌐';
+  String flag(String code) => flags[code] ?? '🌐';
+  String currencyName(String code) => names[code] ?? code;
 
-  String getName(String code) => currencyNames[code] ?? code;
-
-  String getRateText(double rate) {
-    if (rate == 0) return '0';
-    if (rate.abs() < 0.0001) return rate.toStringAsPrecision(5);
-    if (rate.abs() < 1) return rate.toStringAsFixed(6);
-    return rate.toStringAsFixed(4);
+  String formatNumber(double value) {
+    if (!value.isFinite) return '0';
+    if (value.abs() < 0.000001 && value != 0) {
+      return value.toStringAsPrecision(5);
+    }
+    if (value.abs() < 1) return value.toStringAsFixed(5);
+    return value.toStringAsFixed(2);
   }
 
-  List<String> get filteredCodes {
+  double get result {
+    final amount = double.tryParse(amountController.text) ?? 0;
+    final fromRate = rates[fromCode];
+    final toRate = rates[toCode];
+
+    if (fromRate == null || toRate == null || fromRate == 0) {
+      return 0;
+    }
+
+    return amount / fromRate * toRate;
+  }
+
+  List<String> get currencyCodes {
     final codes = rates.keys.toList()..sort();
 
     if (search.trim().isEmpty) return codes;
 
     return codes.where((code) {
       return code.toLowerCase().contains(search.toLowerCase()) ||
-          getName(code).toLowerCase().contains(search.toLowerCase());
+          currencyName(code).toLowerCase().contains(search.toLowerCase());
     }).toList();
   }
 
-  Widget rateRow(String code) {
-    final rate = rates[code] ?? 0;
+  void swap() {
+    setState(() {
+      final old = fromCode;
+      fromCode = toCode;
+      toCode = old;
+    });
+  }
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 13,
-          vertical: 13,
+  void saveConversion() {
+    final amount = double.tryParse(amountController.text) ?? 0;
+
+    if (amount <= 0 || !rates.containsKey(fromCode) ||
+        !rates.containsKey(toCode)) {
+      return;
+    }
+
+    setState(() {
+      historyItems.insert(
+        0,
+        '${formatNumber(amount)} $fromCode = ${formatNumber(result)} $toCode',
+      );
+      if (historyItems.length > 50) historyItems.removeLast();
+    });
+  }
+
+  Future<void> selectCurrency(bool isFrom) async {
+    search = '';
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, modalSetState) {
+            final codes = rates.keys.where((code) {
+              return code.toLowerCase().contains(search.toLowerCase()) ||
+                  currencyName(code).toLowerCase().contains(search.toLowerCase());
+            }).toList()
+              ..sort();
+
+            return SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.78,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: TextField(
+                        autofocus: true,
+                        onChanged: (value) {
+                          modalSetState(() => search = value);
+                        },
+                        decoration: InputDecoration(
+                          hintText: tr('search'),
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: codes.length,
+                        itemBuilder: (context, index) {
+                          final code = codes[index];
+                          return ListTile(
+                            leading: Text(
+                              flag(code),
+                              style: const TextStyle(fontSize: 27),
+                            ),
+                            title: Text(
+                              currencyName(code),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(code),
+                            onTap: () {
+                              setState(() {
+                                if (isFrom) {
+                                  fromCode = code;
+                                } else {
+                                  toCode = code;
+                                }
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget currencySelector(String code, bool isFrom) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(17),
+      onTap: () => selectCurrency(isFrom),
+      child: Container(
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F6F5),
+          borderRadius: BorderRadius.circular(17),
+          border: Border.all(color: Colors.black12),
         ),
         child: Row(
           children: [
-            Text(getFlag(code), style: const TextStyle(fontSize: 27)),
-            const SizedBox(width: 12),
+            Text(flag(code), style: const TextStyle(fontSize: 27)),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,41 +477,205 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   Text(
                     code,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    getName(code),
+                    currencyName(code),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            const Icon(Icons.keyboard_arrow_down),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget converterCard() {
+    return Container(
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tr('convert'),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 15),
+          Text(tr('amount')),
+          const SizedBox(height: 7),
+          TextField(
+            controller: amountController,
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: '100',
+              prefixIcon: const Icon(Icons.payments_outlined),
+              filled: true,
+              fillColor: const Color(0xFFF7F9F9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+          Text(tr('from')),
+          const SizedBox(height: 6),
+          currencySelector(fromCode, true),
+          Center(
+            child: IconButton.filled(
+              onPressed: swap,
+              icon: const Icon(Icons.swap_vert),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF087E70),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+          Text(tr('to')),
+          const SizedBox(height: 6),
+          currencySelector(toCode, false),
+          const SizedBox(height: 17),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF075D55), Color(0xFF13A58E)],
+              ),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
               children: [
                 Text(
-                  getRateText(rate),
+                  tr('result'),
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${formatNumber(result)} $toCode',
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
-                    color: Color(0xFF087E70),
-                    fontSize: 17,
+                    color: Colors.white,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Text(
-                  '1 AFN =',
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
-                ),
               ],
             ),
-          ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: saveConversion,
+              icon: const Icon(Icons.calculate),
+              label: Text(tr('calculate')),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget quickCurrency(String code) {
+    return ActionChip(
+      avatar: Text(flag(code)),
+      label: Text(code),
+      onPressed: () {
+        setState(() {
+          fromCode = code;
+          toCode = 'AFN';
+        });
+      },
+    );
+  }
+
+  Widget rateRow(String code) {
+    final value = rates[code] ?? 0;
+    final oneUnitInAFN = code == 'AFN' ? 1.0 : 1 / value;
+
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          setState(() {
+            fromCode = code;
+            toCode = 'AFN';
+            page = 0;
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
+          child: Row(
+            children: [
+              Text(flag(code), style: const TextStyle(fontSize: 29)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      code,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      currencyName(code),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${formatNumber(oneUnitInAFN)} AFN',
+                    style: const TextStyle(
+                      color: Color(0xFF087E70),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    '1 $code =',
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -341,51 +689,58 @@ class _ExchangeHomeState extends State<ExchangeHome> {
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF075D55), Color(0xFF13A58E)],
+              colors: [Color(0xFF064C46), Color(0xFF119B83)],
             ),
             borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(25),
+              bottom: Radius.circular(27),
             ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                t('title'),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                t('subtitle'),
-                style: const TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.language, color: Colors.white),
-                  const SizedBox(width: 8),
-                  const Spacer(),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.currency_exchange,
+                      color: Color(0xFF087E70),
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('title'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                        Text(
+                          tr('rates'),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
                   DropdownButton<String>(
                     value: language,
                     dropdownColor: Colors.white,
                     underline: const SizedBox(),
                     items: const [
-                      DropdownMenuItem(
-                        value: 'ps',
-                        child: Text('پښتو'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'fa',
-                        child: Text('دری'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'en',
-                        child: Text('English'),
-                      ),
+                      DropdownMenuItem(value: 'ps', child: Text('پښتو')),
+                      DropdownMenuItem(value: 'fa', child: Text('دری')),
+                      DropdownMenuItem(value: 'en', child: Text('English')),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -395,97 +750,133 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 5),
-          child: Card(
-            elevation: 0,
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.green.shade100,
-                child: Icon(
-                  loading ? Icons.sync : Icons.currency_exchange,
-                  color: Colors.green.shade800,
-                ),
-              ),
-              title: Text(
-                loading ? t('loading') : t('one'),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                updated == null
-                    ? (error.isNotEmpty ? error : t('noRates'))
-                    : '${t('updated')}: ${updated!.toLocal().toString().substring(0, 16)}',
-              ),
-              trailing: IconButton(
-                onPressed: loading ? null : loadRates,
-                icon: const Icon(Icons.refresh),
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 5, 14, 10),
-          child: TextField(
-            onChanged: (value) => setState(() => search = value),
-            decoration: InputDecoration(
-              hintText: t('search'),
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  t('list'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, color: Colors.white70, size: 17),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      updated == null
+                          ? (loading ? tr('loading') : error)
+                          : '${tr('updated')}: ${updated!.toLocal().toString().substring(0, 16)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Text(
-                '${filteredCodes.length}',
-                style: const TextStyle(
-                  color: Color(0xFF087E70),
-                  fontWeight: FontWeight.bold,
-                ),
+                  IconButton(
+                    onPressed: loading ? null : loadRates,
+                    icon: const Icon(Icons.refresh, color: Colors.white),
+                  ),
+                ],
               ),
             ],
           ),
         ),
         Expanded(
-          child: loading && rates.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : filteredCodes.isEmpty
-                  ? Center(child: Text(t('noRates')))
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(14, 5, 14, 15),
-                      itemCount: filteredCodes.length,
-                      itemBuilder: (context, index) {
-                        return rateRow(filteredCodes[index]);
-                      },
-                    ),
+          child: ListView(
+            padding: const EdgeInsets.all(15),
+            children: [
+              converterCard(),
+              const SizedBox(height: 17),
+              Text(
+                tr('rates'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 7,
+                children: [
+                  quickCurrency('USD'),
+                  quickCurrency('GBP'),
+                  quickCurrency('EUR'),
+                  quickCurrency('SAR'),
+                  quickCurrency('PKR'),
+                  quickCurrency('AED'),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                onChanged: (value) => setState(() => search = value),
+                decoration: InputDecoration(
+                  hintText: tr('search'),
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (loading && rates.isEmpty)
+                const Center(child: CircularProgressIndicator())
+              else if (currencyCodes.isEmpty)
+                Center(child: Text(error.isNotEmpty ? error : tr('noRates')))
+              else
+                ...currencyCodes.map(rateRow),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  tr('source'),
+                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget historyCard(String title, String text, IconData icon) {
+  Widget historyPage() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(
+          tr('history'),
+          style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        if (historyItems.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('No conversions saved yet.'),
+            ),
+          ),
+        ...historyItems.map(
+          (item) => Card(
+            elevation: 0,
+            child: ListTile(
+              leading: const Icon(
+                Icons.currency_exchange,
+                color: Color(0xFF087E70),
+              ),
+              title: Text(item),
+            ),
+          ),
+        ),
+        if (historyItems.isNotEmpty)
+          TextButton.icon(
+            onPressed: () => setState(() => historyItems.clear()),
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Clear history'),
+          ),
+      ],
+    );
+  }
+
+  Widget historyInfoCard(String title, String description, IconData icon) {
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 15),
+      margin: const EdgeInsets.only(bottom: 14),
       child: Padding(
         padding: const EdgeInsets.all(17),
         child: Column(
@@ -493,14 +884,14 @@ class _ExchangeHomeState extends State<ExchangeHome> {
           children: [
             Row(
               children: [
-                Icon(icon, color: const Color(0xFF087E70), size: 27),
+                Icon(icon, color: const Color(0xFF087E70), size: 28),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 19,
                       fontWeight: FontWeight.bold,
+                      fontSize: 19,
                     ),
                   ),
                 ),
@@ -508,7 +899,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
             ),
             const SizedBox(height: 12),
             Text(
-              text,
+              description,
               style: const TextStyle(fontSize: 16, height: 1.8),
             ),
           ],
@@ -517,41 +908,62 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     );
   }
 
-  Widget infoPage() {
+  Widget aboutPage() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        historyCard(
-          t('history'),
-          t('afghanText'),
+        historyInfoCard(
+          tr('afghanHistory'),
+          tr('afghanText'),
           Icons.account_balance,
         ),
-        historyCard(
-          t('world'),
-          t('worldText'),
+        historyInfoCard(
+          tr('worldHistory'),
+          tr('worldText'),
           Icons.public,
         ),
         Card(
           elevation: 0,
-          child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.person),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 31,
+                  backgroundColor: Color(0xFF087E70),
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 34,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  tr('creator'),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Abdullah ALOKOZAI',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 21,
+                    color: Color(0xFF087E70),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  tr('quote'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.7,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
-            title: Text(t('creator')),
-            subtitle: const Text(
-              'Abdullah ALOKOZAI',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Center(
-          child: Text(
-            t('source'),
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
           ),
         ),
       ],
@@ -560,30 +972,41 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          page == 0 ? t('title') : t('info'),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    final rtl = language != 'en';
+
+    return Directionality(
+      textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            tr('title'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: page == 0 ? homePage() : infoPage(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: page,
-        onDestinationSelected: (value) {
-          setState(() => page = value);
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.currency_exchange),
-            label: t('home'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.history_edu),
-            label: t('info'),
-          ),
-        ],
+        body: page == 0
+            ? homePage()
+            : page == 1
+                ? historyPage()
+                : aboutPage(),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: page,
+          onDestinationSelected: (value) => setState(() => page = value),
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.currency_exchange),
+              label: tr('home'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.history),
+              label: tr('history'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.info_outline),
+              label: tr('about'),
+            ),
+          ],
+        ),
       ),
     );
   }
