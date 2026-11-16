@@ -1,155 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const AfghaniExchange());
+  runApp(const AfghaniExchangeApp());
 }
 
-const green = Color(0xFF10C99A);
-const dark = Color(0xFF081525);
-const panel = Color(0xFF172A40);
-
-const flags = <String, String>{
-  'AFN':'🇦🇫','USD':'🇺🇸','EUR':'🇪🇺','GBP':'🇬🇧',
-  'PKR':'🇵🇰','INR':'🇮🇳','IRR':'🇮🇷','AED':'🇦🇪',
-  'SAR':'🇸🇦','TRY':'🇹🇷','CNY':'🇨🇳','JPY':'🇯🇵',
-  'CAD':'🇨🇦','AUD':'🇦🇺','CHF':'🇨🇭','RUB':'🇷🇺',
-  'BDT':'🇧🇩','QAR':'🇶🇦','KWD':'🇰🇼','OMR':'🇴🇲',
-  'BHD':'🇧🇭','MYR':'🇲🇾','IDR':'🇮🇩','SGD':'🇸🇬',
-  'THB':'🇹🇭','KRW':'🇰🇷','HKD':'🇭🇰','NZD':'🇳🇿',
-  'NPR':'🇳🇵','LKR':'🇱🇰','IQD':'🇮🇶','EGP':'🇪🇬',
-  'ZAR':'🇿🇦','BRL':'🇧🇷','MXN':'🇲🇽','ARS':'🇦🇷',
-  'SEK':'🇸🇪','NOK':'🇳🇴','DKK':'🇩🇰','PLN':'🇵🇱',
-  'CZK':'🇨🇿','HUF':'🇭🇺','RON':'🇷🇴','UAH':'🇺🇦',
-  'GEL':'🇬🇪','KZT':'🇰🇿','UZS':'🇺🇿','TJS':'🇹🇯',
-  'KGS':'🇰🇬','MNT':'🇲🇳','VND':'🇻🇳','PHP':'🇵🇭',
-  'ILS':'🇮🇱','JOD':'🇯🇴','LBP':'🇱🇧','DZD':'🇩🇿',
-  'MAD':'🇲🇦','TND':'🇹🇳','NGN':'🇳🇬','KES':'🇰🇪',
-  'GHS':'🇬🇭','ETB':'🇪🇹','CLP':'🇨🇱','COP':'🇨🇴',
-  'PEN':'🇵🇪','UYU':'🇺🇾','ISK':'🇮🇸','BGN':'🇧🇬',
-  'RSD':'🇷🇸','ALL':'🇦🇱','AMD':'🇦🇲','AZN':'🇦🇿',
-  'BYN':'🇧🇾','MDL':'🇲🇩','MKD':'🇲🇰','BAM':'🇧🇦',
-  'JMD':'🇯🇲','TTD':'🇹🇹','DOP':'🇩🇴','CRC':'🇨🇷',
-  'GTQ':'🇬🇹','BWP':'🇧🇼','MUR':'🇲🇺','NAD':'🇳🇦',
-  'ZMW':'🇿🇲','TZS':'🇹🇿','UGX':'🇺🇬','RWF':'🇷🇼',
-  'FJD':'🇫🇯','PGK':'🇵🇬','BND':'🇧🇳','MMK':'🇲🇲',
-  'KHR':'🇰🇭','LAK':'🇱🇦','MVR':'🇲🇻','MOP':'🇲🇴',
-  'TWD':'🇹🇼','KPW':'🇰🇵','SYP':'🇸🇾','YER':'🇾🇪',
-  'SDG':'🇸🇩','SOS':'🇸🇴','LYD':'🇱🇾','ERN':'🇪🇷',
-  'MZN':'🇲🇿','AOA':'🇦🇴','BIF':'🇧🇮','CDF':'🇨🇩',
-  'DJF':'🇩🇯','GMD':'🇬🇲','GNF':'🇬🇳','LRD':'🇱🇷',
-  'MGA':'🇲🇬','MWK':'🇲🇼','SZL':'🇸🇿','LSL':'🇱🇸',
-  'CVE':'🇨🇻','STN':'🇸🇹','SCR':'🇸🇨','KMF':'🇰🇲',
-  'MRU':'🇲🇷','TOP':'🇹🇴','WST':'🇼🇸','VUV':'🇻🇺',
-  'SBD':'🇸🇧','BTN':'🇧🇹','GYD':'🇬🇾','SRD':'🇸🇷',
-  'BZD':'🇧🇿','PAB':'🇵🇦','NIO':'🇳🇮','HNL':'🇭🇳',
-  'PYG':'🇵🇾','BOB':'🇧🇴','VES':'🇻🇪','BSD':'🇧🇸',
-  'BBD':'🇧🇧','XOF':'🌍','XAF':'🌍','XPF':'🌊',
-};
-
-const names = <String, String>{
-  'AFN':'Afghan Afghani',
-  'USD':'US Dollar','EUR':'Euro','GBP':'British Pound',
-  'PKR':'Pakistani Rupee','INR':'Indian Rupee',
-  'IRR':'Iranian Rial','AED':'UAE Dirham',
-  'SAR':'Saudi Riyal','TRY':'Turkish Lira',
-  'CNY':'Chinese Yuan','JPY':'Japanese Yen',
-  'CAD':'Canadian Dollar','AUD':'Australian Dollar',
-  'CHF':'Swiss Franc','RUB':'Russian Ruble',
-  'BDT':'Bangladeshi Taka','QAR':'Qatari Riyal',
-  'KWD':'Kuwaiti Dinar','OMR':'Omani Rial',
-  'BHD':'Bahraini Dinar','MYR':'Malaysian Ringgit',
-  'IDR':'Indonesian Rupiah','SGD':'Singapore Dollar',
-  'THB':'Thai Baht','KRW':'South Korean Won',
-  'HKD':'Hong Kong Dollar','NZD':'New Zealand Dollar',
-  'NPR':'Nepalese Rupee','LKR':'Sri Lankan Rupee',
-  'IQD':'Iraqi Dinar','EGP':'Egyptian Pound',
-  'ZAR':'South African Rand','BRL':'Brazilian Real',
-  'MXN':'Mexican Peso','ARS':'Argentine Peso',
-  'SEK':'Swedish Krona','NOK':'Norwegian Krone',
-  'DKK':'Danish Krone','PLN':'Polish Zloty',
-  'CZK':'Czech Koruna','HUF':'Hungarian Forint',
-  'RON':'Romanian Leu','UAH':'Ukrainian Hryvnia',
-  'GEL':'Georgian Lari','KZT':'Kazakhstani Tenge',
-  'UZS':'Uzbekistani Som','TJS':'Tajikistani Somoni',
-  'KGS':'Kyrgyzstani Som','MNT':'Mongolian Tugrik',
-  'VND':'Vietnamese Dong','PHP':'Philippine Peso',
-  'ILS':'Israeli Shekel','JOD':'Jordanian Dinar',
-  'LBP':'Lebanese Pound','DZD':'Algerian Dinar',
-  'MAD':'Moroccan Dirham','TND':'Tunisian Dinar',
-  'NGN':'Nigerian Naira','KES':'Kenyan Shilling',
-  'GHS':'Ghanaian Cedi','ETB':'Ethiopian Birr',
-  'XOF':'West African CFA Franc',
-  'XAF':'Central African CFA Franc',
-  'XPF':'CFP Franc',
-};
-
-const translations = {
-  'ps': {
-    'title':'افغاني اېکسچېنج',
-    'subtitle':'د نړۍ د اسعارو تبادله',
-    'amount':'مقدار ولیکئ',
-    'from':'له دې څخه','to':'دې ته',
-    'result':'د تبادلې پایله',
-    'refresh':'نرخونه تازه کړئ',
-    'search':'اسعار ولټوئ',
-    'rates':'د اسعارو نرخونه',
-    'favorites':'زما خوښې',
-    'history':'تاریخچه',
-    'updated':'د معلوماتو وخت',
-    'loading':'نرخونه ترلاسه کېږي...',
-    'error':'د نرخونو په ترلاسه کولو کې ستونزه',
-    'swap':'اسعار بدل کړئ',
-    'creator':'جوړونکی: Abdullah ALOKOZAI',
-    'credit':'Rates by Exchangerate.dev',
-    'noRates':'نرخونه نشته',
-  },
-  'fa': {
-    'title':'افغانی اکسچنج',
-    'subtitle':'تبدیل ارزهای جهان',
-    'amount':'مقدار را وارد کنید',
-    'from':'از','to':'به',
-    'result':'نتیجه تبدیل',
-    'refresh':'تازه کردن نرخ‌ها',
-    'search':'جستجوی ارز',
-    'rates':'نرخ ارزها',
-    'favorites':'علاقه‌مندی‌ها',
-    'history':'تاریخچه',
-    'updated':'زمان اطلاعات',
-    'loading':'در حال دریافت نرخ‌ها...',
-    'error':'دریافت نرخ‌ها با مشکل مواجه شد',
-    'swap':'تغییر ارزها',
-    'creator':'سازنده: Abdullah ALOKOZAI',
-    'credit':'نرخ‌ها از Exchangerate.dev',
-    'noRates':'نرخی موجود نیست',
-  },
-  'en': {
-    'title':'Afghani Exchange',
-    'subtitle':'World Currency Exchange',
-    'amount':'Enter amount',
-    'from':'From','to':'To',
-    'result':'Conversion result',
-    'refresh':'Refresh rates',
-    'search':'Search currencies',
-    'rates':'Exchange rates',
-    'favorites':'Favorites',
-    'history':'History',
-    'updated':'Data updated',
-    'loading':'Loading rates...',
-    'error':'Unable to load rates',
-    'swap':'Swap currencies',
-    'creator':'Created by: Abdullah ALOKOZAI',
-    'credit':'Rates by Exchangerate.dev',
-    'noRates':'No rates available',
-  },
-};
-
-class AfghaniExchange extends StatelessWidget {
-  const AfghaniExchange({super.key});
+class AfghaniExchangeApp extends StatelessWidget {
+  const AfghaniExchangeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -158,17 +18,64 @@ class AfghaniExchange extends StatelessWidget {
       title: 'Afghani Exchange',
       theme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: green,
-          brightness: Brightness.dark,
-        ),
+        colorSchemeSeed: const Color(0xFF087E70),
+        scaffoldBackgroundColor: const Color(0xFFF4F7F8),
+        fontFamily: 'Roboto',
       ),
       home: const HomePage(),
     );
   }
 }
+
+class Currency {
+  final String code;
+  final String name;
+  final String flag;
+  const Currency(this.code, this.name, this.flag);
+}
+
+const currencies = <Currency>[
+  Currency('AFN', 'Afghan Afghani', '🇦🇫'),
+  Currency('USD', 'US Dollar', '🇺🇸'),
+  Currency('EUR', 'Euro', '🇪🇺'),
+  Currency('GBP', 'British Pound', '🇬🇧'),
+  Currency('PKR', 'Pakistani Rupee', '🇵🇰'),
+  Currency('INR', 'Indian Rupee', '🇮🇳'),
+  Currency('AED', 'UAE Dirham', '🇦🇪'),
+  Currency('SAR', 'Saudi Riyal', '🇸🇦'),
+  Currency('TRY', 'Turkish Lira', '🇹🇷'),
+  Currency('CNY', 'Chinese Yuan', '🇨🇳'),
+  Currency('JPY', 'Japanese Yen', '🇯🇵'),
+  Currency('CAD', 'Canadian Dollar', '🇨🇦'),
+  Currency('AUD', 'Australian Dollar', '🇦🇺'),
+  Currency('CHF', 'Swiss Franc', '🇨🇭'),
+  Currency('RUB', 'Russian Ruble', '🇷🇺'),
+  Currency('IRR', 'Iranian Rial', '🇮🇷'),
+  Currency('BDT', 'Bangladeshi Taka', '🇧🇩'),
+  Currency('KWD', 'Kuwaiti Dinar', '🇰🇼'),
+  Currency('QAR', 'Qatari Riyal', '🇶🇦'),
+  Currency('OMR', 'Omani Rial', '🇴🇲'),
+  Currency('MYR', 'Malaysian Ringgit', '🇲🇾'),
+  Currency('SGD', 'Singapore Dollar', '🇸🇬'),
+  Currency('THB', 'Thai Baht', '🇹🇭'),
+  Currency('KRW', 'South Korean Won', '🇰🇷'),
+  Currency('BRL', 'Brazilian Real', '🇧🇷'),
+  Currency('ZAR', 'South African Rand', '🇿🇦'),
+  Currency('EGP', 'Egyptian Pound', '🇪🇬'),
+  Currency('NPR', 'Nepalese Rupee', '🇳🇵'),
+  Currency('LKR', 'Sri Lankan Rupee', '🇱🇰'),
+  Currency('SEK', 'Swedish Krona', '🇸🇪'),
+  Currency('NOK', 'Norwegian Krone', '🇳🇴'),
+  Currency('DKK', 'Danish Krone', '🇩🇰'),
+  Currency('NZD', 'New Zealand Dollar', '🇳🇿'),
+  Currency('MXN', 'Mexican Peso', '🇲🇽'),
+  Currency('HKD', 'Hong Kong Dollar', '🇭🇰'),
+  Currency('IDR', 'Indonesian Rupiah', '🇮🇩'),
+  Currency('IQD', 'Iraqi Dinar', '🇮🇶'),
+  Currency('BHD', 'Bahraini Dinar', '🇧🇭'),
+  Currency('JOD', 'Jordanian Dinar', '🇯🇴'),
+  Currency('AFN', 'Afghan Afghani', '🇦🇫'),
+];
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -179,58 +86,120 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final amountController = TextEditingController(text: '1');
+  final searchController = TextEditingController();
 
-  Map<String, double> rates = {};
-  Set<String> favorites = {'USD','EUR','PKR'};
-  List<String> history = [];
-
-  String from = 'AFN';
-  String to = 'USD';
+  String fromCode = 'AFN';
+  String toCode = 'USD';
   String language = 'ps';
-  String source = '';
-  String marketSession = '';
-  String? dataUpdatedAt;
-  String error = '';
+  String search = '';
 
+  Map<String, double> rates = {'AFN': 1};
   bool loading = false;
-  DateTime? lastRequest;
+  String error = '';
+  DateTime? updated;
   Timer? refreshTimer;
 
-  String t(String key) =>
-      translations[language]?[key] ?? key;
+  final Set<String> favorites = {'USD', 'EUR', 'PKR'};
+  final List<String> history = [];
+
+  final Map<String, Map<String, String>> translations = {
+    'ps': {
+      'title': 'افغاني اېکسچېنج',
+      'convert': 'د اسعارو تبدیلول',
+      'amount': 'مقدار ولیکئ',
+      'from': 'له',
+      'to': 'ته',
+      'refresh': 'نرخونه تازه کړئ',
+      'favorites': 'زما خوښې',
+      'history': 'د تبدیل تاریخچه',
+      'home': 'کور',
+      'info': 'معلومات',
+      'updated': 'وروستی تازه کېدل',
+      'search': 'اسعار ولټوئ',
+      'result': 'د تبدیل پایله',
+      'loading': 'نرخونه ترلاسه کېږي...',
+      'error': 'د نرخونو په ترلاسه کولو کې ستونزه ده',
+      'afghan': 'د افغانستان تاریخ',
+      'world': 'نړیوال تاریخ',
+      'creator': 'جوړوونکی',
+    },
+    'fa': {
+      'title': 'افغانی اکسچنج',
+      'convert': 'تبدیل ارز',
+      'amount': 'مقدار را وارد کنید',
+      'from': 'از',
+      'to': 'به',
+      'refresh': 'تازه کردن نرخ‌ها',
+      'favorites': 'علاقه‌مندی‌ها',
+      'history': 'تاریخچه تبدیل',
+      'home': 'خانه',
+      'info': 'معلومات',
+      'updated': 'آخرین بروزرسانی',
+      'search': 'جستجوی ارز',
+      'result': 'نتیجه تبدیل',
+      'loading': 'دریافت نرخ‌ها...',
+      'error': 'مشکل در دریافت نرخ‌ها',
+      'afghan': 'تاریخ افغانستان',
+      'world': 'تاریخ جهان',
+      'creator': 'سازنده',
+    },
+    'en': {
+      'title': 'Afghani Exchange',
+      'convert': 'Currency Converter',
+      'amount': 'Enter amount',
+      'from': 'From',
+      'to': 'To',
+      'refresh': 'Refresh rates',
+      'favorites': 'Favorites',
+      'history': 'Conversion history',
+      'home': 'Home',
+      'info': 'Information',
+      'updated': 'Last updated',
+      'search': 'Search currencies',
+      'result': 'Conversion result',
+      'loading': 'Getting rates...',
+      'error': 'Problem getting rates',
+      'afghan': 'Afghanistan History',
+      'world': 'World History',
+      'creator': 'Creator',
+    },
+  };
+
+  String tr(String key) => translations[language]?[key] ?? key;
 
   @override
   void initState() {
     super.initState();
-    loadRates();
-
-    // Free API rates are delayed by 15 minutes.
+    fetchRates();
     refreshTimer = Timer.periodic(
-      const Duration(minutes: 15),
-      (_) => loadRates(),
+      const Duration(minutes: 1),
+      (_) => fetchRates(),
     );
   }
 
-  Future<void> loadRates() async {
-    if (!mounted || loading) return;
+  @override
+  void dispose() {
+    refreshTimer?.cancel();
+    amountController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
 
+  Future<void> fetchRates() async {
+    if (loading) return;
     setState(() {
       loading = true;
       error = '';
     });
 
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 15);
-
+    HttpClient? client;
     try {
-      final uri = Uri.parse(
-        'https://api.exchangerate.dev/v1/latest/AFN',
+      client = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 15);
+
+      final request = await client.getUrl(
+        Uri.parse('https://open.er-api.com/v6/latest/AFN'),
       );
-
-      final request = await client.getUrl(uri);
-      request.headers.set('Accept', 'application/json');
-      request.headers.set('User-Agent', 'AfghaniExchange/1.0');
-
       final response = await request.close();
       final body = await response.transform(utf8.decoder).join();
 
@@ -238,117 +207,145 @@ class _HomePageState extends State<HomePage> {
         throw Exception('HTTP ${response.statusCode}');
       }
 
-      final data = jsonDecode(body);
-
+      final data = jsonDecode(body) as Map<String, dynamic>;
       if (data['result'] != 'success') {
-        throw Exception(data['message'] ?? 'API error');
+        throw Exception('Rate service unavailable');
       }
 
-      final raw = data['rates'] as Map<String, dynamic>;
-      final Map<String, double> updatedRates = {'AFN': 1.0};
+      final rawRates = data['rates'] as Map<String, dynamic>;
+      final newRates = <String, double>{'AFN': 1};
 
-      raw.forEach((code, value) {
+      for (final entry in rawRates.entries) {
+        final value = entry.value;
         if (value is num && value > 0) {
-          updatedRates[code] = value.toDouble();
+          newRates[entry.key] = value.toDouble();
         }
-      });
-
-      if (!updatedRates.containsKey('AFN')) {
-        updatedRates['AFN'] = 1.0;
       }
 
       if (!mounted) return;
-
       setState(() {
-        rates = updatedRates;
-        source = data['source']?.toString() ?? '';
-        marketSession =
-            data['market_session']?.toString() ?? '';
-        dataUpdatedAt =
-            data['data_updated_at']?.toString();
-        lastRequest = DateTime.now();
+        rates = newRates;
+        updated = DateTime.now();
         loading = false;
-        error = '';
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         loading = false;
-        error = t('error');
+        error = tr('error');
       });
     } finally {
-      client.close(force: true);
+      client?.close(force: true);
     }
   }
 
-  double get converted {
+  Currency currency(String code) {
+    return currencies.firstWhere(
+      (c) => c.code == code,
+      orElse: () => Currency(code, code, '🌐'),
+    );
+  }
+
+  double get convertedAmount {
     final amount = double.tryParse(amountController.text) ?? 0;
-    final a = rates[from];
-    final b = rates[to];
+    final fromRate = rates[fromCode];
+    final toRate = rates[toCode];
 
-    if (a == null || b == null || a == 0) return 0;
-    return amount * b / a;
+    if (fromRate == null || toRate == null || fromRate == 0) return 0;
+    return amount / fromRate * toRate;
   }
 
-  String number(double value) {
-    if (!value.isFinite) return '--';
-    return value.toStringAsFixed(4);
+  String money(double value) {
+    return value.toStringAsFixed(value.abs() < 1 ? 6 : 2);
   }
 
-  String flag(String code) => flags[code] ?? '🌐';
+  void swapCurrencies() {
+    setState(() {
+      final old = fromCode;
+      fromCode = toCode;
+      toCode = old;
+    });
+  }
 
-  String currencyName(String code) =>
-      names[code] ?? code;
+  void addHistory() {
+    final text =
+        '${amountController.text} $fromCode = ${money(convertedAmount)} $toCode';
+    setState(() {
+      history.insert(0, text);
+      if (history.length > 30) history.removeLast();
+    });
+  }
 
-  Future<void> chooseCurrency(bool isFrom) async {
-    final controller = TextEditingController();
-
-    final selected = await showModalBottomSheet<String>(
+  void chooseCurrency(bool isFrom) {
+    showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: panel,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setSheetState) {
-            final codes = rates.keys.where((code) {
-              final query = controller.text.toLowerCase();
-              return code.toLowerCase().contains(query) ||
-                  currencyName(code).toLowerCase().contains(query);
-            }).toList()..sort();
+          builder: (context, modalSetState) {
+            final filtered = currencies
+                .where((c) =>
+                    c.code.toLowerCase().contains(search.toLowerCase()) ||
+                    c.name.toLowerCase().contains(search.toLowerCase()))
+                .toList();
 
             return SafeArea(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * .8,
+                height: MediaQuery.of(context).size.height * 0.75,
                 child: Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: TextField(
-                        controller: controller,
+                        onChanged: (v) {
+                          modalSetState(() => search = v);
+                        },
                         decoration: InputDecoration(
-                          hintText: t('search'),
+                          hintText: tr('search'),
                           prefixIcon: const Icon(Icons.search),
-                          filled: true,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        onChanged: (_) => setSheetState(() {}),
                       ),
                     ),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: codes.length,
+                        itemCount: filtered.length,
                         itemBuilder: (context, index) {
-                          final code = codes[index];
+                          final c = filtered[index];
                           return ListTile(
-                            leading: Text(
-                              flag(code),
-                              style: const TextStyle(fontSize: 27),
+                            leading: Text(c.flag,
+                                style: const TextStyle(fontSize: 25)),
+                            title: Text(c.name),
+                            subtitle: Text(c.code),
+                            trailing: IconButton(
+                              icon: Icon(
+                                favorites.contains(c.code)
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.orange,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (!favorites.add(c.code)) {
+                                    favorites.remove(c.code);
+                                  }
+                                });
+                                modalSetState(() {});
+                              },
                             ),
-                            title: Text(currencyName(code)),
-                            subtitle: Text(code),
-                            onTap: () => Navigator.pop(context, code),
+                            onTap: () {
+                              setState(() {
+                                if (isFrom) {
+                                  fromCode = c.code;
+                                } else {
+                                  toCode = c.code;
+                                }
+                                search = '';
+                              });
+                              Navigator.pop(context);
+                            },
                           );
                         },
                       ),
@@ -361,392 +358,361 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-
-    controller.dispose();
-
-    if (selected != null && mounted) {
-      setState(() {
-        if (isFrom) {
-          from = selected;
-        } else {
-          to = selected;
-        }
-      });
-    }
   }
 
-  void swap() {
-    setState(() {
-      final old = from;
-      from = to;
-      to = old;
-    });
-  }
-
-  void saveHistory() {
-    final amount = double.tryParse(amountController.text) ?? 0;
-    if (amount <= 0 || !rates.containsKey(from) ||
-        !rates.containsKey(to)) return;
-
-    final entry =
-        '${number(amount)} $from = ${number(converted)} $to';
-
-    setState(() {
-      history.insert(0, entry);
-      if (history.length > 30) history.removeLast();
-    });
-  }
-
-  Widget currencySelector(String label, String code, bool isFrom) {
-    return Expanded(
-      child: InkWell(
-        onTap: () => chooseCurrency(isFrom),
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: panel,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(color: Colors.white60)),
-              const SizedBox(height: 12),
-              Text(
-                '${flag(code)}  $code',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                currencyName(code),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white60, fontSize: 11),
-              ),
-              const SizedBox(height: 5),
-              const Icon(Icons.keyboard_arrow_down, color: green),
-            ],
-          ),
+  Widget currencyButton(String code, bool isFrom) {
+    final c = currency(code);
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => chooseCurrency(isFrom),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F5F5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black12),
         ),
-      ),
-    );
-  }
-
-  Widget sectionTitle(String text, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 10),
-      child: Row(
-        children: [
-          Icon(icon, color: green),
-          const SizedBox(width: 9),
-          Text(text, style: const TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          )),
-        ],
-      ),
-    );
-  }
-
-  Widget rateTile(String code) {
-    final rate = rates[code];
-    if (rate == null) return const SizedBox.shrink();
-
-    final value = from == 'AFN'
-        ? rate
-        : rate / (rates[from] ?? 1);
-
-    return Card(
-      color: panel,
-      child: ListTile(
-        leading: Text(flag(code), style: const TextStyle(fontSize: 27)),
-        title: Text(currencyName(code)),
-        subtitle: Text('1 AFN = ${number(rate)} $code'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            Text(code, style: const TextStyle(color: green)),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  if (favorites.contains(code)) {
-                    favorites.remove(code);
-                  } else {
-                    favorites.add(code);
-                  }
-                });
-              },
-              icon: Icon(
-                favorites.contains(code)
-                    ? Icons.star
-                    : Icons.star_border,
-                color: Colors.amber,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> openCredit() async {
-    final uri = Uri.parse('https://exchangerate.dev/');
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final sortedCodes = rates.keys.toList()..sort();
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: dark,
-        title: Row(
-          children: [
-            const Icon(Icons.currency_exchange, color: green),
-            const SizedBox(width: 9),
+            Text(c.flag, style: const TextStyle(fontSize: 27)),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(t('title'),
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.language),
-            onSelected: (value) => setState(() => language = value),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'ps', child: Text('پښتو')),
-              PopupMenuItem(value: 'fa', child: Text('دری')),
-              PopupMenuItem(value: 'en', child: Text('English')),
-            ],
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: loadRates,
-        child: ListView(
-          padding: const EdgeInsets.all(17),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(23),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF087F70), Color(0xFF123D59)],
-                ),
-                borderRadius: BorderRadius.circular(23),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t('subtitle'),
-                      style: const TextStyle(color: Colors.white70)),
-                  const SizedBox(height: 12),
-                  const Text('🌍  144+ Currency Pairs',
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.cloud_done, color: Colors.white70),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          loading ? t('loading') :
-                          source.isEmpty ? t('noRates') :
-                          'Source: $source | $marketSession',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            sectionTitle(t('result'), Icons.currency_exchange),
-
-            TextField(
-              controller: amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: t('amount'),
-                filled: true,
-                fillColor: panel,
-                prefixIcon: const Icon(Icons.calculate, color: green),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                currencySelector(t('from'), from, true),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 7),
-                  child: IconButton.filled(
-                    onPressed: swap,
-                    icon: const Icon(Icons.swap_horiz),
-                    style: IconButton.styleFrom(
-                      backgroundColor: green,
-                      foregroundColor: Colors.black,
-                    ),
-                  ),
-                ),
-                currencySelector(t('to'), to, false),
-              ],
-            ),
-
-            const SizedBox(height: 17),
-
-            Container(
-              padding: const EdgeInsets.all(23),
-              decoration: BoxDecoration(
-                color: panel,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: green),
-              ),
-              child: Column(
-                children: [
-                  Text(t('result'),
-                      style: const TextStyle(color: Colors.white60)),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${flag(to)} ${number(converted)}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 31,
-                      color: green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(to, style: const TextStyle(color: Colors.white60)),
-                  const SizedBox(height: 12),
-                  Text(
-                    '1 $from = ${rates[from] == null || rates[to] == null ? '--' : number(rates[to]! / rates[from]!)} $to',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: saveHistory,
-                    icon: const Icon(Icons.save),
-                    label: Text(t('history')),
-                  ),
-                ],
-              ),
-            ),
-
-            if (error.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(error,
-                    style: const TextStyle(color: Colors.redAccent)),
-              ),
-
-            const SizedBox(height: 12),
-
-            FilledButton.icon(
-              onPressed: loading ? null : loadRates,
-              icon: const Icon(Icons.refresh),
-              label: Text(t('refresh')),
-            ),
-
-            if (loading)
-              const Padding(
-                padding: EdgeInsets.all(15),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-
-            if (dataUpdatedAt != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                '${t('updated')}: $dataUpdatedAt',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white60, fontSize: 12),
-              ),
-            ],
-
-            sectionTitle(t('favorites'), Icons.star),
-            if (rates.isNotEmpty)
-              ...favorites.toList()..sort()
-            .map((code) => rateTile(code)),
-
-            sectionTitle(t('rates'), Icons.public),
-            if (rates.isNotEmpty)
-              ...sortedCodes
-                  .where((code) => code != 'AFN')
-                  .map((code) => rateTile(code)),
-
-            sectionTitle(t('history'), Icons.history),
-            if (history.isEmpty)
-              const Text('No conversions yet.',
-                  style: TextStyle(color: Colors.white54)),
-            ...history.map((item) => Card(
-              color: panel,
-              child: ListTile(
-                leading: const Icon(Icons.history, color: green),
-                title: Text(item),
-              ),
-            )),
-
-            const SizedBox(height: 24),
-
-            Center(
-              child: Column(
-                children: [
-                  const Icon(Icons.currency_exchange,
-                      color: green, size: 36),
-                  const SizedBox(height: 9),
-                  Text(t('creator'),
+                  Text(c.code,
                       style: const TextStyle(
-                        color: green,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: openCredit,
-                    child: Text(
-                      t('credit'),
-                      style: const TextStyle(
-                        color: Colors.lightBlueAccent,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Afghani Exchange © 2026',
-                    style: TextStyle(color: Colors.white38),
-                  ),
+                          fontWeight: FontWeight.bold, fontSize: 17)),
+                  Text(c.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),
-            const SizedBox(height: 25),
+            const Icon(Icons.keyboard_arrow_down),
           ],
         ),
       ),
     );
   }
 
+  Widget converterCard() {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(tr('convert'),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 18),
+            Text(tr('amount')),
+            const SizedBox(height: 7),
+            TextField(
+              controller: amountController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.payments_outlined),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(tr('from')),
+            const SizedBox(height: 7),
+            currencyButton(fromCode, true),
+            Center(
+              child: IconButton.filled(
+                onPressed: swapCurrencies,
+                icon: const Icon(Icons.swap_vert),
+                tooltip: 'Swap',
+              ),
+            ),
+            Text(tr('to')),
+            const SizedBox(height: 7),
+            currencyButton(toCode, false),
+            const SizedBox(height: 18),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF087E70), Color(0xFF13A58E)],
+                ),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                children: [
+                  Text(tr('result'),
+                      style: const TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 7),
+                  Text(
+                    '${money(convertedAmount)} $toCode',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 27,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: addHistory,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(tr('history')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget rateStatus() {
+    return Card(
+      elevation: 0,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: loading ? Colors.orange.shade100 : Colors.green.shade100,
+          child: Icon(
+            loading ? Icons.sync : Icons.check_circle,
+            color: loading ? Colors.orange : Colors.green,
+          ),
+        ),
+        title: Text(loading ? tr('loading') : tr('refresh')),
+        subtitle: Text(
+          updated == null
+              ? (error.isNotEmpty ? error : '—')
+              : '${tr('updated')}: ${updated!.toLocal().toString().substring(0, 16)}',
+        ),
+        trailing: IconButton(
+          onPressed: loading ? null : fetchRates,
+          icon: const Icon(Icons.refresh),
+        ),
+      ),
+    );
+  }
+
+  Widget favoritesCard() {
+    final list = favorites.toList()..sort();
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(tr('favorites'),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 19)),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: list.map((code) {
+                final c = currency(code);
+                return ActionChip(
+                  avatar: Text(c.flag),
+                  label: Text(code),
+                  onPressed: () {
+                    setState(() {
+                      toCode = code;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget historyPage() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(tr('history'),
+            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        if (history.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('No conversion history yet.'),
+            ),
+          ),
+        ...history.map((item) => Card(
+              child: ListTile(
+                leading: const Icon(Icons.history),
+                title: Text(item),
+              ),
+            )),
+        TextButton.icon(
+          onPressed: () => setState(() => history.clear()),
+          icon: const Icon(Icons.delete_outline),
+          label: const Text('Clear history'),
+        ),
+      ],
+    );
+  }
+
+  Widget infoPage() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(tr('afghan'),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'افغانستان اوږد او لرغونی تاریخ لري. د دې خاورې ښارونه، کلتورونه او تاریخي سیمې د سیمې په تاریخ کې مهم ځای لري. کابل، بلخ، هرات، غزني او کندهار د افغانستان له مشهورو تاریخي ښارونو څخه دي.',
+              style: TextStyle(fontSize: 16, height: 1.7),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(tr('world'),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'د نړۍ تاریخ د لرغونو تمدنونو، علمي پرمختګونو، سوداګرۍ او د بېلابېلو ملتونو د اړیکو کیسې رانغاړي. د مصر، یونان، روم، چین او هند تمدنونو د نړۍ په تاریخ کې مهم رول لوبولی دی.',
+              style: TextStyle(fontSize: 16, height: 1.7),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF087E70)),
+            title: Text(tr('creator')),
+            subtitle: const Text(
+              'Abdullah ALOKOZAI',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  int page = 0;
+
   @override
-  void dispose() {
-    refreshTimer?.cancel();
-    amountController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final pages = [
+      ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF075D55), Color(0xFF13A58E)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(tr('title'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    )),
+                const SizedBox(height: 7),
+                const Text(
+                  'AFN  •  WORLD CURRENCIES',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    const Icon(Icons.language, color: Colors.white),
+                    const SizedBox(width: 8),
+                    const Text('Language',
+                        style: TextStyle(color: Colors.white)),
+                    const Spacer(),
+                    DropdownButton<String>(
+                      value: language,
+                      dropdownColor: Colors.white,
+                      underline: const SizedBox(),
+                      items: const [
+                        DropdownMenuItem(value: 'ps', child: Text('پښتو')),
+                        DropdownMenuItem(value: 'fa', child: Text('دری')),
+                        DropdownMenuItem(value: 'en', child: Text('English')),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => language = v);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          rateStatus(),
+          const SizedBox(height: 14),
+          converterCard(),
+          const SizedBox(height: 14),
+          favoritesCard(),
+          const SizedBox(height: 20),
+          const Center(
+            child: Text(
+              'Abdullah ALOKOZAI',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
+      historyPage(),
+      infoPage(),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(tr('title'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: pages[page],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: page,
+        onDestinationSelected: (value) => setState(() => page = value),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.currency_exchange),
+            label: tr('home'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.history),
+            label: tr('history'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.public),
+            label: tr('info'),
+          ),
+        ],
+      ),
+    );
   }
 }
