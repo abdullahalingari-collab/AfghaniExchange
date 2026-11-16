@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="Afghani Exchange"
+        android:label="Afghani Exchange Pro"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
@@ -18,18 +18,18 @@
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme" />
+                android:resource="@style/NormalTheme"/>
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
         </activity>
 
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
+            android:value="2"/>
 
     </application>
 
