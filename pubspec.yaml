@@ -1,7 +1,6 @@
 name: afghani_exchange
-description: Afghani Exchange - Live Currency Converter
+description: Afghani Exchange Currency Converter
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -10,13 +9,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#061426"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
