@@ -1,8 +1,8 @@
 name: afghani_exchange_pro
-description: Afghani Exchange Pro - Afghanistan Currency Exchange
+description: Afghani Exchange Pro - Afghanistan currency exchange
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8
   http: ^1.6.0
   html: ^0.15.6
