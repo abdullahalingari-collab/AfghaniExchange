@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,9 @@ void main() {
   runApp(const AfghaniExchange());
 }
 
+const Color appGreen = Color(0xFF13A875);
+const String creatorName = 'ABDULLAH ALOKOZAI';
+
 class AfghaniExchange extends StatefulWidget {
   const AfghaniExchange({super.key});
 
@@ -21,45 +25,46 @@ class AfghaniExchange extends StatefulWidget {
 }
 
 class _AfghaniExchangeState extends State<AfghaniExchange> {
-  bool dark = false;
+  bool darkMode = true;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Afghani Exchange',
-      themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF07866B),
+          seedColor: appGreen,
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF1F7F5),
+        scaffoldBackgroundColor: const Color(0xFFF4F7F6),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF07866B),
+          seedColor: appGreen,
           brightness: Brightness.dark,
         ),
+        scaffoldBackgroundColor: const Color(0xFF101820),
       ),
       home: HomePage(
-        onThemeChanged: (v) => setState(() => dark = v),
-        dark: dark,
+        darkMode: darkMode,
+        onThemeChanged: (value) => setState(() => darkMode = value),
       ),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  final Function(bool) onThemeChanged;
-  final bool dark;
+  final bool darkMode;
+  final ValueChanged<bool> onThemeChanged;
 
   const HomePage({
     super.key,
+    required this.darkMode,
     required this.onThemeChanged,
-    required this.dark,
   });
 
   @override
@@ -67,120 +72,111 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Map<String, dynamic> rates = {};
-  bool loading = true;
-  String error = '';
-  String language = 'ps';
-  int page = 0;
-  String selectedProvince = 'کابل';
-  String from = 'USD';
-  String to = 'AFN';
-  double amount = 1;
-  String? creatorPhoto;
-  final amountController = TextEditingController(text: '1');
-  final searchController = TextEditingController();
-  final history = <String>[];
-  final favorites = <String>{'USD', 'EUR', 'PKR'};
-  final picker = ImagePicker();
+  final TextEditingController amountController =
+      TextEditingController(text: '1000');
 
-  final provinces = [
-    'کابل', 'کندهار', 'هرات', 'بلخ', 'ننګرهار',
-    'لغمان', 'کنړ', 'نورستان', 'پنجشېر', 'پروان',
-    'کاپیسا', 'بغلان', 'کندز', 'تخار', 'بدخشان',
-    'سمنګان', 'سرپل', 'جوزجان', 'فاریاب', 'بادغیس',
-    'غور', 'دایکندی', 'بامیان', 'میدان وردګ',
-    'لوګر', 'پکتیا', 'پکتیکا', 'خوست', 'غزني',
-    'ارزګان', 'زابل', 'هلمند', 'فراه', 'نیمروز'
+  final List<String> provinces = const [
+    'کابل', 'هرات', 'کندهار', 'بلخ', 'ننګرهار', 'لغمان',
+    'کنړ', 'نورستان', 'بدخشان', 'تخار', 'کندز', 'بغلان',
+    'سمنګان', 'جوزجان', 'فاریاب', 'سرپل', 'غور', 'بادغیس',
+    'فراه', 'نیمروز', 'هلمند', 'ارزګان', 'زابل', 'غزني',
+    'پکتیا', 'پکتیکا', 'خوست', 'لوګر', 'میدان وردګ',
+    'بامیان', 'دایکندي', 'پروان', 'کاپیسا', 'پنجشیر',
   ];
 
-  final flags = {
-    'AFN':'🇦🇫','USD':'🇺🇸','EUR':'🇪🇺','GBP':'🇬🇧',
-    'PKR':'🇵🇰','INR':'🇮🇳','IRR':'🇮🇷','CNY':'🇨🇳',
-    'AED':'🇦🇪','SAR':'🇸🇦','TRY':'🇹🇷','JPY':'🇯🇵',
-    'CAD':'🇨🇦','AUD':'🇦🇺','CHF':'🇨🇭','RUB':'🇷🇺',
-    'QAR':'🇶🇦','KWD':'🇰🇼','OMR':'🇴🇲','BDT':'🇧🇩',
-    'NPR':'🇳🇵','MYR':'🇲🇾','THB':'🇹🇭','SGD':'🇸🇬',
-    'NZD':'🇳🇿','SEK':'🇸🇪','NOK':'🇳🇴','DKK':'🇩🇰',
-    'ZAR':'🇿🇦','BRL':'🇧🇷','KRW':'🇰🇷','IDR':'🇮🇩',
-    'LKR':'🇱🇰','EGP':'🇪🇬','IQD':'🇮🇶','HKD':'🇭🇰',
-    'UAH':'🇺🇦','PLN':'🇵🇱','MXN':'🇲🇽','ARS':'🇦🇷',
-    'BHD':'🇧🇭','JOD':'🇯🇴','ILS':'🇮🇱','KES':'🇰🇪',
-    'NGN':'🇳🇬','GEL':'🇬🇪','AZN':'🇦🇿','UZS':'🇺🇿',
-    'KZT':'🇰🇿','TJS':'🇹🇯','TMT':'🇹🇲',
+  final Map<String, String> flags = {
+    'AFN': '🇦🇫', 'USD': '🇺🇸', 'EUR': '🇪🇺',
+    'GBP': '🇬🇧', 'PKR': '🇵🇰', 'INR': '🇮🇳',
+    'IRR': '🇮🇷', 'AED': '🇦🇪', 'SAR': '🇸🇦',
+    'TRY': '🇹🇷', 'CNY': '🇨🇳', 'JPY': '🇯🇵',
+    'CAD': '🇨🇦', 'AUD': '🇦🇺', 'CHF': '🇨🇭',
+    'RUB': '🇷🇺', 'QAR': '🇶🇦', 'KWD': '🇰🇼',
+    'BDT': '🇧🇩', 'LKR': '🇱🇰', 'NPR': '🇳🇵',
+    'MYR': '🇲🇾', 'THB': '🇹🇭', 'SGD': '🇸🇬',
+    'SEK': '🇸🇪', 'NOK': '🇳🇴', 'DKK': '🇩🇰',
+    'NZD': '🇳🇿', 'ZAR': '🇿🇦', 'EGP': '🇪🇬',
+    'IQD': '🇮🇶', 'OMR': '🇴🇲', 'BHD': '🇧🇭',
+    'KRW': '🇰🇷', 'HKD': '🇭🇰', 'BRL': '🇧🇷',
+    'MXN': '🇲🇽', 'UAH': '🇺🇦', 'KZT': '🇰🇿',
   };
 
-  final names = {
-    'AFN': ['افغانستان','افغانستان','Afghanistan'],
-    'USD': ['امریکا','آمریکا','United States'],
-    'EUR': ['اروپايي ټولنه','اتحادیه اروپا','European Union'],
-    'GBP': ['بریتانیا','بریتانیا','United Kingdom'],
-    'PKR': ['پاکستان','پاکستان','Pakistan'],
-    'INR': ['هند','هند','India'],
-    'IRR': ['ایران','ایران','Iran'],
-    'CNY': ['چین','چین','China'],
-    'AED': ['متحده عربي امارات','امارات متحده عربی','United Arab Emirates'],
-    'SAR': ['سعودي عربستان','عربستان سعودی','Saudi Arabia'],
-    'TRY': ['ترکیه','ترکیه','Turkey'],
-    'JPY': ['جاپان','جاپان','Japan'],
-    'CAD': ['کاناډا','کانادا','Canada'],
-    'AUD': ['استرالیا','استرالیا','Australia'],
-    'CHF': ['سویس','سوئیس','Switzerland'],
-    'RUB': ['روسیه','روسیه','Russia'],
-    'QAR': ['قطر','قطر','Qatar'],
-    'KWD': ['کویټ','کویت','Kuwait'],
-    'OMR': ['عمان','عمان','Oman'],
-    'BDT': ['بنګله دېش','بنگلادش','Bangladesh'],
-    'NPR': ['نیپال','نپال','Nepal'],
-    'MYR': ['مالیزیا','مالزی','Malaysia'],
-    'THB': ['تایلنډ','تایلند','Thailand'],
-    'SGD': ['سنګاپور','سنگاپور','Singapore'],
-    'NZD': ['نیوزیلنډ','نیوزیلند','New Zealand'],
-    'SEK': ['سویډن','سوئد','Sweden'],
-    'NOK': ['ناروې','نروژ','Norway'],
-    'DKK': ['ډنمارک','دانمارک','Denmark'],
-    'ZAR': ['سویلي افریقا','آفریقای جنوبی','South Africa'],
-    'BRL': ['برازیل','برزیل','Brazil'],
-    'KRW': ['جنوبي کوریا','کوریای جنوبی','South Korea'],
-    'IDR': ['اندونیزیا','اندونزی','Indonesia'],
-    'LKR': ['سریلانکا','سریلانکا','Sri Lanka'],
-    'EGP': ['مصر','مصر','Egypt'],
-    'IQD': ['عراق','عراق','Iraq'],
-    'HKD': ['هانګ کانګ','هنگ کنگ','Hong Kong'],
-    'UAH': ['اوکراین','اوکراین','Ukraine'],
-    'PLN': ['پولنډ','لهستان','Poland'],
-    'MXN': ['مکسیکو','مکزیک','Mexico'],
-    'ARS': ['ارجنټاین','آرژانتین','Argentina'],
-    'BHD': ['بحرین','بحرین','Bahrain'],
-    'JOD': ['اردن','اردن','Jordan'],
-    'ILS': ['اسرائیل','اسرائیل','Israel'],
-    'KES': ['کینیا','کنیا','Kenya'],
-    'NGN': ['نایجیریا','نیجریه','Nigeria'],
-    'GEL': ['ګرجستان','گرجستان','Georgia'],
-    'AZN': ['اذربایجان','آذربایجان','Azerbaijan'],
-    'UZS': ['ازبکستان','ازبکستان','Uzbekistan'],
-    'KZT': ['قزاقستان','قزاقستان','Kazakhstan'],
-    'TJS': ['تاجکستان','تاجیکستان','Tajikistan'],
-    'TMT': ['ترکمنستان','ترکمنستان','Turkmenistan'],
+  final Map<String, String> currencyNames = {
+    'AFN': 'افغانۍ - افغانستان',
+    'USD': 'امریکایي ډالر',
+    'EUR': 'یورو',
+    'GBP': 'برتانوي پونډ',
+    'PKR': 'پاکستانۍ روپۍ',
+    'INR': 'هندي روپۍ',
+    'IRR': 'ایراني تومان/ریال',
+    'AED': 'اماراتي درهم',
+    'SAR': 'سعودي ریال',
+    'TRY': 'ترکي لیره',
+    'CNY': 'چینایي یوان',
+    'JPY': 'جاپاني ین',
+    'CAD': 'کاناډایي ډالر',
+    'AUD': 'اسټرالیایي ډالر',
+    'CHF': 'سویسي فرانک',
+    'RUB': 'روسي روبل',
+    'QAR': 'قطري ریال',
+    'KWD': 'کویتي دینار',
+    'BDT': 'بنګله دېشي ټکه',
+    'LKR': 'سریلانکایي روپۍ',
+    'NPR': 'نېپالي روپۍ',
+    'MYR': 'مالیزیايي رینګټ',
+    'THB': 'تایلنډي باټ',
+    'SGD': 'سنګاپوري ډالر',
+    'SEK': 'سویډني کرونا',
+    'NOK': 'ناروېژي کرونا',
+    'DKK': 'ډنمارکي کرونا',
+    'NZD': 'نیوزیلنډي ډالر',
+    'ZAR': 'د سویلي افریقا رنډ',
+    'EGP': 'مصري پونډ',
+    'IQD': 'عراقي دینار',
+    'OMR': 'عماني ریال',
+    'BHD': 'بحریني دینار',
+    'KRW': 'کوریایي وان',
+    'HKD': 'هانګ کانګي ډالر',
+    'BRL': 'برازیلي ریال',
+    'MXN': 'مکسیکويي پیسو',
+    'UAH': 'اوکرایني هریونیا',
+    'KZT': 'قزاقستاني ټینګ',
   };
 
-  String tr(String ps, String fa, String en) {
-    if (language == 'fa') return fa;
-    if (language == 'en') return en;
-    return ps;
-  }
+  // خپل شخصي لینکونه وروسته دلته ولیکئ.
+  // لینکونه د بېلګې په توګه تش پرېښودل شوي دي.
+  final Map<String, String> socialLinks = {
+    'Facebook': '',
+    'TikTok': '',
+    'WhatsApp': '',
+    'YouTube': '',
+    'Instagram': '',
+    'Telegram': '',
+    'Website': '',
+    'Other App 1': '',
+    'Other App 2': '',
+    'Other App 3': '',
+  };
 
-  String flag(String code) => flags[code] ?? '🌐';
+  Map<String, double> rates = {'AFN': 1};
+  List<String> currencies = ['AFN', 'USD', 'EUR', 'PKR', 'INR'];
+  String fromCurrency = 'AFN';
+  String toCurrency = 'USD';
+  String selectedProvince = 'کابل';
+  String? photoPath;
+  String lastUpdated = 'لا تر اوسه تازه شوی نه دی';
+  String clock = '';
+  bool loading = false;
+  String errorMessage = '';
+  int pageIndex = 0;
+  Timer? refreshTimer;
+  Timer? clockTimer;
 
-  String country(String code) {
-    final n = names[code];
-    if (n == null) return code;
-    return n[language == 'ps' ? 0 : language == 'fa' ? 1 : 2];
-  }
-
-  List<String> get currencies {
-    final list = rates.keys.where((e) => e is String).cast<String>().toList();
-    list.sort();
-    return list;
+  double get convertedAmount {
+    final amount = double.tryParse(amountController.text) ?? 0;
+    final fromRate = rates[fromCurrency] ?? 1;
+    final toRate = rates[toCurrency] ?? 1;
+    if (fromRate == 0) return 0;
+    return amount / fromRate * toRate;
   }
 
   @override
@@ -188,276 +184,394 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     loadSavedPhoto();
     fetchRates();
+    updateClock();
+    clockTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => updateClock(),
+    );
+    refreshTimer = Timer.periodic(
+      const Duration(minutes: 10),
+      (_) => fetchRates(),
+    );
   }
 
   @override
   void dispose() {
+    refreshTimer?.cancel();
+    clockTimer?.cancel();
     amountController.dispose();
-    searchController.dispose();
     super.dispose();
+  }
+
+  void updateClock() {
+    if (!mounted) return;
+    final now = DateTime.now();
+    setState(() {
+      clock =
+          '${now.year}/${now.month.toString().padLeft(2, '0')}/${now.day.toString().padLeft(2, '0')}'
+          '   ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+    });
+  }
+
+  Future<void> fetchRates() async {
+    if (loading) return;
+    setState(() {
+      loading = true;
+      errorMessage = '';
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://open.er-api.com/v6/latest/AFN'),
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode != 200) {
+        throw Exception('د نرخونو سرچینه اوس ځواب نه ورکوي');
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (data['result'] != 'success') {
+        throw Exception('د نرخونو ترلاسه کول بریالي نه شول');
+      }
+
+      final rawRates = data['rates'] as Map<String, dynamic>;
+      final newRates = <String, double>{'AFN': 1};
+
+      for (final entry in rawRates.entries) {
+        final value = entry.value;
+        if (value is num && value > 0) {
+          newRates[entry.key] = value.toDouble();
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        rates = newRates;
+        currencies = newRates.keys.toList()..sort();
+        if (!currencies.contains(fromCurrency)) fromCurrency = 'AFN';
+        if (!currencies.contains(toCurrency)) toCurrency = 'USD';
+        lastUpdated = DateTime.now().toString().substring(0, 16);
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          errorMessage = 'د نرخونو په ترلاسه کولو کې ستونزه ده. انټرنېټ وګورئ.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
   }
 
   Future<void> loadSavedPhoto() async {
     final prefs = await SharedPreferences.getInstance();
-    final path = prefs.getString('creator_photo');
-    if (path != null && File(path).existsSync()) {
-      if (mounted) setState(() => creatorPhoto = path);
+    final saved = prefs.getString('creator_photo');
+    if (saved != null && File(saved).existsSync() && mounted) {
+      setState(() => photoPath = saved);
     }
   }
 
-  Future<void> chooseCreatorPhoto() async {
+  Future<void> choosePhoto() async {
     try {
+      final picker = ImagePicker();
       final image = await picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 90,
+        imageQuality: 85,
       );
       if (image == null) return;
 
       final directory = await getApplicationDocumentsDirectory();
-      final saved = await File(image.path).copy(
-        '${directory.path}/creator_profile.jpg',
-      );
+      final newPath = '${directory.path}/creator_photo.jpg';
+      await File(image.path).copy(newPath);
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('creator_photo', saved.path);
+      await prefs.setString('creator_photo', newPath);
 
-      if (mounted) {
-        setState(() => creatorPhoto = saved.path);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(tr(
-            'عکس خوندي شو',
-            'عکس ذخیره شد',
-            'Photo saved',
-          ))),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Photo error: $e')),
-        );
-      }
+      if (mounted) setState(() => photoPath = newPath);
+    } catch (_) {
+      showMessage('عکس نه شو ساتل کېدای');
     }
   }
 
-  Future<void> fetchRates() async {
-    setState(() {
-      loading = true;
-      error = '';
-    });
+  Future<void> openSocial(String name) async {
+    final link = socialLinks[name]?.trim() ?? '';
+    if (link.isEmpty) {
+      showMessage('د $name لینک لا نه دی اضافه شوی');
+      return;
+    }
+
+    final uri = Uri.tryParse(link);
+    if (uri == null || !uri.hasScheme) {
+      showMessage('د $name لینک سم نه دی');
+      return;
+    }
 
     try {
-      final client = HttpClient();
-      final request = await client.getUrl(
-        Uri.parse('https://open.er-api.com/v6/latest/AFN'),
+      final opened = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
       );
-      final response = await request.close();
-      final body = await response.transform(utf8.decoder).join();
-      client.close();
-
-      final data = jsonDecode(body);
-      if (response.statusCode != 200 ||
-          data['result'] != 'success' ||
-          data['rates'] is! Map) {
-        throw Exception('Rates unavailable');
-      }
-
-      if (!mounted) return;
-      setState(() {
-        rates = Map<String, dynamic>.from(data['rates']);
-        rates['AFN'] = 1;
-        loading = false;
-      });
+      if (!opened) showMessage('دا لینک نه پرانیستل کېږي');
     } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        loading = false;
-        error = tr(
-          'د نرخونو ترلاسه کولو کې ستونزه ده',
-          'دریافت نرخ‌ها با مشکل روبرو شد',
-          'Could not load rates',
-        );
-      });
+      showMessage('د لینک په خلاصولو کې ستونزه ده');
     }
   }
 
-  double convert() {
-    if (rates[from] == null || rates[to] == null) return 0;
-    return amount /
-        (rates[from] as num) *
-        (rates[to] as num);
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
-  String rateFor(String code) {
-    final v = rates[code];
-    if (v == null || (v as num) == 0) return '---';
-    return (1 / v).toStringAsFixed(2);
+  String currencyTitle(String code) {
+    return '${flags[code] ?? '🌐'}  ${currencyNames[code] ?? code} ($code)';
   }
 
-  void swap() {
+  void swapCurrencies() {
     setState(() {
-      final old = from;
-      from = to;
-      to = old;
+      final oldFrom = fromCurrency;
+      fromCurrency = toCurrency;
+      toCurrency = oldFrom;
     });
   }
 
-  Future<void> openLink(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  @override
+  Widget build(BuildContext context) {
+    final pages = [
+      buildConverterPage(),
+      buildProvincesPage(),
+      buildHistoryPage(),
+      buildProfilePage(),
+    ];
 
-  Widget heading(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFF07866B), size: 27),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.w900,
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Afghani Exchange',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Dark Mode',
+            onPressed: () => widget.onThemeChanged(!widget.darkMode),
+            icon: Icon(
+              widget.darkMode ? Icons.light_mode : Icons.dark_mode,
             ),
+          ),
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: fetchRates,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            buildTopBanner(),
+            Expanded(child: pages[pageIndex]),
+          ],
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: pageIndex,
+        onDestinationSelected: (index) {
+          setState(() => pageIndex = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.currency_exchange),
+            label: 'تبادله',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.location_city),
+            label: 'ولایتونه',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history),
+            label: 'تاریخ',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'زما پېژندنه',
           ),
         ],
       ),
     );
   }
 
-  Widget panel({required Widget child}) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 7),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: child,
-      ),
-    );
-  }
-
-  Widget currencyPicker(
-    String value,
-    ValueChanged<String?> changed,
-  ) {
-    return DropdownButtonFormField<String>(
-      value: currencies.contains(value) ? value : 'AFN',
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: tr('اسعار', 'واحد پول', 'Currency'),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+  Widget buildTopBanner() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF087C54), Color(0xFF18B77E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      ),
-      items: currencies.map((code) {
-        return DropdownMenuItem(
-          value: code,
-          child: Text(
-            '${flag(code)}  $code - ${country(code)}',
-            overflow: TextOverflow.ellipsis,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: appGreen.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
-        );
-      }).toList(),
-      onChanged: changed,
-    );
-  }
-
-  Widget converterPage() {
-    return ListView(
-      padding: const EdgeInsets.all(15),
-      children: [
-        panel(
-          child: Column(
-            children: [
-              heading(
-                tr('د اسعارو بدلون', 'تبدیل اسعار', 'Currency Converter'),
-                Icons.currency_exchange,
-              ),
-              TextField(
-                controller: amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: tr('اندازه ولیکئ', 'مقدار را وارد کنید', 'Enter amount'),
-                  prefixIcon: const Icon(Icons.payments),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Text('🇦🇫', style: TextStyle(fontSize: 35)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'د نړۍ د اسعارو تبادله',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                onChanged: (v) {
-                  setState(() => amount = double.tryParse(v) ?? 0);
-                },
-              ),
-              const SizedBox(height: 15),
-              currencyPicker(from, (v) {
-                if (v != null) setState(() => from = v);
-              }),
-              const SizedBox(height: 8),
-              IconButton.filled(
-                onPressed: swap,
-                icon: const Icon(Icons.swap_vert),
-                iconSize: 30,
-              ),
-              const SizedBox(height: 8),
-              currencyPicker(to, (v) {
-                if (v != null) setState(() => to = v);
-              }),
-              const SizedBox(height: 22),
-              Text(
-                tr('د تبادلې پایله', 'نتیجه تبدیل', 'Conversion result'),
-              ),
-              const SizedBox(height: 7),
-              Text(
-                '${convert().toStringAsFixed(3)} $to',
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF07866B),
+                const SizedBox(height: 5),
+                Text(
+                  clock,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: () {
-                  setState(() {
-                    history.insert(
-                      0,
-                      '${amount.toString()} $from = ${convert().toStringAsFixed(3)} $to',
-                    );
-                  });
-                },
-                icon: const Icon(Icons.save),
-                label: Text(tr(
-                  'تاریخچه کې وساته',
-                  'ذخیره در تاریخچه',
-                  'Save conversion',
-                )),
-              ),
-            ],
+              ],
+            ),
+          ),
+          const Icon(Icons.public, color: Colors.white, size: 30),
+        ],
+      ),
+    );
+  }
+
+  Widget buildConverterPage() {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 5, 16, 22),
+      children: [
+        Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'د اسعارو حساب',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 18),
+                const Text('څومره پیسې؟'),
+                const SizedBox(height: 7),
+                TextField(
+                  controller: amountController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: 'اندازه ولیکئ',
+                    prefixIcon: const Icon(Icons.money),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text('له کوم اسعارو څخه؟'),
+                const SizedBox(height: 7),
+                currencyDropdown(fromCurrency, (value) {
+                  setState(() => fromCurrency = value!);
+                }),
+                Center(
+                  child: IconButton.filled(
+                    onPressed: swapCurrencies,
+                    icon: const Icon(Icons.swap_vert),
+                    tooltip: 'اسعار بدل کړئ',
+                  ),
+                ),
+                const Text('کوم اسعارو ته؟'),
+                const SizedBox(height: 7),
+                currencyDropdown(toCurrency, (value) {
+                  setState(() => toCurrency = value!);
+                }),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: appGreen.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text('د تبادلې نتیجه'),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${convertedAmount.toStringAsFixed(4)} $toCurrency',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: appGreen,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  onPressed: fetchRates,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('نرخونه تازه کړه'),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  loading
+                      ? 'نرخونه ترلاسه کېږي...'
+                      : 'وروستی تازه کېدل: $lastUpdated',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      errorMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-        panel(
+        const SizedBox(height: 14),
+        Card(
           child: ListTile(
-            leading: const Icon(Icons.update),
-            title: Text(tr(
-              'وروستي موجود نرخونه',
-              'آخرین نرخ‌های موجود',
-              'Latest available rates',
-            )),
-            subtitle: Text(loading ? 'Loading...' : error.isEmpty
-                ? tr('نرخونه تازه دي', 'نرخ‌ها دریافت شد', 'Rates loaded')
-                : error),
-            trailing: IconButton(
-              onPressed: loading ? null : fetchRates,
-              icon: const Icon(Icons.refresh),
+            leading: const Icon(Icons.timer, color: appGreen),
+            title: const Text('اتومات تازه کېدل'),
+            subtitle: const Text('هر ۱۰ دقیقې د نرخونو د تازه کولو هڅه کېږي'),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.info_outline, color: appGreen),
+            title: const Text('د نرخ سرچینه'),
+            subtitle: const Text(
+              'نړیوال مرجع نرخونه؛ د محلي صرافیو ځانګړي نرخونه نه دي',
             ),
           ),
         ),
@@ -465,57 +579,123 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void showProvince(String province) {
-    setState(() => selectedProvince = province);
+  Widget currencyDropdown(
+    String value,
+    ValueChanged<String?> onChanged,
+  ) {
+    final safeValue = currencies.contains(value) ? value : currencies.first;
+    return DropdownButtonFormField<String>(
+      value: safeValue,
+      isExpanded: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+      ),
+      items: currencies.map((code) {
+        return DropdownMenuItem(
+          value: code,
+          child: Text(
+            currencyTitle(code),
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
 
+  Widget buildProvincesPage() {
+    return ListView(
+      padding: const EdgeInsets.all(14),
+      children: [
+        const Text(
+          'د افغانستان ۳۴ ولایتونه',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'ولایت وټاکئ او د اسعارو تبادله وګورئ',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        ...provinces.asMap().entries.map((entry) {
+          final index = entry.key;
+          final province = entry.value;
+          return Card(
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: appGreen.withOpacity(0.13),
+                child: Text(
+                  '${index + 1}',
+                  style: const TextStyle(
+                    color: appGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              title: Text(province),
+              subtitle: const Text('د افغانستان ملي مرجع نرخ'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                setState(() => selectedProvince = province);
+                showProvinceRates(province);
+              },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  void showProvinceRates(String province) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) {
         return SizedBox(
-          height: MediaQuery.of(context).size.height * .83,
+          height: MediaQuery.of(context).size.height * 0.78,
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(14),
                 child: Text(
-                  '🇦🇫 $province',
+                  '$province - د اسعارو تبادله',
                   style: const TextStyle(
-                    fontSize: 23,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              Text(tr(
-                'د ټولو هېوادونو اسعار او ملي مرجع نرخ',
-                'ارزهای کشورها و نرخ مرجع ملی',
-                'World currencies and national reference rates',
-              )),
+              const Text(
+                'دا ملي مرجع نرخ دی، د دې ولایت ځانګړی بازار نرخ نه دی.',
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 10),
               Expanded(
-                child: currencies.isEmpty
-                    ? Center(child: Text(error.isEmpty ? 'Loading...' : error))
-                    : ListView.builder(
-                        itemCount: currencies.length,
-                        itemBuilder: (context, i) {
-                          final code = currencies[i];
-                          return ListTile(
-                            leading: Text(
-                              flag(code),
-                              style: const TextStyle(fontSize: 27),
-                            ),
-                            title: Text(country(code)),
-                            subtitle: Text(code),
-                            trailing: Text(
-                              '1 $code = ${rateFor(code)} AFN',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        },
+                child: ListView.builder(
+                  itemCount: currencies.length,
+                  itemBuilder: (context, index) {
+                    final code = currencies[index];
+                    final rate = rates[code] ?? 0;
+                    return ListTile(
+                      leading: Text(
+                        flags[code] ?? '🌐',
+                        style: const TextStyle(fontSize: 25),
                       ),
+                      title: Text(currencyTitle(code)),
+                      subtitle: Text(
+                        '۱ AFN = ${rate.toStringAsFixed(6)} $code',
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -524,389 +704,233 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget provincesPage() {
+  Widget buildHistoryPage() {
+    final history = <Map<String, String>>[
+      {
+        'title': 'افغانۍ - افغانستان',
+        'text':
+            'افغانۍ په ۱۹۲۵ کال کې د افغانستان د ملي پیسو په توګه معرفي شوه. دا د افغانستان رسمي اسعار دي.',
+      },
+      {
+        'title': 'امریکایي ډالر - USD',
+        'text':
+            'امریکایي ډالر په ۱۷۹۲ کال کې د متحده ایالاتو د پیسو د واحد په توګه رامنځته شو.',
+      },
+      {
+        'title': 'برتانوي پونډ - GBP',
+        'text':
+            'پونډ د نړۍ له پخوانیو فعالو اسعارو څخه دی او د برتانیا رسمي پیسې دي.',
+      },
+      {
+        'title': 'یورو - EUR',
+        'text':
+            'یورو په ۱۹۹۹ کال کې د حسابي پیسو په توګه پیل شو او په ۲۰۰۲ کال کې بانکنوټونه او سکې عامې شوې.',
+      },
+      {
+        'title': 'پاکستانۍ روپۍ - PKR',
+        'text':
+            'پاکستانۍ روپۍ د پاکستان رسمي اسعار دي او په ۱۹۴۸ کال کې معرفي شوې.',
+      },
+      {
+        'title': 'هندي روپۍ - INR',
+        'text':
+            'هندي روپۍ د هند رسمي اسعار دي او اوږد تاریخي شالید لري.',
+      },
+      {
+        'title': 'چینایي یوان - CNY',
+        'text':
+            'یوان د چین د پیسو واحد دی او د چین د خلکو جمهوریت رسمي اسعار ګڼل کېږي.',
+      },
+      {
+        'title': 'جاپاني ین - JPY',
+        'text':
+            'ین په ۱۸۷۱ کال کې د جاپان د پیسو په توګه معرفي شو.',
+      },
+      {
+        'title': 'سعودي ریال - SAR',
+        'text':
+            'سعودي ریال د سعودي عربستان رسمي اسعار دي.',
+      },
+      {
+        'title': 'اماراتي درهم - AED',
+        'text':
+            'درهم په ۱۹۷۳ کال کې د متحده عربي اماراتو رسمي اسعار شو.',
+      },
+      {
+        'title': 'ایراني ریال - IRR',
+        'text':
+            'ایراني ریال د ایران رسمي اسعار دي؛ په ورځني بازار کې تومان هم ډېر کارېږي.',
+      },
+      {
+        'title': 'ترکي لیره - TRY',
+        'text':
+            'ترکي لیره د ترکیې رسمي اسعار دي.',
+      },
+    ];
+
     return ListView(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(14),
       children: [
-        heading(
-          tr('د افغانستان ۳۴ ولایتونه', '۳۴ ولایت افغانستان', 'Afghanistan Provinces'),
-          Icons.location_city,
+        const Text(
+          'د افغانستان او نړۍ د پیسو تاریخ',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
         ),
-        panel(
-          child: Text(tr(
-            'هر ولایت پرانیزئ؛ د نړۍ د اسعارو بشپړ لیست او د ملي مرجع نرخ به وګورئ. دا د ولایت ځانګړی صرافي نرخ نه دی.',
-            'هر ولایت را باز کنید؛ فهرست ارزهای جهان و نرخ مرجع ملی را می‌بینید. این نرخ جداگانه بازار محلی نیست.',
-            'Open any province to see world currencies and the national reference rate. These are not separate local market quotes.',
-          )),
-        ),
-        ...provinces.map((p) => Card(
-          child: ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Color(0xFF087E65),
-              child: Text('🇦🇫', style: TextStyle(fontSize: 22)),
-            ),
-            title: Text(
-              p,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(tr(
-              'د اسعارو لیست پرانیزئ',
-              'فهرست ارزها را باز کنید',
-              'Open currency list',
-            )),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 17),
-            onTap: () => showProvince(p),
-          ),
-        )),
-      ],
-    );
-  }
-
-  Widget ratesPage() {
-    if (loading) return const Center(child: CircularProgressIndicator());
-    if (rates.isEmpty) return Center(child: Text(error));
-
-    final q = searchController.text.toLowerCase();
-    final filtered = currencies.where((c) {
-      return c.toLowerCase().contains(q) ||
-          country(c).toLowerCase().contains(q);
-    }).toList();
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(13),
-          child: TextField(
-            controller: searchController,
-            decoration: InputDecoration(
-              hintText: tr('هېواد یا اسعار ولټوئ', 'جستجوی کشور یا ارز', 'Search country or currency'),
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: filtered.length,
-            itemBuilder: (context, i) {
-              final code = filtered[i];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: ListTile(
-                  leading: Text(
-                    flag(code),
-                    style: const TextStyle(fontSize: 28),
+        const SizedBox(height: 12),
+        Card(
+          color: appGreen.withOpacity(0.12),
+          child: const Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '🇦🇫 د افغانستان تاریخ',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
                   ),
-                  title: Text(
-                    country(code),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(code),
-                  trailing: Text(
-                    '${rateFor(code)} AFN',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      from = code;
-                      to = 'AFN';
-                      page = 0;
-                    });
-                  },
                 ),
-              );
-            },
+                SizedBox(height: 8),
+                Text(
+                  'افغانستان په ۱۹۱۹ کال کې د امان الله خان په واکمنۍ کې خپل بشپړ خپلواک بهرنی سیاست ترلاسه کړ. افغانۍ په ۱۹۲۵ کال کې د ملي اسعارو په توګه معرفي شوه.',
+                ),
+              ],
+            ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget historyPage() {
-    return ListView(
-      padding: const EdgeInsets.all(15),
-      children: [
-        heading(
-          tr('د افغانستان تاریخ', 'تاریخ افغانستان', 'Afghanistan History'),
-          Icons.account_balance,
-        ),
-        panel(
+        const SizedBox(height: 10),
+        ...history.map((item) {
+          return Card(
+            child: ExpansionTile(
+              leading: const Icon(Icons.monetization_on, color: appGreen),
+              title: Text(
+                item['title']!,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Text(item['text']!),
+                ),
+              ],
+            ),
+          );
+        }),
+        const Padding(
+          padding: EdgeInsets.all(12),
           child: Text(
-            tr(
-              'افغانستان په ۱۹۱۹ میلادي کال کې د امان الله خان په مشرۍ خپلواکي ترلاسه کړه. د زمري ۲۸مه د خپلواکۍ ورځ ده.',
-              'افغانستان در سال ۱۹۱۹ میلادی به رهبری امان‌الله خان استقلال خود را به دست آورد. ۲۸ اسد روز استقلال است.',
-              'Afghanistan regained its independence in 1919 under King Amanullah Khan. August 19 is celebrated as Independence Day.',
-            ),
-            style: const TextStyle(fontSize: 16, height: 1.8),
-          ),
-        ),
-        heading(
-          tr('د افغانیو تاریخ', 'تاریخ افغانی', 'History of the Afghani'),
-          Icons.payments,
-        ),
-        panel(
-          child: Text(
-            tr(
-              'افغاني په ۱۹۲۵ میلادي کال کې د افغانستان ملي پیسه شوه. دا د امان الله خان د واکمنۍ پر مهال د پیسو د نظام د اصلاحاتو برخه وه. نړیوال کوډ یې AFN دی.',
-              'افغانی در سال ۱۹۲۵ میلادی پول ملی افغانستان شد. این بخشی از اصلاحات نظام پولی در دوره امان‌الله خان بود. کد بین‌المللی آن AFN است.',
-              'The Afghani became Afghanistan’s national currency in 1925 during monetary reforms under Amanullah Khan. Its international code is AFN.',
-            ),
-            style: const TextStyle(fontSize: 16, height: 1.8),
-          ),
-        ),
-        heading(
-          tr('د تبادلې تاریخچه', 'تاریخچه تبدیل', 'Conversion History'),
-          Icons.history,
-        ),
-        if (history.isEmpty)
-          Text(tr('تاریخچه نشته', 'تاریخچه‌ای نیست', 'No history yet')),
-        ...history.map((h) => Card(
-          child: ListTile(
-            leading: const Icon(Icons.history),
-            title: Text(h),
-          ),
-        )),
-      ],
-    );
-  }
-
-  Widget favoritesPage() {
-    return ListView(
-      padding: const EdgeInsets.all(15),
-      children: [
-        heading(
-          tr('زما خوښې اسعار', 'ارزهای مورد علاقه', 'Favorite currencies'),
-          Icons.favorite,
-        ),
-        ...favorites.map((code) => Card(
-          child: ListTile(
-            leading: Text(flag(code), style: const TextStyle(fontSize: 27)),
-            title: Text(country(code)),
-            subtitle: Text(code),
-            trailing: IconButton(
-              icon: const Icon(Icons.favorite, color: Colors.red),
-              onPressed: () => setState(() => favorites.remove(code)),
-            ),
-          ),
-        )),
-        const Divider(),
-        ...currencies.where((c) => !favorites.contains(c)).take(40).map(
-          (code) => ListTile(
-            leading: Text(flag(code)),
-            title: Text('${country(code)} ($code)'),
-            trailing: IconButton(
-              icon: const Icon(Icons.favorite_border),
-              onPressed: () => setState(() => favorites.add(code)),
-            ),
+            'یادونه: د هر اسعارو بشپړ تاریخي معلومات په راتلونکو نسخو کې پراخېدای شي.',
+            textAlign: TextAlign.center,
           ),
         ),
       ],
     );
   }
 
-  Widget creatorPage() {
+  Widget buildProfilePage() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        panel(
-          child: Column(
-            children: [
-              heading(
-                tr('د اپ جوړوونکی', 'سازنده برنامه', 'App Creator'),
-                Icons.person,
-              ),
-              GestureDetector(
-                onTap: chooseCreatorPhoto,
-                child: CircleAvatar(
-                  radius: 75,
-                  backgroundColor: const Color(0xFF07866B),
-                  backgroundImage: creatorPhoto != null
-                      ? FileImage(File(creatorPhoto!))
-                      : null,
-                  child: creatorPhoto == null
-                      ? const Icon(Icons.add_a_photo,
-                          size: 48, color: Colors.white)
-                      : null,
+        Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: choosePhoto,
+                  child: CircleAvatar(
+                    radius: 58,
+                    backgroundColor: appGreen.withOpacity(0.2),
+                    backgroundImage: photoPath != null
+                        ? FileImage(File(photoPath!))
+                        : null,
+                    child: photoPath == null
+                        ? const Icon(
+                            Icons.add_a_photo,
+                            size: 42,
+                            color: appGreen,
+                          )
+                        : null,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'ABDULLAH ALOKOZAI',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1,
+                const SizedBox(height: 12),
+                const Text(
+                  creatorName,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: appGreen,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: chooseCreatorPhoto,
-                icon: const Icon(Icons.photo_library),
-                label: Text(tr(
-                  'عکس انتخاب یا بدل کړه',
-                  'انتخاب یا تغییر عکس',
-                  'Choose or change photo',
-                )),
-              ),
-              Text(tr(
-                'عکس ستا په موبایل کې خوندي کېږي.',
-                'عکس در موبایل شما ذخیره می‌شود.',
-                'Your photo is saved on this device.',
-              )),
-            ],
+                const SizedBox(height: 6),
+                const Text('د Afghani Exchange جوړونکی'),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: choosePhoto,
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text('خپل عکس بدل کړئ'),
+                ),
+              ],
+            ),
           ),
         ),
-        heading(
-          tr('زما ټولنیزې شبکې', 'شبکه‌های اجتماعی', 'Social Media'),
-          Icons.share,
+        const SizedBox(height: 15),
+        const Text(
+          'زما ټولنیزې شبکې او اپونه',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
         ),
-        socialTile('Facebook', Icons.facebook, 'https://www.facebook.com/'),
-        socialTile('TikTok', Icons.music_note, 'https://www.tiktok.com/'),
-        socialTile('WhatsApp', Icons.chat, 'https://www.whatsapp.com/'),
-        socialTile('YouTube', Icons.play_circle, 'https://www.youtube.com/'),
-        socialTile('Instagram', Icons.camera_alt, 'https://www.instagram.com/'),
-      ],
-    );
-  }
-
-  Widget socialTile(String title, IconData icon, String url) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF087E65),
-          child: Icon(icon, color: Colors.white),
+        const SizedBox(height: 8),
+        ...socialLinks.keys.map((name) {
+          final icons = <String, IconData>{
+            'Facebook': Icons.facebook,
+            'TikTok': Icons.music_note,
+            'WhatsApp': Icons.chat,
+            'YouTube': Icons.play_circle_fill,
+            'Instagram': Icons.camera_alt,
+            'Telegram': Icons.send,
+            'Website': Icons.language,
+            'Other App 1': Icons.apps,
+            'Other App 2': Icons.apps,
+            'Other App 3': Icons.apps,
+          };
+          return Card(
+            child: ListTile(
+              leading: Icon(
+                icons[name] ?? Icons.link,
+                color: appGreen,
+                size: 27,
+              ),
+              title: Text(name),
+              subtitle: Text(
+                socialLinks[name]!.isEmpty ? 'لینک وروسته اضافه کېږي' : 'لینک چمتو دی',
+              ),
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () => openSocial(name),
+            ),
+          );
+        }),
+        const SizedBox(height: 12),
+        SwitchListTile(
+          secondary: const Icon(Icons.dark_mode),
+          title: const Text('تور رنګ / Dark Mode'),
+          value: widget.darkMode,
+          onChanged: widget.onThemeChanged,
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        trailing: const Icon(Icons.open_in_new),
-        onTap: () => openLink(url),
-      ),
-    );
-  }
-
-  Widget settingsPage() {
-    return ListView(
-      padding: const EdgeInsets.all(15),
-      children: [
-        heading(
-          tr('تنظیمات', 'تنظیمات', 'Settings'),
-          Icons.settings,
-        ),
-        panel(
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.language),
-                title: Text(tr('ژبه', 'زبان', 'Language')),
-                trailing: DropdownButton<String>(
-                  value: language,
-                  items: const [
-                    DropdownMenuItem(value: 'ps', child: Text('پښتو')),
-                    DropdownMenuItem(value: 'fa', child: Text('دری')),
-                    DropdownMenuItem(value: 'en', child: Text('English')),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setState(() => language = v);
-                  },
-                ),
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.dark_mode),
-                title: Text(tr('تیاره بڼه', 'حالت تاریک', 'Dark mode')),
-                value: widget.dark,
-                onChanged: widget.onThemeChanged,
-              ),
-              const Divider(),
-              const ListTile(
-                leading: Icon(Icons.person),
-                title: Text(
-                  'ABDULLAH ALOKOZAI',
-                  style: TextStyle(fontWeight: FontWeight.w900),
-                ),
-                subtitle: Text('Afghani Exchange'),
-              ),
-            ],
+        const SizedBox(height: 12),
+        const Center(
+          child: Text(
+            'Afghani Exchange  •  $creatorName',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12),
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final titles = [
-      tr('کور', 'خانه', 'Home'),
-      tr('اسعار', 'ارزها', 'Rates'),
-      tr('ولایتونه', 'ولایت‌ها', 'Provinces'),
-      tr('تاریخ', 'تاریخ', 'History'),
-      tr('خوښې', 'علاقه‌مندی', 'Favorites'),
-      tr('جوړوونکی', 'سازنده', 'Creator'),
-      tr('تنظیمات', 'تنظیمات', 'Settings'),
-    ];
-
-    final pages = [
-      converterPage(),
-      ratesPage(),
-      provincesPage(),
-      historyPage(),
-      favoritesPage(),
-      creatorPage(),
-      settingsPage(),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF087E65),
-        foregroundColor: Colors.white,
-        title: const Text(
-          '🇦🇫 Afghani Exchange',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-        actions: [
-          IconButton(
-            onPressed: loading ? null : fetchRates,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
-      body: SafeArea(child: pages[page]),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: page,
-        onDestinationSelected: (i) => setState(() => page = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home),
-            label: titles[0],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.public),
-            label: titles[1],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.location_city),
-            label: titles[2],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.history),
-            label: titles[3],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.favorite),
-            label: titles[4],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person),
-            label: titles[5],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings),
-            label: titles[6],
-          ),
-        ],
-      ),
     );
   }
 }
