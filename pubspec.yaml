@@ -1,7 +1,6 @@
 name: afghani_exchange
 description: Afghani Exchange currency converter app
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -17,11 +16,11 @@ dependencies:
   path_provider: ^2.1.5
   shared_preferences: ^2.5.3
   url_launcher: ^6.3.2
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:
