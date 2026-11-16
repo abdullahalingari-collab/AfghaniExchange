@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(const AfghaniExchange());
+void main() {
+  runApp(const AfghaniExchange());
+}
 
-const bg = Color(0xFF061426);
-const panel = Color(0xFF0D2340);
-const panel2 = Color(0xFF102B4D);
 const blue = Color(0xFF087DF5);
 const cyan = Color(0xFF18C9E8);
 const green = Color(0xFF19D68B);
@@ -66,14 +66,15 @@ const words = {
     'result':'د تبدیل پایله','rates':'د اسعارو نرخونه',
     'search':'اسعار ولټوئ','updated':'وروستی تازه کېدل',
     'refresh':'تازه کول','loading':'نرخونه ترلاسه کېږي...',
-    'afghan':'افغانۍ','creator':'د اپ جوړوونکی',
-    'about':'د اپ په اړه','language':'ژبه',
-    'afghanHistory':'د افغانستان تاریخ','worldHistory':'د نړۍ تاریخ',
-    'quote':'افغانستان زموږ ویاړ دی، تاریخ زموږ هویت دی او راتلونکی زموږ په لاس کې دی.',
+    'creator':'د اپ جوړوونکی','about':'د اپ په اړه',
+    'language':'ژبه','afghanHistory':'د افغانستان تاریخ',
+    'worldHistory':'د نړۍ تاریخ','quote':'افغانستان زموږ ویاړ دی، تاریخ زموږ هویت دی او راتلونکی زموږ په لاس کې دی.',
     'afghanText':'افغانستان د لرغوني تاریخ او بډایه کلتور لرونکی هېواد دی. کابل، بلخ، هرات، غزني او کندهار د دې خاورې له مشهورو تاریخي ښارونو څخه دي. افغانستان د ورېښمو لارې پر مهمه برخه پروت و او د بېلابېلو تمدنونو د تګ راتګ مرکز پاتې شوی دی.',
     'worldText':'د نړۍ تاریخ د لرغونو تمدنونو، علمي پرمختګونو، سوداګرۍ او د ملتونو د اړیکو کیسې رانغاړي. د مصر، یونان، روم، چین او هند تمدنونو د نړۍ په تاریخ کې مهم رول لوبولی دی.',
     'empty':'تر اوسه معلومات نشته','saved':'ثبت شو',
     'clear':'پاکول','source':'د نرخونو سرچینه: ExchangeRate-API',
+    'photo':'خپل عکس انتخاب کړه','dark':'تیاره بڼه','light':'روښانه بڼه',
+    'choosePhoto':'له ګالرۍ عکس انتخاب کړه',
   },
   'fa': {
     'home':'خانه','currencies':'ارزها','favorites':'علاقه‌مندی',
@@ -82,14 +83,15 @@ const words = {
     'result':'نتیجه تبدیل','rates':'نرخ ارزها',
     'search':'جستجوی ارز','updated':'آخرین بروزرسانی',
     'refresh':'تازه کردن','loading':'دریافت نرخ‌ها...',
-    'afghan':'افغانی','creator':'سازنده برنامه',
-    'about':'درباره برنامه','language':'زبان',
-    'afghanHistory':'تاریخ افغانستان','worldHistory':'تاریخ جهان',
-    'quote':'افغانستان افتخار ماست، تاریخ هویت ما و آینده در دستان ماست.',
+    'creator':'سازنده برنامه','about':'درباره برنامه',
+    'language':'زبان','afghanHistory':'تاریخ افغانستان',
+    'worldHistory':'تاریخ جهان','quote':'افغانستان افتخار ماست، تاریخ هویت ما و آینده در دستان ماست.',
     'afghanText':'افغانستان کشوری با تاریخ کهن و فرهنگ غنی است. کابل، بلخ، هرات، غزنی و قندهار از شهرهای تاریخی مشهور این سرزمین هستند. افغانستان در مسیر مهم جاده ابریشم قرار داشت و مرکز رفت‌وآمد تمدن‌های گوناگون بوده است.',
     'worldText':'تاریخ جهان داستان تمدن‌های باستانی، پیشرفت علمی، تجارت و روابط ملت‌ها را در بر می‌گیرد. تمدن‌های مصر، یونان، روم، چین و هند نقش مهمی در تاریخ جهان داشته‌اند.',
     'empty':'هنوز معلوماتی موجود نیست','saved':'ذخیره شد',
     'clear':'پاک کردن','source':'منبع نرخ‌ها: ExchangeRate-API',
+    'photo':'عکس خود را انتخاب کنید','dark':'حالت تاریک','light':'حالت روشن',
+    'choosePhoto':'انتخاب عکس از گالری',
   },
   'en': {
     'home':'Home','currencies':'Currencies','favorites':'Favorites',
@@ -98,42 +100,74 @@ const words = {
     'result':'Conversion result','rates':'Exchange rates',
     'search':'Search currencies','updated':'Last updated',
     'refresh':'Refresh','loading':'Loading rates...',
-    'afghan':'Afghani','creator':'App Creator',
-    'about':'About app','language':'Language',
-    'afghanHistory':'History of Afghanistan','worldHistory':'World History',
-    'quote':'Afghanistan is our pride, history is our identity, and the future is in our hands.',
+    'creator':'App Creator','about':'About app',
+    'language':'Language','afghanHistory':'History of Afghanistan',
+    'worldHistory':'World History','quote':'Afghanistan is our pride, history is our identity, and the future is in our hands.',
     'afghanText':'Afghanistan is a country with an ancient history and rich culture. Kabul, Balkh, Herat, Ghazni and Kandahar are among its famous historic cities. Afghanistan stood along an important part of the Silk Road and connected many civilizations.',
     'worldText':'World history includes ancient civilizations, scientific progress, trade and relationships between nations. The civilizations of Egypt, Greece, Rome, China and India played important roles in world history.',
     'empty':'Nothing here yet','saved':'Saved',
     'clear':'Clear','source':'Rate source: ExchangeRate-API',
+    'photo':'Choose your photo','dark':'Dark mode','light':'Light mode',
+    'choosePhoto':'Choose photo from gallery',
   },
 };
 
-class AfghaniExchange extends StatelessWidget {
+class AfghaniExchange extends StatefulWidget {
   const AfghaniExchange({super.key});
 
   @override
+  State<AfghaniExchange> createState() => _AfghaniExchangeState();
+}
+
+class _AfghaniExchangeState extends State<AfghaniExchange> {
+  bool isDark = true;
+
+  @override
   Widget build(BuildContext context) {
+    final darkTheme = ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF061426),
+      colorScheme: const ColorScheme.dark(
+        primary: blue,
+        secondary: cyan,
+        surface: Color(0xFF0D2340),
+      ),
+      useMaterial3: true,
+    );
+
+    final lightTheme = ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: const Color(0xFFF1F5FA),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: blue,
+        brightness: Brightness.light,
+      ),
+      useMaterial3: true,
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Afghani Exchange',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: bg,
-        colorScheme: const ColorScheme.dark(
-          primary: blue,
-          secondary: cyan,
-          surface: panel,
-        ),
-        useMaterial3: true,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      home: MainPage(
+        isDark: isDark,
+        onThemeChanged: (value) => setState(() => isDark = value),
       ),
-      home: const MainPage(),
     );
   }
 }
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final bool isDark;
+  final ValueChanged<bool> onThemeChanged;
+
+  const MainPage({
+    super.key,
+    required this.isDark,
+    required this.onThemeChanged,
+  });
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -147,6 +181,9 @@ class _MainPageState extends State<MainPage> {
   String search = '';
 
   final amount = TextEditingController(text: '100');
+  final picker = ImagePicker();
+
+  File? creatorPhoto;
 
   Map<String, double> rates = {};
   bool loading = false;
@@ -160,6 +197,22 @@ class _MainPageState extends State<MainPage> {
   String t(String key) => words[lang]![key] ?? key;
   String flag(String code) => flags[code] ?? '🌐';
   String name(String code) => currencyNames[code] ?? code;
+
+  Color get cardColor => widget.isDark
+      ? const Color(0xFF0D2340)
+      : Colors.white;
+
+  Color get cardColor2 => widget.isDark
+      ? const Color(0xFF102B4D)
+      : const Color(0xFFE4EDF8);
+
+  Color get mainText => widget.isDark
+      ? Colors.white
+      : const Color(0xFF13243A);
+
+  Color get subText => widget.isDark
+      ? Colors.white60
+      : Colors.black54;
 
   @override
   void initState() {
@@ -178,8 +231,30 @@ class _MainPageState extends State<MainPage> {
     super.dispose();
   }
 
+  Future<void> choosePhoto() async {
+    try {
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1000,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          creatorPhoto = File(image.path);
+        });
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not select photo')),
+      );
+    }
+  }
+
   Future<void> fetchRates() async {
     if (loading) return;
+
     setState(() {
       loading = true;
       error = '';
@@ -245,20 +320,16 @@ class _MainPageState extends State<MainPage> {
     return value / a * b;
   }
 
-  // اصلاح شوې برخه: num د double پر ځای کارول شوی.
   String number(num value) {
     if (!value.isFinite) return '0';
-
     if (value.abs() < 0.00001 && value != 0) {
       return value.toStringAsPrecision(5);
     }
-
     return value.toStringAsFixed(2);
   }
 
   List<String> get allCodes {
     final list = rates.keys.toList()..sort();
-
     if (search.isEmpty) return list;
 
     return list.where((c) =>
@@ -267,14 +338,18 @@ class _MainPageState extends State<MainPage> {
     ).toList();
   }
 
-  BoxDecoration cardDecoration({Color color = panel}) {
+  BoxDecoration cardDecoration({Color? color}) {
     return BoxDecoration(
-      color: color,
+      color: color ?? cardColor,
       borderRadius: BorderRadius.circular(19),
-      border: Border.all(color: const Color(0xFF1C4770)),
+      border: Border.all(
+        color: widget.isDark
+            ? const Color(0xFF1C4770)
+            : const Color(0xFFD1DFEF),
+      ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.18),
+          color: Colors.black.withOpacity(widget.isDark ? .18 : .05),
           blurRadius: 12,
           offset: const Offset(0, 5),
         ),
@@ -288,7 +363,8 @@ class _MainPageState extends State<MainPage> {
       child: Row(children: [
         Expanded(
           child: Text(text,
-            style: const TextStyle(
+            style: TextStyle(
+              color: mainText,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -305,26 +381,23 @@ class _MainPageState extends State<MainPage> {
       borderRadius: BorderRadius.circular(15),
       child: Container(
         padding: const EdgeInsets.all(13),
-        decoration: cardDecoration(color: panel2),
+        decoration: cardDecoration(color: cardColor2),
         child: Row(children: [
-          Text(flag(code),
-            style: const TextStyle(fontSize: 30)),
+          Text(flag(code), style: const TextStyle(fontSize: 30)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(code,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: mainText,
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(name(code),
-                  style: const TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: subText, fontSize: 12),
                 ),
               ],
             ),
@@ -341,7 +414,7 @@ class _MainPageState extends State<MainPage> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: panel,
+      backgroundColor: cardColor,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, modalSet) {
           final list = rates.keys.where((c) =>
@@ -361,7 +434,7 @@ class _MainPageState extends State<MainPage> {
                       hintText: t('search'),
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
-                      fillColor: panel2,
+                      fillColor: cardColor2,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -373,7 +446,6 @@ class _MainPageState extends State<MainPage> {
                     itemCount: list.length,
                     itemBuilder: (_, i) {
                       final c = list[i];
-
                       return ListTile(
                         leading: Text(flag(c),
                           style: const TextStyle(fontSize: 27)),
@@ -412,15 +484,15 @@ class _MainPageState extends State<MainPage> {
             const Icon(Icons.currency_exchange, color: cyan),
             const SizedBox(width: 9),
             Text(t('convert'),
-              style: const TextStyle(
+              style: TextStyle(
+                color: mainText,
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ]),
           const SizedBox(height: 15),
-          Text(t('amount'),
-            style: const TextStyle(color: Colors.white70)),
+          Text(t('amount'), style: TextStyle(color: subText)),
           const SizedBox(height: 7),
           TextField(
             controller: amount,
@@ -430,7 +502,7 @@ class _MainPageState extends State<MainPage> {
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               filled: true,
-              fillColor: panel2,
+              fillColor: cardColor2,
               prefixIcon: const Icon(
                 Icons.payments_outlined,
                 color: cyan,
@@ -441,8 +513,7 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           const SizedBox(height: 13),
-          Text(t('from'),
-            style: const TextStyle(color: Colors.white70)),
+          Text(t('from'), style: TextStyle(color: subText)),
           const SizedBox(height: 6),
           currencyButton(from, true),
           Center(
@@ -453,13 +524,10 @@ class _MainPageState extends State<MainPage> {
                 to = old;
               }),
               icon: const Icon(Icons.swap_vert),
-              style: IconButton.styleFrom(
-                backgroundColor: blue,
-              ),
+              style: IconButton.styleFrom(backgroundColor: blue),
             ),
           ),
-          Text(t('to'),
-            style: const TextStyle(color: Colors.white70)),
+          Text(t('to'), style: TextStyle(color: subText)),
           const SizedBox(height: 6),
           currencyButton(to, false),
           const SizedBox(height: 15),
@@ -479,6 +547,7 @@ class _MainPageState extends State<MainPage> {
               Text('${number(converted)} $to',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 27,
                   fontWeight: FontWeight.bold,
                 ),
@@ -496,7 +565,6 @@ class _MainPageState extends State<MainPage> {
                     '${number(double.tryParse(amount.text) ?? 0)} $from → ${number(converted)} $to',
                   );
                 });
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t('saved'))),
                 );
@@ -526,7 +594,8 @@ class _MainPageState extends State<MainPage> {
         leading: Text(flag(code),
           style: const TextStyle(fontSize: 30)),
         title: Text(code,
-          style: const TextStyle(
+          style: TextStyle(
+            color: mainText,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -534,10 +603,7 @@ class _MainPageState extends State<MainPage> {
         subtitle: Text(name(code),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white60,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: subText, fontSize: 12),
         ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -550,10 +616,7 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             Text('1 $code =',
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 11,
-              ),
+              style: TextStyle(color: subText, fontSize: 11),
             ),
           ],
         ),
@@ -592,17 +655,15 @@ class _MainPageState extends State<MainPage> {
           ),
           child: Row(children: [
             Container(
-              width: 53,
-              height: 53,
+              width: 55,
+              height: 55,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(15),
               ),
-              child: const Icon(
-                Icons.public,
-                color: blue,
-                size: 35,
-              ),
+              child: const Text('🇦🇫',
+                style: TextStyle(fontSize: 35)),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -611,6 +672,7 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   Text('Afghani Exchange',
                     style: TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
@@ -642,7 +704,7 @@ class _MainPageState extends State<MainPage> {
                 lastUpdate == null
                     ? (loading ? t('loading') : error)
                     : '${t('updated')}: ${lastUpdate!.toLocal().toString().substring(0, 16)}',
-                style: const TextStyle(fontSize: 12),
+                style: TextStyle(color: mainText, fontSize: 12),
               ),
             ),
             if (loading)
@@ -656,28 +718,13 @@ class _MainPageState extends State<MainPage> {
         const SizedBox(height: 14),
         converterCard(),
         sectionTitle(t('rates')),
-        Wrap(
-          spacing: 7,
-          children: [
-            for (final c in ['USD','GBP','EUR','SAR','PKR','AED'])
-              ActionChip(
-                avatar: Text(flag(c)),
-                label: Text(c),
-                onPressed: () => setState(() {
-                  from = c;
-                  to = 'AFN';
-                }),
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
         TextField(
           onChanged: (v) => setState(() => search = v),
           decoration: InputDecoration(
             hintText: t('search'),
             prefixIcon: const Icon(Icons.search, color: cyan),
             filled: true,
-            fillColor: panel,
+            fillColor: cardColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
@@ -694,11 +741,7 @@ class _MainPageState extends State<MainPage> {
         const SizedBox(height: 15),
         Center(
           child: Text(t('source'),
-            style: const TextStyle(
-              color: Colors.white38,
-              fontSize: 11,
-            ),
-          ),
+            style: TextStyle(color: subText, fontSize: 11)),
         ),
       ],
     );
@@ -715,7 +758,7 @@ class _MainPageState extends State<MainPage> {
             hintText: t('search'),
             prefixIcon: const Icon(Icons.search),
             filled: true,
-            fillColor: panel,
+            fillColor: cardColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
@@ -767,10 +810,71 @@ class _MainPageState extends State<MainPage> {
           decoration: cardDecoration(),
           child: ListTile(
             leading: const Icon(Icons.swap_horiz, color: cyan),
-            title: Text(item),
+            title: Text(item, style: TextStyle(color: mainText)),
           ),
         )),
       ],
+    );
+  }
+
+  Widget creatorCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: cardDecoration(color: cardColor2),
+      child: Column(children: [
+        GestureDetector(
+          onTap: choosePhoto,
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 43,
+                backgroundColor: blue,
+                backgroundImage: creatorPhoto != null
+                    ? FileImage(creatorPhoto!)
+                    : null,
+                child: creatorPhoto == null
+                    ? const Icon(
+                        Icons.person,
+                        size: 48,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: cyan,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.black,
+                    size: 17,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text('Abdullah ALOKOZAI',
+          style: TextStyle(
+            color: mainText,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(t('creator'), style: const TextStyle(color: cyan)),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: choosePhoto,
+          icon: const Icon(Icons.add_a_photo),
+          label: Text(t('photo')),
+        ),
+      ]),
     );
   }
 
@@ -778,30 +882,7 @@ class _MainPageState extends State<MainPage> {
     return ListView(
       padding: const EdgeInsets.all(15),
       children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: cardDecoration(color: panel2),
-          child: Column(children: [
-            const CircleAvatar(
-              radius: 34,
-              backgroundColor: blue,
-              child: Icon(
-                Icons.person,
-                size: 38,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text('Abdullah ALOKOZAI',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(t('creator'),
-              style: const TextStyle(color: cyan)),
-          ]),
-        ),
+        creatorCard(),
         const SizedBox(height: 15),
         sectionTitle(t('language')),
         for (final item in [
@@ -810,43 +891,61 @@ class _MainPageState extends State<MainPage> {
           ('en', 'English'),
         ])
           Card(
-            color: panel,
+            color: cardColor,
             child: RadioListTile<String>(
               value: item.$1,
               groupValue: lang,
               title: Text(item.$2),
               onChanged: (v) {
-                if (v != null) {
-                  setState(() => lang = v);
-                }
+                if (v != null) setState(() => lang = v);
               },
             ),
           ),
         sectionTitle(t('about')),
+        Card(
+          color: cardColor,
+          child: SwitchListTile(
+            secondary: Icon(
+              widget.isDark ? Icons.dark_mode : Icons.light_mode,
+              color: cyan,
+            ),
+            title: Text(widget.isDark ? t('dark') : t('light')),
+            value: widget.isDark,
+            onChanged: widget.onThemeChanged,
+          ),
+        ),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(17),
           decoration: cardDecoration(),
           child: Column(children: [
-            const Icon(Icons.public, size: 42, color: cyan),
-            const SizedBox(height: 10),
-            const Text('Afghani Exchange',
+            const Text('🇦🇫',
+              style: TextStyle(fontSize: 45)),
+            const SizedBox(height: 8),
+            Text('Afghani Exchange',
               style: TextStyle(
+                color: mainText,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
             ),
             const SizedBox(height: 12),
-            Text(t('quote'), textAlign: TextAlign.center),
+            Text(t('quote'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: mainText, height: 1.6),
+            ),
             const SizedBox(height: 12),
             Text(t('source'),
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 11,
+              style: TextStyle(color: subText, fontSize: 11)),
+            const SizedBox(height: 8),
+            Text('Version 1.0.0',
+              style: TextStyle(color: subText)),
+            const SizedBox(height: 8),
+            const Text('👑 Abdullah ALOKOZAI',
+              style: TextStyle(
+                color: gold,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text('Version 1.0.0',
-              style: TextStyle(color: Colors.white54)),
           ]),
         ),
         sectionTitle(t('afghanHistory')),
@@ -854,14 +953,14 @@ class _MainPageState extends State<MainPage> {
           padding: const EdgeInsets.all(16),
           decoration: cardDecoration(),
           child: Text(t('afghanText'),
-            style: const TextStyle(height: 1.8)),
+            style: TextStyle(color: mainText, height: 1.8)),
         ),
         sectionTitle(t('worldHistory')),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: cardDecoration(),
           child: Text(t('worldText'),
-            style: const TextStyle(height: 1.8)),
+            style: TextStyle(color: mainText, height: 1.8)),
         ),
       ],
     );
@@ -882,24 +981,26 @@ class _MainPageState extends State<MainPage> {
           lang == 'en' ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: bg,
-          title: const Text(
-            'Afghani Exchange',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Text('🇦🇫 ', style: TextStyle(fontSize: 22)),
+              Text(
+                'Afghani Exchange',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           centerTitle: true,
-          leading: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(Icons.public, color: cyan, size: 27),
-          ),
         ),
         body: IndexedStack(
           index: tab,
           children: pages,
         ),
         bottomNavigationBar: NavigationBar(
-          backgroundColor: const Color(0xFF081B30),
-          indicatorColor: blue.withOpacity(.25),
+          backgroundColor: cardColor,
+          indicatorColor: blue.withOpacity(.2),
           selectedIndex: tab,
           onDestinationSelected: (v) {
             setState(() {
@@ -915,10 +1016,7 @@ class _MainPageState extends State<MainPage> {
             ),
             NavigationDestination(
               icon: const Icon(Icons.currency_exchange),
-              selectedIcon: const Icon(
-                Icons.currency_exchange,
-                color: cyan,
-              ),
+              selectedIcon: const Icon(Icons.currency_exchange, color: cyan),
               label: t('currencies'),
             ),
             NavigationDestination(
