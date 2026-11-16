@@ -1,28 +1,28 @@
 name: afghani_exchange
-description: Afghani Exchange Currency Converter
+description: Afghani Exchange currency converter app
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.8
+  http: ^1.2.2
   image_picker: ^1.1.2
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.3
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.4
+
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
-
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/app_icon.png"
-  adaptive_icon_background: "#061426"
-  adaptive_icon_foreground: "assets/icon/app_icon.png"
