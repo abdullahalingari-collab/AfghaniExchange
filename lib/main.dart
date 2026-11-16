@@ -145,8 +145,8 @@ class _MainPageState extends State<MainPage> {
   String from = 'USD';
   String to = 'AFN';
   String search = '';
+
   final amount = TextEditingController(text: '100');
-  final searchController = TextEditingController();
 
   Map<String, double> rates = {};
   bool loading = false;
@@ -165,42 +165,61 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     fetchRates();
-    timer = Timer.periodic(const Duration(hours: 12), (_) => fetchRates());
+    timer = Timer.periodic(
+      const Duration(hours: 12),
+      (_) => fetchRates(),
+    );
   }
 
   @override
   void dispose() {
     timer?.cancel();
     amount.dispose();
-    searchController.dispose();
     super.dispose();
   }
 
   Future<void> fetchRates() async {
     if (loading) return;
-    setState(() { loading = true; error = ''; });
+    setState(() {
+      loading = true;
+      error = '';
+    });
+
     HttpClient? client;
+
     try {
       client = HttpClient()
         ..connectionTimeout = const Duration(seconds: 20);
+
       final request = await client.getUrl(
         Uri.parse('https://open.er-api.com/v6/latest/AFN'),
       );
+
       final response = await request.close();
       final body = await response.transform(utf8.decoder).join();
+
       if (response.statusCode != 200) {
         throw Exception('HTTP ${response.statusCode}');
       }
+
       final data = jsonDecode(body) as Map<String, dynamic>;
-      if (data['result'] != 'success') throw Exception('API error');
+
+      if (data['result'] != 'success') {
+        throw Exception('API error');
+      }
+
       final raw = data['rates'] as Map<String, dynamic>;
       final updatedRates = <String, double>{'AFN': 1};
+
       for (final item in raw.entries) {
         if (item.value is num && (item.value as num) > 0) {
-          updatedRates[item.key] = (item.value as num).toDouble();
+          updatedRates[item.key] =
+              (item.value as num).toDouble();
         }
       }
+
       if (!mounted) return;
+
       setState(() {
         rates = updatedRates;
         lastUpdate = DateTime.now();
@@ -208,7 +227,10 @@ class _MainPageState extends State<MainPage> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() { loading = false; error = 'Could not load rates'; });
+      setState(() {
+        loading = false;
+        error = 'Could not load rates';
+      });
     } finally {
       client?.close(force: true);
     }
@@ -218,46 +240,60 @@ class _MainPageState extends State<MainPage> {
     final value = double.tryParse(amount.text) ?? 0;
     final a = rates[from];
     final b = rates[to];
+
     if (a == null || b == null || a == 0) return 0;
     return value / a * b;
   }
 
-  String number(double value) {
+  // اصلاح شوې برخه: num د double پر ځای کارول شوی.
+  String number(num value) {
     if (!value.isFinite) return '0';
+
     if (value.abs() < 0.00001 && value != 0) {
       return value.toStringAsPrecision(5);
     }
+
     return value.toStringAsFixed(2);
   }
 
   List<String> get allCodes {
     final list = rates.keys.toList()..sort();
+
     if (search.isEmpty) return list;
+
     return list.where((c) =>
       c.toLowerCase().contains(search.toLowerCase()) ||
       name(c).toLowerCase().contains(search.toLowerCase())
     ).toList();
   }
 
-  BoxDecoration cardDecoration({Color color = panel}) => BoxDecoration(
-    color: color,
-    borderRadius: BorderRadius.circular(19),
-    border: Border.all(color: const Color(0xFF1C4770)),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.18),
-        blurRadius: 12,
-        offset: const Offset(0, 5),
-      ),
-    ],
-  );
+  BoxDecoration cardDecoration({Color color = panel}) {
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(19),
+      border: Border.all(color: const Color(0xFF1C4770)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.18),
+          blurRadius: 12,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
 
   Widget sectionTitle(String text, {Widget? trailing}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(children: [
-        Expanded(child: Text(text,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+        Expanded(
+          child: Text(text,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         if (trailing != null) trailing,
       ]),
     );
@@ -271,17 +307,28 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.all(13),
         decoration: cardDecoration(color: panel2),
         child: Row(children: [
-          Text(flag(code), style: const TextStyle(fontSize: 30)),
+          Text(flag(code),
+            style: const TextStyle(fontSize: 30)),
           const SizedBox(width: 12),
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(code, style: const TextStyle(
-                fontSize: 17, fontWeight: FontWeight.bold)),
-              Text(name(code), style: const TextStyle(
-                color: Colors.white60, fontSize: 12)),
-            ],
-          )),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(code,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(name(code),
+                  style: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const Icon(Icons.keyboard_arrow_down, color: cyan),
         ]),
       ),
@@ -290,6 +337,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> chooseCurrency(bool isFrom) async {
     String query = '';
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -315,28 +363,36 @@ class _MainPageState extends State<MainPage> {
                       filled: true,
                       fillColor: panel2,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                     ),
                   ),
                 ),
-                Expanded(child: ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (_, i) {
-                    final c = list[i];
-                    return ListTile(
-                      leading: Text(flag(c),
-                        style: const TextStyle(fontSize: 27)),
-                      title: Text(name(c)),
-                      subtitle: Text(c),
-                      onTap: () {
-                        setState(() {
-                          if (isFrom) { from = c; } else { to = c; }
-                        });
-                        Navigator.pop(ctx);
-                      },
-                    );
-                  },
-                )),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (_, i) {
+                      final c = list[i];
+
+                      return ListTile(
+                        leading: Text(flag(c),
+                          style: const TextStyle(fontSize: 27)),
+                        title: Text(name(c)),
+                        subtitle: Text(c),
+                        onTap: () {
+                          setState(() {
+                            if (isFrom) {
+                              from = c;
+                            } else {
+                              to = c;
+                            }
+                          });
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    },
+                  ),
+                ),
               ]),
             ),
           );
@@ -349,108 +405,164 @@ class _MainPageState extends State<MainPage> {
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: cardDecoration(),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Icon(Icons.currency_exchange, color: cyan),
-          const SizedBox(width: 9),
-          Text(t('convert'), style: const TextStyle(
-            fontSize: 19, fontWeight: FontWeight.bold)),
-        ]),
-        const SizedBox(height: 15),
-        Text(t('amount'), style: const TextStyle(color: Colors.white70)),
-        const SizedBox(height: 7),
-        TextField(
-          controller: amount,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(
-            filled: true, fillColor: panel2,
-            prefixIcon: const Icon(Icons.payments_outlined, color: cyan),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14)),
-          ),
-        ),
-        const SizedBox(height: 13),
-        Text(t('from'), style: const TextStyle(color: Colors.white70)),
-        const SizedBox(height: 6),
-        currencyButton(from, true),
-        Center(child: IconButton.filled(
-          onPressed: () => setState(() {
-            final old = from; from = to; to = old;
-          }),
-          icon: const Icon(Icons.swap_vert),
-          style: IconButton.styleFrom(backgroundColor: blue),
-        )),
-        Text(t('to'), style: const TextStyle(color: Colors.white70)),
-        const SizedBox(height: 6),
-        currencyButton(to, false),
-        const SizedBox(height: 15),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(17),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0758B9), Color(0xFF087DF5)]),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(children: [
-            Text(t('result'), style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 7),
-            Text('${number(converted)} $to',
-              textAlign: TextAlign.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Icon(Icons.currency_exchange, color: cyan),
+            const SizedBox(width: 9),
+            Text(t('convert'),
               style: const TextStyle(
-                fontSize: 27, fontWeight: FontWeight.bold)),
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ]),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: () {
-              setState(() {
-                history.insert(0,
-                  '${number(double.tryParse(amount.text) ?? 0)} $from → ${number(converted)} $to');
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t('saved'))));
-            },
-            icon: const Icon(Icons.calculate),
-            label: Text(t('convert')),
+          const SizedBox(height: 15),
+          Text(t('amount'),
+            style: const TextStyle(color: Colors.white70)),
+          const SizedBox(height: 7),
+          TextField(
+            controller: amount,
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: panel2,
+              prefixIcon: const Icon(
+                Icons.payments_outlined,
+                color: cyan,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
           ),
-        ),
-      ]),
+          const SizedBox(height: 13),
+          Text(t('from'),
+            style: const TextStyle(color: Colors.white70)),
+          const SizedBox(height: 6),
+          currencyButton(from, true),
+          Center(
+            child: IconButton.filled(
+              onPressed: () => setState(() {
+                final old = from;
+                from = to;
+                to = old;
+              }),
+              icon: const Icon(Icons.swap_vert),
+              style: IconButton.styleFrom(
+                backgroundColor: blue,
+              ),
+            ),
+          ),
+          Text(t('to'),
+            style: const TextStyle(color: Colors.white70)),
+          const SizedBox(height: 6),
+          currencyButton(to, false),
+          const SizedBox(height: 15),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(17),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0758B9), Color(0xFF087DF5)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(children: [
+              Text(t('result'),
+                style: const TextStyle(color: Colors.white70)),
+              const SizedBox(height: 7),
+              Text('${number(converted)} $to',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ]),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () {
+                setState(() {
+                  history.insert(
+                    0,
+                    '${number(double.tryParse(amount.text) ?? 0)} $from → ${number(converted)} $to',
+                  );
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t('saved'))),
+                );
+              },
+              icon: const Icon(Icons.calculate),
+              label: Text(t('convert')),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget rateTile(String code) {
     final r = rates[code] ?? 0;
-    final oneAfghani = r;
-    final oneUnitAfghani = code == 'AFN' ? 1.0 : (r == 0 ? 0 : 1 / r);
+    final oneUnitAfghani =
+        code == 'AFN' ? 1.0 : (r == 0 ? 0.0 : 1 / r);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 9),
       decoration: cardDecoration(),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 13, vertical: 4),
-        leading: Text(flag(code), style: const TextStyle(fontSize: 30)),
-        title: Text(code, style: const TextStyle(
-          fontWeight: FontWeight.bold, fontSize: 16)),
-        subtitle: Text(name(code), maxLines: 1,
+          horizontal: 13,
+          vertical: 4,
+        ),
+        leading: Text(flag(code),
+          style: const TextStyle(fontSize: 30)),
+        title: Text(code,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(name(code),
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.white60, fontSize: 12)),
+          style: const TextStyle(
+            color: Colors.white60,
+            fontSize: 12,
+          ),
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text('${number(oneUnitAfghani)} AFN',
               style: const TextStyle(
-                color: green, fontWeight: FontWeight.bold)),
-            Text('1 $code =', style: const TextStyle(
-              color: Colors.white54, fontSize: 11)),
+                color: green,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text('1 $code =',
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 11,
+              ),
+            ),
           ],
         ),
         onTap: () {
-          setState(() { from = code; to = 'AFN'; tab = 0; });
+          setState(() {
+            from = code;
+            to = 'AFN';
+            tab = 0;
+          });
         },
         onLongPress: () => toggleFavorite(code),
       ),
@@ -459,214 +571,300 @@ class _MainPageState extends State<MainPage> {
 
   void toggleFavorite(String code) {
     setState(() {
-      if (!favorites.add(code)) favorites.remove(code);
+      if (!favorites.add(code)) {
+        favorites.remove(code);
+      }
     });
   }
 
   Widget homePage() {
-    return ListView(padding: const EdgeInsets.all(15), children: [
-      Container(
-        padding: const EdgeInsets.all(17),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF092C53), Color(0xFF075CA6)]),
-          borderRadius: BorderRadius.circular(21),
-          border: Border.all(color: cyan.withOpacity(.35)),
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(17),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF092C53), Color(0xFF075CA6)],
+            ),
+            borderRadius: BorderRadius.circular(21),
+            border: Border.all(color: cyan.withOpacity(.35)),
+          ),
+          child: Row(children: [
+            Container(
+              width: 53,
+              height: 53,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.public,
+                color: blue,
+                size: 35,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Afghani Exchange',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                  Text('Live Exchange Rates',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: loading ? null : fetchRates,
+              icon: const Icon(Icons.refresh, color: cyan),
+            ),
+          ]),
         ),
-        child: Row(children: [
-          Container(
-            width: 53, height: 53,
-            decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.public, color: blue, size: 35),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Afghani Exchange',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              const Text('Live Exchange Rates',
-                style: TextStyle(color: Colors.white70, fontSize: 12)),
-            ],
-          )),
-          IconButton(
-            onPressed: loading ? null : fetchRates,
-            icon: const Icon(Icons.refresh, color: cyan),
-          ),
-        ]),
-      ),
-      const SizedBox(height: 12),
-      Container(
-        padding: const EdgeInsets.all(13),
-        decoration: cardDecoration(),
-        child: Row(children: [
-          const Icon(Icons.circle, color: green, size: 11),
-          const SizedBox(width: 9),
-          Expanded(child: Text(
-            lastUpdate == null
-              ? (loading ? t('loading') : error)
-              : '${t('updated')}: ${lastUpdate!.toLocal().toString().substring(0, 16)}',
-            style: const TextStyle(fontSize: 12))),
-          if (loading)
-            const SizedBox(width: 17, height: 17,
-              child: CircularProgressIndicator(strokeWidth: 2)),
-        ]),
-      ),
-      const SizedBox(height: 14),
-      converterCard(),
-      sectionTitle(t('rates')),
-      Wrap(spacing: 7, children: [
-        for (final c in ['USD','GBP','EUR','SAR','PKR','AED'])
-          ActionChip(
-            avatar: Text(flag(c)),
-            label: Text(c),
-            onPressed: () => setState(() { from = c; to = 'AFN'; }),
-          ),
-      ]),
-      const SizedBox(height: 10),
-      TextField(
-        onChanged: (v) => setState(() => search = v),
-        decoration: InputDecoration(
-          hintText: t('search'),
-          prefixIcon: const Icon(Icons.search, color: cyan),
-          filled: true, fillColor: panel,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(13),
+          decoration: cardDecoration(),
+          child: Row(children: [
+            const Icon(Icons.circle, color: green, size: 11),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
+                lastUpdate == null
+                    ? (loading ? t('loading') : error)
+                    : '${t('updated')}: ${lastUpdate!.toLocal().toString().substring(0, 16)}',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            if (loading)
+              const SizedBox(
+                width: 17,
+                height: 17,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+          ]),
         ),
-      ),
-      const SizedBox(height: 12),
-      if (rates.isEmpty && loading)
-        const Center(child: CircularProgressIndicator())
-      else if (allCodes.isEmpty)
-        Center(child: Text(t('empty')))
-      else
-        ...allCodes.map(rateTile),
-      const SizedBox(height: 15),
-      Center(child: Text(t('source'),
-        style: const TextStyle(color: Colors.white38, fontSize: 11))),
-    ]);
+        const SizedBox(height: 14),
+        converterCard(),
+        sectionTitle(t('rates')),
+        Wrap(
+          spacing: 7,
+          children: [
+            for (final c in ['USD','GBP','EUR','SAR','PKR','AED'])
+              ActionChip(
+                avatar: Text(flag(c)),
+                label: Text(c),
+                onPressed: () => setState(() {
+                  from = c;
+                  to = 'AFN';
+                }),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          onChanged: (v) => setState(() => search = v),
+          decoration: InputDecoration(
+            hintText: t('search'),
+            prefixIcon: const Icon(Icons.search, color: cyan),
+            filled: true,
+            fillColor: panel,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (rates.isEmpty && loading)
+          const Center(child: CircularProgressIndicator())
+        else if (allCodes.isEmpty)
+          Center(child: Text(t('empty')))
+        else
+          ...allCodes.map(rateTile),
+        const SizedBox(height: 15),
+        Center(
+          child: Text(t('source'),
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 11,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget currenciesPage() {
-    return ListView(padding: const EdgeInsets.all(15), children: [
-      sectionTitle(t('currencies')),
-      TextField(
-        onChanged: (v) => setState(() => search = v),
-        decoration: InputDecoration(
-          hintText: t('search'),
-          prefixIcon: const Icon(Icons.search),
-          filled: true, fillColor: panel,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none),
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: [
+        sectionTitle(t('currencies')),
+        TextField(
+          onChanged: (v) => setState(() => search = v),
+          decoration: InputDecoration(
+            hintText: t('search'),
+            prefixIcon: const Icon(Icons.search),
+            filled: true,
+            fillColor: panel,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+          ),
         ),
-      ),
-      const SizedBox(height: 12),
-      ...allCodes.map(rateTile),
-    ]);
+        const SizedBox(height: 12),
+        ...allCodes.map(rateTile),
+      ],
+    );
   }
 
   Widget favoritesPage() {
-    final list = favorites.where((c) => rates.containsKey(c)).toList()..sort();
-    return ListView(padding: const EdgeInsets.all(15), children: [
-      sectionTitle(t('favorites')),
-      if (list.isEmpty) Center(child: Text(t('empty'))),
-      ...list.map((c) => Row(children: [
-        Expanded(child: rateTile(c)),
-        IconButton(
-          onPressed: () => toggleFavorite(c),
-          icon: const Icon(Icons.star, color: gold),
-        ),
-      ])),
-    ]);
+    final list = favorites
+        .where((c) => rates.containsKey(c))
+        .toList()
+      ..sort();
+
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: [
+        sectionTitle(t('favorites')),
+        if (list.isEmpty) Center(child: Text(t('empty'))),
+        ...list.map((c) => Row(children: [
+          Expanded(child: rateTile(c)),
+          IconButton(
+            onPressed: () => toggleFavorite(c),
+            icon: const Icon(Icons.star, color: gold),
+          ),
+        ])),
+      ],
+    );
   }
 
   Widget historyPage() {
-    return ListView(padding: const EdgeInsets.all(15), children: [
-      sectionTitle(t('history'), trailing: TextButton(
-        onPressed: () => setState(() => history.clear()),
-        child: Text(t('clear')))),
-      if (history.isEmpty) Center(child: Text(t('empty'))),
-      ...history.map((item) => Container(
-        margin: const EdgeInsets.only(bottom: 9),
-        decoration: cardDecoration(),
-        child: ListTile(
-          leading: const Icon(Icons.swap_horiz, color: cyan),
-          title: Text(item),
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: [
+        sectionTitle(
+          t('history'),
+          trailing: TextButton(
+            onPressed: () => setState(() => history.clear()),
+            child: Text(t('clear')),
+          ),
         ),
-      )),
-    ]);
+        if (history.isEmpty) Center(child: Text(t('empty'))),
+        ...history.map((item) => Container(
+          margin: const EdgeInsets.only(bottom: 9),
+          decoration: cardDecoration(),
+          child: ListTile(
+            leading: const Icon(Icons.swap_horiz, color: cyan),
+            title: Text(item),
+          ),
+        )),
+      ],
+    );
   }
 
   Widget morePage() {
-    return ListView(padding: const EdgeInsets.all(15), children: [
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: cardDecoration(color: panel2),
-        child: Column(children: [
-          const CircleAvatar(
-            radius: 34,
-            backgroundColor: blue,
-            child: Icon(Icons.person, size: 38, color: Colors.white),
-          ),
-          const SizedBox(height: 10),
-          const Text('Abdullah ALOKOZAI',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(t('creator'), style: const TextStyle(color: cyan)),
-        ]),
-      ),
-      const SizedBox(height: 15),
-      sectionTitle(t('language')),
-      for (final item in [
-        ('ps', 'پښتو'), ('fa', 'دری'), ('en', 'English')
-      ])
-        Card(
-          color: panel,
-          child: RadioListTile<String>(
-            value: item.$1,
-            groupValue: lang,
-            title: Text(item.$2),
-            onChanged: (v) {
-              if (v != null) setState(() => lang = v);
-            },
-          ),
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: cardDecoration(color: panel2),
+          child: Column(children: [
+            const CircleAvatar(
+              radius: 34,
+              backgroundColor: blue,
+              child: Icon(
+                Icons.person,
+                size: 38,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text('Abdullah ALOKOZAI',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(t('creator'),
+              style: const TextStyle(color: cyan)),
+          ]),
         ),
-      sectionTitle(t('about')),
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: cardDecoration(),
-        child: Column(children: [
-          const Icon(Icons.public, size: 42, color: cyan),
-          const SizedBox(height: 10),
-          const Text('Afghani Exchange',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-          const SizedBox(height: 12),
-          Text(t('quote'), textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          Text(t('source'),
-            style: const TextStyle(color: Colors.white54, fontSize: 11)),
-          const SizedBox(height: 8),
-          const Text('Version 1.0.0',
-            style: TextStyle(color: Colors.white54)),
-        ]),
-      ),
-      sectionTitle(t('afghanHistory')),
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: cardDecoration(),
-        child: Text(t('afghanText'),
-          style: const TextStyle(height: 1.8)),
-      ),
-      sectionTitle(t('worldHistory')),
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: cardDecoration(),
-        child: Text(t('worldText'),
-          style: const TextStyle(height: 1.8)),
-      ),
-    ]);
+        const SizedBox(height: 15),
+        sectionTitle(t('language')),
+        for (final item in [
+          ('ps', 'پښتو'),
+          ('fa', 'دری'),
+          ('en', 'English'),
+        ])
+          Card(
+            color: panel,
+            child: RadioListTile<String>(
+              value: item.$1,
+              groupValue: lang,
+              title: Text(item.$2),
+              onChanged: (v) {
+                if (v != null) {
+                  setState(() => lang = v);
+                }
+              },
+            ),
+          ),
+        sectionTitle(t('about')),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: cardDecoration(),
+          child: Column(children: [
+            const Icon(Icons.public, size: 42, color: cyan),
+            const SizedBox(height: 10),
+            const Text('Afghani Exchange',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(t('quote'), textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            Text(t('source'),
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text('Version 1.0.0',
+              style: TextStyle(color: Colors.white54)),
+          ]),
+        ),
+        sectionTitle(t('afghanHistory')),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: cardDecoration(),
+          child: Text(t('afghanText'),
+            style: const TextStyle(height: 1.8)),
+        ),
+        sectionTitle(t('worldHistory')),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: cardDecoration(),
+          child: Text(t('worldText'),
+            style: const TextStyle(height: 1.8)),
+        ),
+      ],
+    );
   }
 
   @override
@@ -680,47 +878,64 @@ class _MainPageState extends State<MainPage> {
     ];
 
     return Directionality(
-      textDirection: lang == 'en' ? TextDirection.ltr : TextDirection.rtl,
+      textDirection:
+          lang == 'en' ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: bg,
-          title: const Text('Afghani Exchange',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            'Afghani Exchange',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
           leading: const Padding(
             padding: EdgeInsets.all(10),
             child: Icon(Icons.public, color: cyan, size: 27),
           ),
         ),
-        body: IndexedStack(index: tab, children: pages),
+        body: IndexedStack(
+          index: tab,
+          children: pages,
+        ),
         bottomNavigationBar: NavigationBar(
           backgroundColor: const Color(0xFF081B30),
           indicatorColor: blue.withOpacity(.25),
           selectedIndex: tab,
           onDestinationSelected: (v) {
-            setState(() { tab = v; search = ''; });
+            setState(() {
+              tab = v;
+              search = '';
+            });
           },
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),
               selectedIcon: const Icon(Icons.home, color: cyan),
-              label: t('home')),
+              label: t('home'),
+            ),
             NavigationDestination(
               icon: const Icon(Icons.currency_exchange),
-              selectedIcon: const Icon(Icons.currency_exchange, color: cyan),
-              label: t('currencies')),
+              selectedIcon: const Icon(
+                Icons.currency_exchange,
+                color: cyan,
+              ),
+              label: t('currencies'),
+            ),
             NavigationDestination(
               icon: const Icon(Icons.star_border),
               selectedIcon: const Icon(Icons.star, color: gold),
-              label: t('favorites')),
+              label: t('favorites'),
+            ),
             NavigationDestination(
               icon: const Icon(Icons.history),
               selectedIcon: const Icon(Icons.history, color: cyan),
-              label: t('history')),
+              label: t('history'),
+            ),
             NavigationDestination(
               icon: const Icon(Icons.grid_view),
               selectedIcon: const Icon(Icons.grid_view, color: cyan),
-              label: t('more')),
+              label: t('more'),
+            ),
           ],
         ),
       ),
