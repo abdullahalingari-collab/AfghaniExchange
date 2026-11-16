@@ -15,11 +15,12 @@ dependencies:
   http: ^1.6.0
   html: ^0.15.6
   shared_preferences: ^2.5.3
+  image_picker: ^1.1.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
 
 flutter:
