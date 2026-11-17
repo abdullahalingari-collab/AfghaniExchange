@@ -1,7 +1,8 @@
 name: afghan_asaar
-description: Afghan Asaar currency exchange app
+description: Afghan Asaar Currency Exchange App
 publish_to: 'none'
-version: 1.0.0+3
+
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -9,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.8
   http: ^1.6.0
   shared_preferences: ^2.5.3
@@ -18,6 +20,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^5.0.0
 
 flutter:
