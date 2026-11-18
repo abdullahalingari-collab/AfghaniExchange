@@ -29,7 +29,6 @@ String fmt(dynamic value) {
 
 String codeFromLabel(String label) {
   final s = label.toUpperCase();
-
   if (s.contains('USD')) return 'USD';
   if (s.contains('EURO') || s.contains('EUR')) return 'EUR';
   if (s.contains('POUND') || s.contains('GBP')) return 'GBP';
@@ -52,7 +51,6 @@ String codeFromLabel(String label) {
   if (s.contains('BHD')) return 'BHD';
   if (s.contains('JPY')) return 'JPY';
   if (s.contains('AFN')) return 'AFN';
-
   return '';
 }
 
@@ -88,7 +86,6 @@ const Map<String, String> flags = {
   'BRL': '🇧🇷',
   'ZAR': '🇿🇦',
   'EGP': '🇪🇬',
-  'QAR': '🇶🇦',
   'OMR': '🇴🇲',
   'JOD': '🇯🇴',
   'IQD': '🇮🇶',
@@ -386,12 +383,7 @@ class _HomePageState extends State<HomePage> {
   String flag(String code) => flags[code] ?? '🌐';
 
   String currencyName(String code) {
-    return names[widget.language]?[code] ??
-        (widget.language == 'fa'
-            ? code
-            : widget.language == 'ps'
-                ? code
-                : code);
+    return names[widget.language]?[code] ?? code;
   }
 
   Map<String, double> conversionRates() {
@@ -409,7 +401,6 @@ class _HomePageState extends State<HomePage> {
 
       double rate = value.toDouble();
 
-      // 1K rows are displayed unchanged, but converted per one unit.
       if (label.toUpperCase().contains('1K')) {
         rate = rate / 1000;
       }
@@ -567,13 +558,12 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Column(
               children: [
-                const Text('🇦🇫',
-                    style: TextStyle(fontSize: 34)),
+                const Text('🇦🇫', style: TextStyle(fontSize: 34)),
                 Text(
                   tr('افغانۍ د اسعارو نرخونه',
                       'نرخ اسعار افغانی', 'Afghani Exchange Rates'),
-                  style: TextStyle(
-                    color: widget.dark ? Colors.white : Colors.white,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
                   ),
@@ -900,17 +890,15 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 15),
-        Center(
+        const Center(
           child: Text('Abdullah Eman',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 24, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(height: 8),
-        Center(
-          child: Text(
-            '🇦🇫  Afghanistan',
-            style: const TextStyle(fontSize: 18),
-          ),
+        const Center(
+          child: Text('🇦🇫  Afghanistan',
+              style: TextStyle(fontSize: 18)),
         ),
         const SizedBox(height: 20),
         const Divider(),
