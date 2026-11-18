@@ -15,20 +15,26 @@ void main() {
   runApp(const AfghaniExchangeApp());
 }
 
+// د اعشاریه او سنټونو د ښکاره کولو لپاره
 String fmt(dynamic value) {
   if (value is num) {
     String s = value.toString();
-    if (s.contains('.')) {
-      s = s.replaceFirst(RegExp(r'0+$'), '');
-      s = s.replaceFirst(RegExp(r'\.$'), '');
-    }
+
+    if (!s.contains('.')) return '$s.00';
+
+    final decimals = s.split('.').last.length;
+
+    if (decimals == 1) return '${s}0';
+
     return s;
   }
+
   return value?.toString() ?? '-';
 }
 
 String codeFromLabel(String label) {
   final s = label.toUpperCase();
+
   if (s.contains('USD')) return 'USD';
   if (s.contains('EURO') || s.contains('EUR')) return 'EUR';
   if (s.contains('POUND') || s.contains('GBP')) return 'GBP';
@@ -51,6 +57,7 @@ String codeFromLabel(String label) {
   if (s.contains('BHD')) return 'BHD';
   if (s.contains('JPY')) return 'JPY';
   if (s.contains('AFN')) return 'AFN';
+
   return '';
 }
 
@@ -94,6 +101,47 @@ const Map<String, String> flags = {
   'NPR': '🇳🇵',
   'PHP': '🇵🇭',
   'MXN': '🇲🇽',
+
+  // نور نړیوال اسعار او بیرغونه
+  'TWD': '🇹🇼',
+  'HKD': '🇭🇰',
+  'MOP': '🇲🇴',
+  'VND': '🇻🇳',
+  'KHR': '🇰🇭',
+  'MMK': '🇲🇲',
+  'LAK': '🇱🇦',
+  'UZS': '🇺🇿',
+  'KZT': '🇰🇿',
+  'KGS': '🇰🇬',
+  'TJS': '🇹🇯',
+  'GEL': '🇬🇪',
+  'AMD': '🇦🇲',
+  'AZN': '🇦🇿',
+  'ILS': '🇮🇱',
+  'LBP': '🇱🇧',
+  'DZD': '🇩🇿',
+  'MAD': '🇲🇦',
+  'TND': '🇹🇳',
+  'NGN': '🇳🇬',
+  'KES': '🇰🇪',
+  'GHS': '🇬🇭',
+  'ETB': '🇪🇹',
+  'TZS': '🇹🇿',
+  'UGX': '🇺🇬',
+  'XOF': '🌍',
+  'XAF': '🌍',
+  'PLN': '🇵🇱',
+  'CZK': '🇨🇿',
+  'HUF': '🇭🇺',
+  'RON': '🇷🇴',
+  'BGN': '🇧🇬',
+  'UAH': '🇺🇦',
+  'ISK': '🇮🇸',
+  'HRK': '🇭🇷',
+  'CLP': '🇨🇱',
+  'COP': '🇨🇴',
+  'ARS': '🇦🇷',
+  'PEN': '🇵🇪',
 };
 
 const Map<String, Map<String, String>> names = {
@@ -224,6 +272,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int page = 0;
+  int selectedMarketIndex = 0;
+
   bool loading = true;
   String? error;
   DateTime? updatedAt;
@@ -453,13 +503,20 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text(subtitle,
-                          style: TextStyle(
-                              color: isDark ? Colors.white60 : Colors.black54,
-                              fontSize: 12)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: isDark ? Colors.white60 : Colors.black54,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -470,30 +527,43 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Expanded(
-                    flex: 5,
-                    child: Text(tr('اسعار', 'ارز', 'Currency'),
-                        style: const TextStyle(fontWeight: FontWeight.bold))),
+                  flex: 5,
+                  child: Text(
+                    tr('اسعار', 'ارز', 'Currency'),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(tr('پېر', 'خرید', 'Buy'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: Color(0xFF00843D),
-                            fontWeight: FontWeight.bold))),
+                  flex: 2,
+                  child: Text(
+                    tr('پېر', 'خرید', 'Buy'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF00843D),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(tr('پلور', 'فروش', 'Sell'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: Color(0xFFCE2028),
-                            fontWeight: FontWeight.bold))),
+                  flex: 2,
+                  child: Text(
+                    tr('پلور', 'فروش', 'Sell'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFFCE2028),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ],
             ),
             const Divider(),
             if (rows.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: Text(tr('نرخونه نشته', 'نرخ موجود نیست', 'No rates')),
+                child: Text(
+                  tr('نرخونه نشته', 'نرخ موجود نیست', 'No rates'),
+                ),
               ),
             ...rows.map((row) {
               if (row is! Map) return const SizedBox.shrink();
@@ -508,31 +578,41 @@ class _HomePageState extends State<HomePage> {
                       flex: 5,
                       child: Row(
                         children: [
-                          Text(flag(code),
-                              style: const TextStyle(fontSize: 19)),
+                          Text(
+                            flag(code),
+                            style: const TextStyle(fontSize: 19),
+                          ),
                           const SizedBox(width: 7),
                           Expanded(
-                            child: Text(label,
-                                style: const TextStyle(fontSize: 13)),
+                            child: Text(
+                              label,
+                              style: const TextStyle(fontSize: 13),
+                            ),
                           ),
                         ],
                       ),
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text(fmt(row['buy']),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Color(0xFF00843D),
-                              fontWeight: FontWeight.w600)),
+                      child: Text(
+                        fmt(row['buy']),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF00843D),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text(fmt(row['sell']),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Color(0xFFCE2028),
-                              fontWeight: FontWeight.w600)),
+                      child: Text(
+                        fmt(row['sell']),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFFCE2028),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -544,7 +624,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // درې بازارونه په جلا انتخابي برخو کې
   Widget marketsPage() {
+    final marketKeys = ['bank', 'sarai', 'khorasan'];
+
+    final marketTitles = [
+      tr('د افغانستان بانک', 'بانک افغانستان', 'Da Afghanistan Bank'),
+      tr('سرای شهزاده', 'سرای شهزاده', 'Sarai Shahzada'),
+      tr('خراسان مارکیټ', 'بازار خراسان', 'Khorasan Market'),
+    ];
+
+    final marketSubtitles = [
+      tr('رسمي بانکي نرخونه', 'نرخ رسمی بانکی', 'Official bank rates'),
+      tr('د صرافۍ بازار', 'بازار صرافی', 'Exchange market'),
+      tr('د خراسان بازار نرخونه', 'نرخ بازار خراسان', 'Khorasan market rates'),
+    ];
+
     return RefreshIndicator(
       onRefresh: fetchRates,
       child: ListView(
@@ -560,8 +655,11 @@ class _HomePageState extends State<HomePage> {
               children: [
                 const Text('🇦🇫', style: TextStyle(fontSize: 34)),
                 Text(
-                  tr('افغانۍ د اسعارو نرخونه',
-                      'نرخ اسعار افغانی', 'Afghani Exchange Rates'),
+                  tr(
+                    'افغانۍ د اسعارو نرخونه',
+                    'نرخ اسعار افغانی',
+                    'Afghani Exchange Rates',
+                  ),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 19,
@@ -571,12 +669,16 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 5),
                 Text(
                   updatedAt == null
-                      ? tr('د تازه کېدو وخت نامعلوم',
+                      ? tr(
+                          'د تازه کېدو وخت نامعلوم',
                           'زمان بروزرسانی نامعلوم',
-                          'Update time unavailable')
+                          'Update time unavailable',
+                        )
                       : '${tr('وروستی تازه کېدل:', 'آخرین بروزرسانی:', 'Last updated:')} ${updatedAt!.toLocal()}',
                   style: const TextStyle(
-                      color: Colors.white70, fontSize: 11),
+                    color: Colors.white70,
+                    fontSize: 11,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -585,9 +687,11 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 15),
           if (loading)
             const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator())),
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(),
+              ),
+            ),
           if (error != null)
             Card(
               child: ListTile(
@@ -599,16 +703,34 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          marketCard('bank',
-              tr('د افغانستان بانک', 'بانک افغانستان', 'Da Afghanistan Bank'),
-              tr('رسمي بانکي نرخونه', 'نرخ رسمی بانکی', 'Official bank rates')),
-          marketCard('sarai',
-              tr('سرای شهزاده', 'سرای شهزاده', 'Sarai Shahzada'),
-              tr('د صرافۍ بازار', 'بازار صرافی', 'Exchange market')),
-          marketCard('khorasan',
-              tr('خراسان مارکیټ', 'بازار خراسان', 'Khorasan Market'),
-              tr('د خراسان بازار نرخونه', 'نرخ بازار خراسان',
-                  'Khorasan market rates')),
+          SegmentedButton<int>(
+            segments: [
+              ButtonSegment<int>(
+                value: 0,
+                label: Text(tr('بانک', 'بانک', 'Bank')),
+              ),
+              ButtonSegment<int>(
+                value: 1,
+                label: Text(tr('سرای', 'سرای', 'Sarai')),
+              ),
+              ButtonSegment<int>(
+                value: 2,
+                label: Text(tr('خراسان', 'خراسان', 'Khorasan')),
+              ),
+            ],
+            selected: {selectedMarketIndex},
+            onSelectionChanged: (value) {
+              setState(() {
+                selectedMarketIndex = value.first;
+              });
+            },
+          ),
+          const SizedBox(height: 15),
+          marketCard(
+            marketKeys[selectedMarketIndex],
+            marketTitles[selectedMarketIndex],
+            marketSubtitles[selectedMarketIndex],
+          ),
           const SizedBox(height: 25),
         ],
       ),
@@ -625,13 +747,18 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             tr('د نړۍ اسعار', 'ارزهای جهان', 'World Currencies'),
-            style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 5),
           Text(
-            tr('د هر اسعارو نرخ په افغانیو کې',
-                'نرخ هر ارز به افغانی',
-                'Rate of each currency in Afghanis'),
+            tr(
+              'د هر اسعارو نرخ په افغانیو کې',
+              'نرخ هر ارز به افغانی',
+              'Rate of each currency in Afghanis',
+            ),
             style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 12),
@@ -642,9 +769,13 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 40),
                   const Icon(Icons.cloud_off, size: 45),
                   const SizedBox(height: 10),
-                  Text(tr('د نړۍ نرخونه نه دي ترلاسه شوي',
+                  Text(
+                    tr(
+                      'د نړۍ نرخونه نه دي ترلاسه شوي',
                       'نرخ ارزهای جهان دریافت نشد',
-                      'World rates could not be loaded')),
+                      'World rates could not be loaded',
+                    ),
+                  ),
                   TextButton.icon(
                     onPressed: fetchRates,
                     icon: const Icon(Icons.refresh),
@@ -660,15 +791,20 @@ class _HomePageState extends State<HomePage> {
             return Card(
               color: widget.dark ? const Color(0xFF171717) : Colors.white,
               child: ListTile(
-                leading: Text(flag(code),
-                    style: const TextStyle(fontSize: 27)),
-                title: Text('$code - ${currencyName(code)}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                leading: Text(
+                  flag(code),
+                  style: const TextStyle(fontSize: 27),
+                ),
+                title: Text(
+                  '$code - ${currencyName(code)}',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 trailing: Text(
                   '${fmt(rate)} AFN',
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF00843D)),
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF00843D),
+                  ),
                 ),
               ),
             );
@@ -690,7 +826,10 @@ class _HomePageState extends State<HomePage> {
       children: [
         Text(
           tr('د اسعارو تبدیلول', 'تبدیل ارز', 'Currency Converter'),
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 18),
         Card(
@@ -705,20 +844,28 @@ class _HomePageState extends State<HomePage> {
                   value: selectedMarket,
                   items: [
                     DropdownMenuItem(
-                        value: 'bank',
-                        child: Text(tr('افغانستان بانک',
-                            'بانک افغانستان', 'Da Afghanistan Bank'))),
+                      value: 'bank',
+                      child: Text(
+                        tr('افغانستان بانک', 'بانک افغانستان', 'Da Afghanistan Bank'),
+                      ),
+                    ),
                     DropdownMenuItem(
-                        value: 'sarai',
-                        child: Text(tr('سرای شهزاده',
-                            'سرای شهزاده', 'Sarai Shahzada'))),
+                      value: 'sarai',
+                      child: Text(
+                        tr('سرای شهزاده', 'سرای شهزاده', 'Sarai Shahzada'),
+                      ),
+                    ),
                     DropdownMenuItem(
-                        value: 'khorasan',
-                        child: Text(tr('خراسان مارکیټ',
-                            'بازار خراسان', 'Khorasan Market'))),
+                      value: 'khorasan',
+                      child: Text(
+                        tr('خراسان مارکیټ', 'بازار خراسان', 'Khorasan Market'),
+                      ),
+                    ),
                   ],
                   onChanged: (v) {
-                    if (v != null) setState(() => selectedMarket = v);
+                    if (v != null) {
+                      setState(() => selectedMarket = v);
+                    }
                   },
                 ),
                 const SizedBox(height: 15),
@@ -727,11 +874,13 @@ class _HomePageState extends State<HomePage> {
                 SegmentedButton<String>(
                   segments: [
                     ButtonSegment(
-                        value: 'buy',
-                        label: Text(tr('پېر', 'خرید', 'Buy'))),
+                      value: 'buy',
+                      label: Text(tr('پېر', 'خرید', 'Buy')),
+                    ),
                     ButtonSegment(
-                        value: 'sell',
-                        label: Text(tr('پلور', 'فروش', 'Sell'))),
+                      value: 'sell',
+                      label: Text(tr('پلور', 'فروش', 'Sell')),
+                    ),
                   ],
                   selected: {conversionSide},
                   onSelectionChanged: (v) {
@@ -809,7 +958,9 @@ class _HomePageState extends State<HomePage> {
                       Text(
                         '$convertedAmount $toCode',
                         style: const TextStyle(
-                            fontSize: 27, fontWeight: FontWeight.bold),
+                          fontSize: 27,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -828,13 +979,16 @@ class _HomePageState extends State<HomePage> {
       children: [
         Text(
           tr('د ژبې انتخاب', 'انتخاب زبان', 'Language Settings'),
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 18),
         for (final item in [
           {'code': 'ps', 'name': 'پښتو', 'flag': '🇦🇫'},
           {'code': 'fa', 'name': 'دری', 'flag': '🇦🇫'},
-          {'code': 'en', 'name': 'English', 'flag': '🌐'},
+          {'code': 'en', 'name': 'English', 'flag': '🇬🇧'},
         ])
           Card(
             child: RadioListTile<String>(
@@ -849,8 +1003,7 @@ class _HomePageState extends State<HomePage> {
         const Divider(height: 30),
         SwitchListTile(
           secondary: const Icon(Icons.dark_mode),
-          title: Text(tr('تور او سپین حالت',
-              'حالت تاریک', 'Dark mode')),
+          title: Text(tr('تور او سپین حالت', 'حالت تاریک', 'Dark mode')),
           value: widget.dark,
           onChanged: widget.onDarkChanged,
         ),
@@ -870,12 +1023,11 @@ class _HomePageState extends State<HomePage> {
               radius: 65,
               backgroundColor:
                   widget.dark ? Colors.white24 : const Color(0xFF00843D),
-              backgroundImage: photoPath != null &&
-                      File(photoPath!).existsSync()
-                  ? FileImage(File(photoPath!))
-                  : null,
-              child: photoPath == null ||
-                      !File(photoPath!).existsSync()
+              backgroundImage:
+                  photoPath != null && File(photoPath!).existsSync()
+                      ? FileImage(File(photoPath!))
+                      : null,
+              child: photoPath == null || !File(photoPath!).existsSync()
                   ? const Icon(Icons.person, size: 65, color: Colors.white)
                   : null,
             ),
@@ -891,14 +1043,20 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 15),
         const Center(
-          child: Text('Abdullah Eman',
-              style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Abdullah Eman',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         const Center(
-          child: Text('🇦🇫  Afghanistan',
-              style: TextStyle(fontSize: 18)),
+          child: Text(
+            '🇦🇫  Afghanistan',
+            style: TextStyle(fontSize: 18),
+          ),
         ),
         const SizedBox(height: 20),
         const Divider(),
@@ -909,11 +1067,16 @@ class _HomePageState extends State<HomePage> {
         ),
         ListTile(
           leading: const Icon(Icons.calendar_month),
-          title: Text(tr('د نرخونو د تازه کېدو وخت',
-              'زمان بروزرسانی نرخ‌ها', 'Rates update time')),
-          subtitle: Text(updatedAt == null
-              ? '-'
-              : updatedAt!.toLocal().toString()),
+          title: Text(
+            tr(
+              'د نرخونو د تازه کېدو وخت',
+              'زمان بروزرسانی نرخ‌ها',
+              'Rates update time',
+            ),
+          ),
+          subtitle: Text(
+            updatedAt == null ? '-' : updatedAt!.toLocal().toString(),
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.flag),
@@ -938,7 +1101,10 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text(
           '🇦🇫 Afghani Exchange',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
@@ -957,20 +1123,25 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: (v) => setState(() => page = v),
         destinations: [
           NavigationDestination(
-              icon: const Icon(Icons.show_chart),
-              label: tr('بازارونه', 'بازارها', 'Markets')),
+            icon: const Icon(Icons.show_chart),
+            label: tr('بازارونه', 'بازارها', 'Markets'),
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.public),
-              label: tr('نړۍ', 'جهان', 'World')),
+            icon: const Icon(Icons.public),
+            label: tr('نړۍ', 'جهان', 'World'),
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.currency_exchange),
-              label: tr('تبدیل', 'تبدیل', 'Convert')),
+            icon: const Icon(Icons.currency_exchange),
+            label: tr('تبدیل', 'تبدیل', 'Convert'),
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.language),
-              label: tr('ژبه', 'زبان', 'Language')),
+            icon: const Icon(Icons.language),
+            label: tr('ژبه', 'زبان', 'Language'),
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.person),
-              label: tr('جوړوونکی', 'سازنده', 'Developer')),
+            icon: const Icon(Icons.person),
+            label: tr('جوړوونکی', 'سازنده', 'Developer'),
+          ),
         ],
       ),
     );
