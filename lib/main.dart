@@ -15,21 +15,35 @@ void main() {
   runApp(const AfghaniExchangeApp());
 }
 
-// د اعشاریه او سنټونو د ښکاره کولو لپاره
+// د اعشاري نرخونو د دقیق ښکاره کولو لپاره
 String fmt(dynamic value) {
+  if (value == null) return '-';
+
   if (value is num) {
-    String s = value.toString();
+    if (!value.isFinite) return '-';
 
-    if (!s.contains('.')) return '$s.00';
+    String result = value.toString();
 
-    final decimals = s.split('.').last.length;
+    // که عدد په علمي بڼه وي، عادي اعشاري بڼه ته یې اړوي.
+    if (result.contains('e') || result.contains('E')) {
+      result = value.toStringAsFixed(10);
+    }
 
-    if (decimals == 1) return '${s}0';
+    if (result.contains('.')) {
+      result = result.replaceFirst(RegExp(r'0+$'), '');
+      result = result.replaceFirst(RegExp(r'\.$'), '');
+    }
 
-    return s;
+    if (!result.contains('.')) return '$result.00';
+
+    final decimals = result.split('.').last.length;
+    if (decimals == 1) return '${result}0';
+
+    return result;
   }
 
-  return value?.toString() ?? '-';
+  final text = value.toString().trim();
+  return text.isEmpty ? '-' : text;
 }
 
 String codeFromLabel(String label) {
@@ -101,8 +115,6 @@ const Map<String, String> flags = {
   'NPR': '🇳🇵',
   'PHP': '🇵🇭',
   'MXN': '🇲🇽',
-
-  // نور نړیوال اسعار او بیرغونه
   'TWD': '🇹🇼',
   'HKD': '🇭🇰',
   'MOP': '🇲🇴',
@@ -313,18 +325,24 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadPhoto() async {
     final prefs = await SharedPreferences.getInstance();
     final path = prefs.getString('developer_photo');
-    if (mounted) setState(() => photoPath = path);
+
+    if (mounted) {
+      setState(() => photoPath = path);
+    }
   }
 
   Future<void> choosePhoto() async {
     final picker = ImagePicker();
+
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
     );
+
     if (picked == null) return;
 
     final directory = await getApplicationDocumentsDirectory();
+
     final saved = await File(picked.path).copy(
       '${directory.path}/developer_photo.jpg',
     );
@@ -332,7 +350,9 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('developer_photo', saved.path);
 
-    if (mounted) setState(() => photoPath = saved.path);
+    if (mounted) {
+      setState(() => photoPath = saved.path);
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchWorld() async {
@@ -345,6 +365,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     final data = jsonDecode(response.body);
+
     if (data['result'] != 'success') {
       throw Exception('World rates unavailable');
     }
@@ -359,26 +380,40 @@ class _HomePageState extends State<HomePage> {
       if (entry.value is! num) continue;
 
       final foreignPerUsd = (entry.value as num).toDouble();
+
       if (foreignPerUsd <= 0) continue;
+
+      final afnRate = usdToAfn / foreignPerUsd;
 
       result.add({
         'code': entry.key,
-        'rate': usdToAfn / foreignPerUsd,
+        'rate': afnRate,
+        'buy': afnRate,
+        'sell': afnRate,
       });
     }
 
-    result.add({'code': 'USD', 'rate': usdToAfn});
-    result.sort((a, b) =>
-        (a['code'] as String).compareTo(b['code'] as String));
+    result.add({
+      'code': 'USD',
+      'rate': usdToAfn,
+      'buy': usdToAfn,
+      'sell': usdToAfn,
+    });
+
+    result.sort(
+      (a, b) => (a['code'] as String).compareTo(b['code'] as String),
+    );
 
     return result;
   }
 
   Future<void> fetchRates() async {
-    setState(() {
-      loading = true;
-      error = null;
-    });
+    if (mounted) {
+      setState(() {
+        loading = true;
+        error = null;
+      });
+    }
 
     try {
       final response = await http
@@ -393,14 +428,26 @@ class _HomePageState extends State<HomePage> {
       final newMarkets = Map<String, dynamic>.from(data['markets'] ?? {});
 
       List<Map<String, dynamic>> newWorld = [];
+
       try {
         newWorld = await fetchWorld();
       } catch (_) {
         final oldWorld = data['world'];
+
         if (oldWorld is List) {
           newWorld = oldWorld
               .whereType<Map>()
               .map((e) => Map<String, dynamic>.from(e))
+              .map((item) {
+                final rate = item['rate'] ?? item['afnPerUnit'];
+
+                return {
+                  ...item,
+                  'rate': rate,
+                  'buy': item['buy'] ?? rate,
+                  'sell': item['sell'] ?? rate,
+                };
+              })
               .toList();
         }
       }
@@ -415,6 +462,7 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() {
         loading = false;
         error = e.toString();
@@ -424,9 +472,11 @@ class _HomePageState extends State<HomePage> {
 
   List<dynamic> marketRows(String key) {
     final market = markets[key];
+
     if (market is Map && market['rows'] is List) {
       return market['rows'] as List;
     }
+
     return [];
   }
 
@@ -444,9 +494,11 @@ class _HomePageState extends State<HomePage> {
 
       final label = row['label']?.toString() ?? '';
       final code = codeFromLabel(label);
+
       if (code.isEmpty || code == 'AFN') continue;
 
       final value = row[conversionSide];
+
       if (value is! num) continue;
 
       double rate = value.toDouble();
@@ -463,6 +515,7 @@ class _HomePageState extends State<HomePage> {
     for (final item in worldRates) {
       final code = item['code']?.toString() ?? '';
       final rate = item['rate'];
+
       if (code.isNotEmpty && rate is num && rate > 0) {
         result.putIfAbsent(code, () => rate.toDouble());
       }
@@ -567,6 +620,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ...rows.map((row) {
               if (row is! Map) return const SizedBox.shrink();
+
               final label = row['label']?.toString() ?? '';
               final code = codeFromLabel(label);
 
@@ -624,7 +678,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // درې بازارونه په جلا انتخابي برخو کې
+  // د درې باوري بازارونو پاڼه
   Widget marketsPage() {
     final marketKeys = ['bank', 'sarai', 'khorasan'];
 
@@ -737,6 +791,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // نړیوال اسعار: پېر او پلور دواړه د مرجع نرخ دي
   Widget worldPage() {
     final items = worldRates;
 
@@ -755,11 +810,35 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 5),
           Text(
             tr(
-              'د هر اسعارو نرخ په افغانیو کې',
-              'نرخ هر ارز به افغانی',
-              'Rate of each currency in Afghanis',
+              'د هر اسعارو مرجع نرخ په افغانیو کې',
+              'نرخ مرجع هر ارز به افغانی',
+              'Reference rate of each currency in Afghanis',
             ),
             style: const TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: widget.dark ? Colors.white10 : Colors.amber.withOpacity(.13),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.orange),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    tr(
+                      'دا نړیوال مرجع نرخونه دي؛ د صرافۍ جلا پېر او پلور نرخونه نه دي.',
+                      'این نرخ‌ها مرجع جهانی هستند؛ نرخ جداگانه خرید و فروش صرافی نیستند.',
+                      'These are global reference rates, not separate exchange buy and sell rates.',
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           if (items.isEmpty)
@@ -784,31 +863,106 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-          ...items.map((item) {
-            final code = item['code']?.toString() ?? '';
-            final rate = item['rate'] ?? item['afnPerUnit'];
-
-            return Card(
+          if (items.isNotEmpty)
+            Card(
               color: widget.dark ? const Color(0xFF171717) : Colors.white,
-              child: ListTile(
-                leading: Text(
-                  flag(code),
-                  style: const TextStyle(fontSize: 27),
-                ),
-                title: Text(
-                  '$code - ${currencyName(code)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                trailing: Text(
-                  '${fmt(rate)} AFN',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00843D),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            tr('اسعار', 'ارز', 'Currency'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            tr('پېر', 'خرید', 'Buy'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Color(0xFF00843D),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            tr('پلور', 'فروش', 'Sell'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Color(0xFFCE2028),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                    ...items.map((item) {
+                      final code = item['code']?.toString() ?? '';
+                      final buy = item['buy'] ?? item['rate'] ?? item['afnPerUnit'];
+                      final sell = item['sell'] ?? item['rate'] ?? item['afnPerUnit'];
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 9),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    flag(code),
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Expanded(
+                                    child: Text(
+                                      '$code - ${currencyName(code)}',
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                fmt(buy),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFF00843D),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                fmt(sell),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFFCE2028),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
-            );
-          }),
+            ),
         ],
       ),
     );
@@ -846,7 +1000,11 @@ class _HomePageState extends State<HomePage> {
                     DropdownMenuItem(
                       value: 'bank',
                       child: Text(
-                        tr('افغانستان بانک', 'بانک افغانستان', 'Da Afghanistan Bank'),
+                        tr(
+                          'افغانستان بانک',
+                          'بانک افغانستان',
+                          'Da Afghanistan Bank',
+                        ),
                       ),
                     ),
                     DropdownMenuItem(
@@ -1011,6 +1169,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget developerAvatar({double radius = 55}) {
+    final hasPhoto =
+        photoPath != null && File(photoPath!).existsSync();
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor:
+          widget.dark ? Colors.white24 : const Color(0xFF00843D),
+      backgroundImage: hasPhoto ? FileImage(File(photoPath!)) : null,
+      child: hasPhoto
+          ? null
+          : Icon(Icons.person, size: radius, color: Colors.white),
+    );
+  }
+
   Widget developerPage() {
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -1019,18 +1192,7 @@ class _HomePageState extends State<HomePage> {
         Center(
           child: GestureDetector(
             onTap: choosePhoto,
-            child: CircleAvatar(
-              radius: 65,
-              backgroundColor:
-                  widget.dark ? Colors.white24 : const Color(0xFF00843D),
-              backgroundImage:
-                  photoPath != null && File(photoPath!).existsSync()
-                      ? FileImage(File(photoPath!))
-                      : null,
-              child: photoPath == null || !File(photoPath!).existsSync()
-                  ? const Icon(Icons.person, size: 65, color: Colors.white)
-                  : null,
-            ),
+            child: developerAvatar(radius: 65),
           ),
         ),
         const SizedBox(height: 12),
@@ -1087,6 +1249,240 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // د افغانستان د پیسو تاریخ
+  Widget aboutPage() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: widget.dark ? Colors.white10 : const Color(0xFF00843D),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Column(
+            children: [
+              const Text('🇦🇫', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: 8),
+              Text(
+                tr(
+                  'د افغانۍ تاریخ',
+                  'تاریخچه افغانی',
+                  'History of the Afghan Afghani',
+                ),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 21,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'AFN',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr('د افغانۍ پېژندنه', 'معرفی افغانی', 'About the Afghani'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tr(
+                    'افغانۍ د افغانستان رسمي ملي پیسه ده. د افغانۍ نوم په ۱۳۰۴ لمریز کال کې د اماني دورې پر مهال د هېواد د پیسو لپاره وکارول شو. افغانۍ د افغانستان د اقتصاد او سوداګرۍ مهمه برخه ده.',
+                    'افغانی واحد پول رسمی افغانستان است. نام افغانی در سال ۱۳۰۴ خورشیدی در دوره امانی برای پول کشور به کار گرفته شد. افغانی بخش مهم اقتصاد و تجارت افغانستان است.',
+                    'The Afghani is the official currency of Afghanistan. The name Afghani was introduced for the national currency in 1925 during the Amanullah Khan era. It remains an important part of Afghanistan’s economy and trade.',
+                  ),
+                  style: const TextStyle(fontSize: 14, height: 1.7),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr(
+                    'د اماني دورې پاچا',
+                    'پادشاه دوره امانی',
+                    'King of the Amanullah era',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 34,
+                      backgroundColor: Colors.brown.withOpacity(.15),
+                      child: const Icon(
+                        Icons.account_balance,
+                        size: 36,
+                        color: Colors.brown,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Amanullah Khan',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tr(
+                    'د امان الله خان د واکمنۍ پر مهال د افغانستان د ملي پیسو د جوړولو او تنظیم بهیر پیل شو. دا د هغه وخت تاریخي مشر و؛ خو د بانکنوټونو د ډیزاین د یوه مشخص شخص نوم په دې برخه کې نه دی تایید شوی.',
+                    'در زمان پادشاهی امان‌الله خان روند ایجاد و تنظیم پول ملی افغانستان آغاز شد. او رهبر تاریخی آن دوره بود؛ اما نام یک طراح مشخص اسکناس‌ها در این بخش تأیید نشده است.',
+                    'The process of establishing and organizing Afghanistan’s national currency took place during Amanullah Khan’s reign. He was the historical ruler of that period; however, a specific banknote designer is not identified here.',
+                  ),
+                  style: const TextStyle(fontSize: 13, height: 1.7),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr(
+                    'د بانکنوټونو تاریخ',
+                    'تاریخچه اسکناس‌ها',
+                    'Banknote history',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tr(
+                    'افغانستان د خپل تاریخ په اوږدو کې بېلابېل کاغذي بانکنوټونه او فلزي سکې کارولي دي. د افغانستان بانک د ملي پیسو د خپرولو او تنظیم رسمي اداره ده.',
+                    'افغانستان در طول تاریخ خود اسکناس‌ها و سکه‌های گوناگون داشته است. د افغانستان بانک اداره رسمی نشر و تنظیم پول ملی است.',
+                    'Afghanistan has used different banknotes and coins throughout its history. Da Afghanistan Bank is the official institution responsible for issuing and regulating the national currency.',
+                  ),
+                  style: const TextStyle(fontSize: 14, height: 1.7),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr(
+                    'د ۲۰۰۲ کال د پیسو بدلون',
+                    'تغییر پول در سال ۲۰۰۲',
+                    'The 2002 currency reform',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tr(
+                    'په ۲۰۰۲ کال کې د افغانستان پیسې اصلاح شوې او له پخوانۍ افغانۍ څخه درې صفرونه لرې شول. د دې بدلون موخه د پیسو د حساب او راکړې ورکړې اسانه کول وو.',
+                    'در سال ۲۰۰۲ پول افغانستان اصلاح شد و سه صفر از واحد پول قبلی حذف گردید. هدف این تغییر آسان‌سازی محاسبات و معاملات بود.',
+                    'In 2002, Afghanistan carried out a currency reform and removed three zeros from the previous Afghani. The reform was intended to make calculations and transactions easier.',
+                  ),
+                  style: const TextStyle(fontSize: 14, height: 1.7),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  tr(
+                    'د اپلیکیشن جوړوونکی',
+                    'سازنده اپلیکیشن',
+                    'App developer',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                developerAvatar(radius: 42),
+                const SizedBox(height: 10),
+                const Text(
+                  'Abdullah Eman',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  tr(
+                    'د Afghani Exchange جوړوونکی',
+                    'سازنده Afghani Exchange',
+                    'Creator of Afghani Exchange',
+                  ),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                TextButton.icon(
+                  onPressed: choosePhoto,
+                  icon: const Icon(Icons.photo_camera),
+                  label: Text(
+                    tr('د جوړوونکي عکس بدلول', 'تغییر عکس سازنده', 'Change developer photo'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
@@ -1095,6 +1491,7 @@ class _HomePageState extends State<HomePage> {
       converterPage(),
       languagePage(),
       developerPage(),
+      aboutPage(),
     ];
 
     return Scaffold(
@@ -1141,6 +1538,10 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: const Icon(Icons.person),
             label: tr('جوړوونکی', 'سازنده', 'Developer'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.info_outline),
+            label: tr('زموږ په اړه', 'درباره ما', 'About'),
           ),
         ],
       ),
