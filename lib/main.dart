@@ -10,6 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 const String workerUrl =
     'https://afghani-exchange-api.abdullah-alingari.workers.dev/api/rates';
 
+const Color green = Color(0xFF087B45);
+const Color blue = Color(0xFF1769AA);
+const Color purple = Color(0xFF7046B8);
+const Color gold = Color(0xFFC58A19);
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const AfghaniExchangeApp());
@@ -30,8 +35,8 @@ const Map<String, String> flags = {
   'ILS': '🇮🇱', 'JOD': '🇯🇴', 'KZT': '🇰🇿', 'UZS': '🇺🇿',
   'TJS': '🇹🇯', 'GEL': '🇬🇪', 'AMD': '🇦🇲', 'AZN': '🇦🇿',
   'DZD': '🇩🇿', 'MAD': '🇲🇦', 'TND': '🇹🇳', 'KES': '🇰🇪',
-  'NGN': '🇳🇬', 'GHS': '🇬🇭', 'ETB': '🇪🇹', 'XOF': '🌍',
-  'XAF': '🌍',
+  'NGN': '🇳🇬', 'GHS': '🇬🇭', 'ETB': '🇪🇹',
+  'XOF': '🌍', 'XAF': '🌍',
 };
 
 const Map<String, Map<String, String>> currencyNames = {
@@ -41,7 +46,7 @@ const Map<String, Map<String, String>> currencyNames = {
   'GBP': {'ps': 'برېتانوي پونډ', 'fa': 'پوند بریتانیا', 'en': 'British Pound'},
   'PKR': {'ps': 'پاکستانۍ روپۍ', 'fa': 'روپیه پاکستان', 'en': 'Pakistani Rupee'},
   'INR': {'ps': 'هندي روپۍ', 'fa': 'روپیه هند', 'en': 'Indian Rupee'},
-  'IRR': {'ps': 'ایراني تومان/ریال', 'fa': 'ریال ایران', 'en': 'Iranian Rial'},
+  'IRR': {'ps': 'ایراني ریال', 'fa': 'ریال ایران', 'en': 'Iranian Rial'},
   'SAR': {'ps': 'سعودي ریال', 'fa': 'ریال سعودی', 'en': 'Saudi Riyal'},
   'AED': {'ps': 'اماراتي درهم', 'fa': 'درهم امارات', 'en': 'UAE Dirham'},
   'TRY': {'ps': 'ترکي لیره', 'fa': 'لیره ترکیه', 'en': 'Turkish Lira'},
@@ -111,7 +116,7 @@ const Map<String, Map<String, String>> words = {
     'developer': 'جوړوونکی', 'changePhoto': 'عکس بدل کړه',
     'description': 'د اسعارو د نرخونو او تبدیل لپاره یو ساده اپلیکیشن.',
     'slogan': 'افغانۍ زموږ ملي هویت دی؛ راکړه ورکړه په افغانۍ وکړو! 🇦🇫',
-    'source': 'سرچینه', 'noData': 'د دې بازار تایید شوي نرخونه اوس نشته.',
+    'noData': 'د دې بازار تایید شوي نرخونه اوس نشته.',
     'worldInfo': 'نړیوال نرخونه د مرجع API څخه اخیستل کېږي؛ د صرافۍ بازار نرخونه ورسره توپیر لرلی شي.',
     'official': 'رسمي نرخونه', 'market': 'د بازار نرخونه',
     'indicative': 'اټکلي نرخونه', 'languageTitle': 'د اپ ژبه وټاکئ',
@@ -129,7 +134,7 @@ const Map<String, Map<String, String>> words = {
     'developer': 'سازنده', 'changePhoto': 'تغییر عکس',
     'description': 'برنامه‌ای ساده برای مشاهده و تبدیل نرخ ارزها.',
     'slogan': 'افغانی هویت ملی ماست؛ دادوستد خود را با افغانی انجام دهیم! 🇦🇫',
-    'source': 'منبع', 'noData': 'در حال حاضر نرخ تأییدشده‌ای برای این بازار موجود نیست.',
+    'noData': 'در حال حاضر نرخ تأییدشده‌ای برای این بازار موجود نیست.',
     'worldInfo': 'نرخ‌های جهانی از API مرجع دریافت می‌شوند و ممکن است با نرخ بازار صرافی تفاوت داشته باشند.',
     'official': 'نرخ رسمی', 'market': 'نرخ بازار',
     'indicative': 'نرخ تقریبی', 'languageTitle': 'زبان برنامه را انتخاب کنید',
@@ -147,7 +152,7 @@ const Map<String, Map<String, String>> words = {
     'developer': 'Developer', 'changePhoto': 'Change photo',
     'description': 'A simple app for viewing and converting currency rates.',
     'slogan': 'The Afghani is our national identity. Let us trade in Afghani! 🇦🇫',
-    'source': 'Source', 'noData': 'No verified rates are currently available for this market.',
+    'noData': 'No verified rates are currently available for this market.',
     'worldInfo': 'World rates come from a reference API and may differ from local exchange-market rates.',
     'official': 'Official rates', 'market': 'Market rates',
     'indicative': 'Indicative rates', 'languageTitle': 'Choose app language',
@@ -189,7 +194,6 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
 
   @override
   Widget build(BuildContext context) {
-    const green = Color(0xFF087B45);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Afghani Exchange',
@@ -200,11 +204,17 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
           seedColor: green,
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF5F7F5),
+        scaffoldBackgroundColor: const Color(0xFFF3F6F9),
         appBarTheme: const AppBarTheme(
           backgroundColor: green,
           foregroundColor: Colors.white,
-          centerTitle: true,
+          centerTitle: false,
+        ),
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         ),
       ),
       darkTheme: ThemeData(
@@ -216,7 +226,13 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF075C36),
           foregroundColor: Colors.white,
-          centerTitle: true,
+          centerTitle: false,
+        ),
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         ),
       ),
       home: ExchangeHome(
@@ -268,8 +284,8 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   final amountController = TextEditingController(text: '1');
   String? developerPhoto;
 
-  String t(String key) => words[widget.language]?[key] ??
-      words['en']![key] ?? key;
+  String t(String key) =>
+      words[widget.language]?[key] ?? words['en']![key] ?? key;
 
   @override
   void initState() {
@@ -310,9 +326,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
       if (!mounted) return;
       setState(() => developerPhoto = saved.path);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t('photoSaved'))),
-      );
+      _showMessage(t('photoSaved'));
     } catch (e) {
       _showMessage('Photo error: $e');
     }
@@ -326,6 +340,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   }
 
   Future<void> fetchRates() async {
+    if (!mounted) return;
     setState(() {
       loading = true;
       error = null;
@@ -339,47 +354,31 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         throw Exception('HTTP ${response.statusCode}');
       }
 
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      if (data['success'] != true) {
-        throw Exception(data['error'] ?? 'Invalid response');
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> ||
+          decoded['success'] != true) {
+        throw Exception('Invalid server response');
       }
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('cachedRates', response.body);
-
       if (!mounted) return;
-      setState(() {
-        markets = Map<String, dynamic>.from(data['markets'] ?? {});
-        world = List<dynamic>.from(data['world'] ?? []);
-        worldUpdatedAt = data['worldUpdatedAt']?.toString();
-        worldAgeMinutes = data['worldAgeMinutes'] is num
-            ? (data['worldAgeMinutes'] as num).toInt()
-            : null;
-        worldStale = data['worldIsStale'] == true;
-        loading = false;
-      });
-    } catch (e) {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('cachedRates');
 
-      if (cached != null) {
-        try {
-          final data = jsonDecode(cached) as Map<String, dynamic>;
-          if (!mounted) return;
-          setState(() {
-            markets = Map<String, dynamic>.from(data['markets'] ?? {});
-            world = List<dynamic>.from(data['world'] ?? []);
-            worldUpdatedAt = data['worldUpdatedAt']?.toString();
-            worldAgeMinutes = data['worldAgeMinutes'] is num
-                ? (data['worldAgeMinutes'] as num).toInt()
-                : null;
-            worldStale = true;
-            loading = false;
-            error = e.toString();
-          });
-          return;
-        } catch (_) {}
-      }
+      _applyData(decoded, stale: false);
+    } catch (e) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final cached = prefs.getString('cachedRates');
+        if (cached != null) {
+          final decoded = jsonDecode(cached);
+          if (decoded is Map<String, dynamic>) {
+            if (!mounted) return;
+            _applyData(decoded, stale: true);
+            setState(() => error = e.toString());
+            return;
+          }
+        }
+      } catch (_) {}
 
       if (!mounted) return;
       setState(() {
@@ -389,9 +388,25 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     }
   }
 
+  void _applyData(Map<String, dynamic> data, {required bool stale}) {
+    setState(() {
+      markets = data['markets'] is Map
+          ? Map<String, dynamic>.from(data['markets'])
+          : {};
+      world = data['world'] is List
+          ? List<dynamic>.from(data['world'])
+          : [];
+      worldUpdatedAt = data['worldUpdatedAt']?.toString();
+      worldAgeMinutes = data['worldAgeMinutes'] is num
+          ? (data['worldAgeMinutes'] as num).toInt()
+          : null;
+      worldStale = stale || data['worldIsStale'] == true;
+      loading = false;
+    });
+  }
+
   double? worldRate(String code) {
     if (code == 'AFN') return 1;
-
     for (final item in world) {
       if (item is Map && item['code'] == code) {
         final value = item['afnPerUnit'];
@@ -404,7 +419,6 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   Map<String, dynamic>? marketRow(String market, String code) {
     final marketData = markets[market];
     if (marketData is! Map) return null;
-
     final rows = marketData['rows'];
     if (rows is! List) return null;
 
@@ -421,30 +435,23 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
   double? marketRate(String code) {
     if (code == 'AFN') return 1;
-
     final row = marketRow(selectedMarket, code);
     if (row == null) return null;
-
     final buy = row['buy'];
     final unit = row['unit'];
-
     if (buy is! num || unit is! num || unit <= 0) return null;
     return buy.toDouble() / unit.toDouble();
   }
 
-  double? rateFor(String code) {
-    return marketRate(code) ?? worldRate(code);
-  }
+  double? rateFor(String code) => marketRate(code) ?? worldRate(code);
 
-  String currencyName(String code) {
-    return currencyNames[code]?[widget.language] ??
-        currencyNames[code]?['en'] ??
-        code;
-  }
+  String currencyName(String code) =>
+      currencyNames[code]?[widget.language] ??
+      currencyNames[code]?['en'] ??
+      code;
 
   String formatNumber(double value, {int decimals = 4}) {
     if (!value.isFinite) return '—';
-
     final fixed = value.toStringAsFixed(decimals);
     final parts = fixed.split('.');
     final integer = parts[0];
@@ -461,8 +468,9 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     while (decimal.endsWith('0') && decimal.isNotEmpty) {
       decimal = decimal.substring(0, decimal.length - 1);
     }
-
-    return decimal.isEmpty ? buffer.toString() : '${buffer.toString()}.$decimal';
+    return decimal.isEmpty
+        ? buffer.toString()
+        : '${buffer.toString()}.$decimal';
   }
 
   String formatDate(String? value) {
@@ -479,9 +487,8 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     final amount = double.tryParse(amountController.text.trim());
     final fromRate = rateFor(fromCode);
     final toRate = rateFor(toCode);
-
-    if (amount == null || amount < 0 || fromRate == null ||
-        toRate == null || toRate == 0) {
+    if (amount == null || amount < 0 ||
+        fromRate == null || toRate == null || toRate == 0) {
       return null;
     }
     return amount * fromRate / toRate;
@@ -500,9 +507,14 @@ class _ExchangeHomeState extends State<ExchangeHome> {
           : TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
+          titleSpacing: 16,
+          title: Text(
             'Afghani Exchange',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
           ),
           actions: [
             IconButton(
@@ -517,7 +529,16 @@ class _ExchangeHomeState extends State<ExchangeHome> {
             _flagBanner(),
             Expanded(
               child: loading && markets.isEmpty && world.isEmpty
-                  ? Center(child: Text(t('loading')))
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 14),
+                          Text(t('loading')),
+                        ],
+                      ),
+                    )
                   : _pageBody(),
             ),
           ],
@@ -561,12 +582,12 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
   Widget _flagBanner() {
     return SizedBox(
-      height: 7,
+      height: 6,
       child: Row(
         children: [
           Expanded(child: Container(color: const Color(0xFF202020))),
           Expanded(child: Container(color: const Color(0xFFCE2028))),
-          Expanded(child: Container(color: const Color(0xFF087B45))),
+          Expanded(child: Container(color: green)),
         ],
       ),
     );
@@ -574,34 +595,35 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
   Widget _pageBody() {
     switch (page) {
-      case 0:
-        return _marketsPage();
-      case 1:
-        return _worldPage();
-      case 2:
-        return _convertPage();
-      case 3:
-        return _languagePage();
-      case 4:
-        return _settingsPage();
-      default:
-        return _aboutPage();
+      case 0: return _marketsPage();
+      case 1: return _worldPage();
+      case 2: return _convertPage();
+      case 3: return _languagePage();
+      case 4: return _settingsPage();
+      default: return _aboutPage();
     }
   }
 
   Widget _sectionTitle(String title, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF087B45)),
-          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: green),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: 19,
               ),
             ),
           ),
@@ -631,8 +653,10 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         isExpanded: true,
         decoration: InputDecoration(
           labelText: t('choose'),
+          filled: true,
+          fillColor: Theme.of(context).cardColor,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(15),
           ),
         ),
         items: labels.entries.map((entry) {
@@ -654,22 +678,21 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         ? List<dynamic>.from(data['rows'])
         : <dynamic>[];
     final isStale = data is Map && data['stale'] == true;
-    final sourceError = data is Map ? data['error']?.toString() : null;
+    final details = data is Map ? data['error']?.toString() : null;
 
     return RefreshIndicator(
       onRefresh: fetchRates,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 22),
         children: [
           _sectionTitle(t('markets'), Icons.storefront),
           _marketSelector(),
-          if (isStale)
-            _notice(t('stale'), Colors.orange),
+          if (isStale) _notice(t('stale'), Colors.orange),
           if (rows.isEmpty)
-            _emptyMarket(sourceError)
+            _emptyMarket(details)
           else
-            ...rows.map((item) => _marketCard(
-                  Map<String, dynamic>.from(item as Map),
+            ...rows.whereType<Map>().map((item) => _marketCard(
+                  Map<String, dynamic>.from(item),
                   data is Map ? data['rateType']?.toString() : null,
                 )),
           if (data is Map && data['checkedAt'] != null)
@@ -681,6 +704,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                 style: const TextStyle(color: Colors.grey),
               ),
             ),
+          if (error != null) _notice(error!, Colors.orange),
         ],
       ),
     );
@@ -691,10 +715,10 @@ class _ExchangeHomeState extends State<ExchangeHome> {
       padding: const EdgeInsets.all(24),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(22),
           child: Column(
             children: [
-              const Icon(Icons.cloud_off, size: 42, color: Colors.orange),
+              const Icon(Icons.cloud_off, size: 45, color: Colors.orange),
               const SizedBox(height: 12),
               Text(t('noData'), textAlign: TextAlign.center),
               if (details != null) ...[
@@ -712,86 +736,111 @@ class _ExchangeHomeState extends State<ExchangeHome> {
 
   Widget _marketCard(Map<String, dynamic> row, String? rateType) {
     final label = row['label']?.toString() ?? '';
-    final match = RegExp(r'([A-Z]{3})\s*/\s*AFN', caseSensitive: false)
-        .firstMatch(label);
+    final match = RegExp(r'([A-Z]{3})\s*/\s*AFN',
+            caseSensitive: false).firstMatch(label);
     final code = match?.group(1)?.toUpperCase() ?? '';
     final buy = row['buy'] is num ? (row['buy'] as num).toDouble() : null;
     final sell = row['sell'] is num ? (row['sell'] as num).toDouble() : null;
-    final unit = row['unit'] is num ? (row['unit'] as num).toDouble() : 1.0;
+    final unit = row['unit'] is num
+        ? (row['unit'] as num).toDouble()
+        : 1.0;
+
+    final colors = [green, blue, purple, gold];
+    final color = colors[code.hashCode.abs() % colors.length];
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Row(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            height: 4,
+            color: color,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
               children: [
-                Text(flags[code] ?? '💱',
-                    style: const TextStyle(fontSize: 28)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(code,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(currencyName(code),
-                          style: const TextStyle(color: Colors.grey)),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    Text(flags[code] ?? '💱',
+                        style: const TextStyle(fontSize: 29)),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(code,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          Text(currencyName(code),
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    if (unit > 1)
+                      Text(
+                        '${formatNumber(unit, decimals: 0)} ${widget.language == 'en' ? 'units' : 'واحده'}',
+                        style: const TextStyle(
+                            fontSize: 11, color: Colors.grey),
+                      ),
+                  ],
                 ),
-                if (unit > 1)
-                  Text(
-                    '${formatNumber(unit.toDouble(), decimals: 0)} ${widget.language == 'en' ? 'units' : 'واحده'}',
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                const Divider(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: _rateColumn(t('buy'), buy, green)),
+                    Expanded(child: _rateColumn(t('sell'), sell, Colors.red)),
+                    Expanded(
+                      child: _rateColumn(
+                        t('average'),
+                        buy != null && sell != null ? (buy + sell) / 2 : null,
+                        blue,
+                      ),
+                    ),
+                  ],
+                ),
+                if (rateType != null)
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        rateType == 'official'
+                            ? t('official')
+                            : rateType == 'indicative'
+                                ? t('indicative')
+                                : t('market'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),
-            const Divider(height: 22),
-            Row(
-              children: [
-                Expanded(child: _rateColumn(t('buy'), buy)),
-                Expanded(child: _rateColumn(t('sell'), sell)),
-                Expanded(
-                  child: _rateColumn(
-                    t('average'),
-                    buy != null && sell != null ? (buy + sell) / 2 : null,
-                  ),
-                ),
-              ],
-            ),
-            if (rateType != null)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    rateType == 'official'
-                        ? t('official')
-                        : rateType == 'indicative'
-                            ? t('indicative')
-                            : t('market'),
-                    style: const TextStyle(
-                        fontSize: 11, color: Colors.grey),
-                  ),
-                ),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _rateColumn(String label, double? value) {
+  Widget _rateColumn(String label, double? value, Color color) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        const SizedBox(height: 5),
+        Text(label,
+            style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        const SizedBox(height: 6),
         Text(
           value == null ? '—' : formatNumber(value),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
         ),
       ],
     );
@@ -800,19 +849,25 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   Widget _notice(String message, Color color) {
     return Container(
       margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: Text(message, style: TextStyle(color: color)),
     );
   }
 
   Widget _worldPage() {
-    final sorted = [...world];
+    final sorted = world.where((item) {
+      return item is Map &&
+          item['code'] != null &&
+          item['afnPerUnit'] is num;
+    }).toList();
+
     sorted.sort((a, b) =>
-        (a['code'] as String).compareTo(b['code'] as String));
+        a['code'].toString().compareTo(b['code'].toString()));
 
     return RefreshIndicator(
       onRefresh: fetchRates,
@@ -829,6 +884,11 @@ class _ExchangeHomeState extends State<ExchangeHome> {
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ),
+          if (sorted.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(t('noData'), textAlign: TextAlign.center),
+            ),
           ...sorted.map((item) {
             final code = item['code'].toString();
             final value = (item['afnPerUnit'] as num).toDouble();
@@ -851,22 +911,31 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     );
   }
 
-  Widget _currencyDropdown(String value, ValueChanged<String?> onChanged) {
-    final codes = <String>{'AFN', ...world.map((e) => e['code'].toString())}
-        .toList()
-      ..sort();
+  Widget _currencyDropdown(
+      String value, ValueChanged<String?> onChanged) {
+    final codes = <String>{
+      'AFN',
+      ...world.whereType<Map>()
+          .map((e) => e['code']?.toString() ?? '')
+          .where((e) => e.isNotEmpty),
+    }.toList()..sort();
 
     return DropdownButtonFormField<String>(
       value: codes.contains(value) ? value : 'AFN',
       isExpanded: true,
       decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+        ),
       ),
       items: codes.map((code) {
         return DropdownMenuItem(
           value: code,
-          child: Text('${flags[code] ?? '🌐'}  $code - ${currencyName(code)}',
-              overflow: TextOverflow.ellipsis),
+          child: Text(
+            '${flags[code] ?? '🌐'}  $code - ${currencyName(code)}',
+            overflow: TextOverflow.ellipsis,
+          ),
         );
       }).toList(),
       onChanged: onChanged,
@@ -892,20 +961,25 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   ),
                   decoration: InputDecoration(
                     labelText: t('amount'),
+                    prefixIcon: const Icon(Icons.payments_outlined),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(13),
                     ),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 17),
                 Text('${t('from')}:'),
-                const SizedBox(height: 6),
+                const SizedBox(height: 7),
                 _currencyDropdown(fromCode, (value) {
                   if (value != null) setState(() => fromCode = value);
                 }),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor: green,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () {
                     setState(() {
                       final temp = fromCode;
@@ -915,25 +989,28 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   },
                   icon: const Icon(Icons.swap_vert),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Text('${t('to')}:'),
-                const SizedBox(height: 6),
+                const SizedBox(height: 7),
                 _currencyDropdown(toCode, (value) {
                   if (value != null) setState(() => toCode = value);
                 }),
                 const SizedBox(height: 22),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF087B45).withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF087B45)),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF087B45), Color(0xFF159B69)],
+                    ),
+                    borderRadius: BorderRadius.circular(17),
                   ),
                   child: Column(
                     children: [
-                      Text(t('result'),
-                          style: const TextStyle(color: Colors.grey)),
+                      Text(
+                        t('result'),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         result == null
@@ -941,21 +1018,21 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                             : '${formatNumber(result, decimals: 6)} $toCode',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF087B45),
+                          color: Colors.white,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 13),
                 Text(
                   widget.language == 'en'
-                      ? 'Local market rate is preferred when available; otherwise the world reference rate is used.'
+                      ? 'Local market rate is preferred when available; otherwise the world reference rate is used. This is an estimate.'
                       : widget.language == 'fa'
-                          ? 'در صورت موجود بودن، نرخ بازار محلی استفاده می‌شود؛ در غیر آن نرخ مرجع جهانی به کار می‌رود.'
-                          : 'که د محلي بازار نرخ موجود وي، هماغه کارېږي؛ که نه وي، نړیوال مرجع نرخ کارول کېږي.',
+                          ? 'در صورت موجود بودن، نرخ بازار محلی استفاده می‌شود؛ در غیر آن نرخ مرجع جهانی به کار می‌رود. این محاسبه تقریبی است.'
+                          : 'که د محلي بازار نرخ موجود وي، هماغه کارېږي؛ که نه وي، نړیوال مرجع نرخ کارول کېږي. دا اټکلي محاسبه ده.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
@@ -973,7 +1050,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         _sectionTitle(t('languageTitle'), Icons.language),
         _languageTile('ps', 'پښتو', '🇦🇫'),
         _languageTile('fa', 'دری', '🇦🇫'),
-        _languageTile('en', 'English', '🌐'),
+        _languageTile('en', 'English', '🇬🇧'),
       ],
     );
   }
@@ -988,7 +1065,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
           if (value != null) widget.onLanguageChanged(value);
         },
         title: Text('$flag  $name'),
-        activeColor: const Color(0xFF087B45),
+        activeColor: green,
       ),
     );
   }
@@ -1030,14 +1107,18 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         const SizedBox(height: 16),
         Center(
           child: Container(
-            width: 108,
-            height: 108,
+            width: 112,
+            height: 112,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFF087B45),
-                width: 3,
-              ),
+              border: Border.all(color: green, width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: green.withOpacity(0.18),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
             child: ClipOval(
               child: photoExists
@@ -1046,13 +1127,11 @@ class _ExchangeHomeState extends State<ExchangeHome> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        Center(
+        const SizedBox(height: 13),
+        const Center(
           child: Text(
             'Abdullah Eman',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
           ),
         ),
         Center(
@@ -1071,22 +1150,25 @@ class _ExchangeHomeState extends State<ExchangeHome> {
         ),
         const SizedBox(height: 22),
         Card(
-          child: Padding(
-            padding: const EdgeInsets.all(18),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              gradient: LinearGradient(
+                colors: [
+                  green.withOpacity(0.13),
+                  blue.withOpacity(0.08),
+                ],
+              ),
+            ),
             child: Column(
               children: [
-                const Icon(
-                  Icons.currency_exchange,
-                  size: 42,
-                  color: Color(0xFF087B45),
-                ),
+                const Icon(Icons.currency_exchange, size: 45, color: green),
                 const SizedBox(height: 12),
                 const Text(
                   'Afghani Exchange',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(t('description'), textAlign: TextAlign.center),
@@ -1095,7 +1177,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   t('slogan'),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    color: Color(0xFF087B45),
+                    color: green,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
