@@ -433,7 +433,6 @@ class _ExchangeHomeState extends State<ExchangeHome> {
   }
 
   double? rateFor(String code) {
-    // په تبدیل کې د ټاکل شوي افغان بازار نرخ ته لومړیتوب ورکول کېږي.
     return marketRate(code) ?? worldRate(code);
   }
 
@@ -718,7 +717,7 @@ class _ExchangeHomeState extends State<ExchangeHome> {
     final code = match?.group(1)?.toUpperCase() ?? '';
     final buy = row['buy'] is num ? (row['buy'] as num).toDouble() : null;
     final sell = row['sell'] is num ? (row['sell'] as num).toDouble() : null;
-    final unit = row['unit'] is num ? (row['unit'] as num).toDouble() : 1;
+    final unit = row['unit'] is num ? (row['unit'] as num).toDouble() : 1.0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -744,8 +743,10 @@ class _ExchangeHomeState extends State<ExchangeHome> {
                   ),
                 ),
                 if (unit > 1)
-                  Text('${formatNumber(unit, decimals: 0)} ${widget.language == 'en' ? 'units' : 'واحده'}',
-                      style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  Text(
+                    '${formatNumber(unit.toDouble(), decimals: 0)} ${widget.language == 'en' ? 'units' : 'واحده'}',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
               ],
             ),
             const Divider(height: 22),
