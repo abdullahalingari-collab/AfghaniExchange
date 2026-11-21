@@ -18,24 +18,42 @@ void main() {
 const Map<String, String> flags = {
   'AFN': '🇦🇫', 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧',
   'PKR': '🇵🇰', 'INR': '🇮🇳', 'IRR': '🇮🇷', 'CNY': '🇨🇳',
-  'TRY': '🇹🇷', 'AED': '🇦🇪', 'SAR': '🇸🇦', 'QAR': '🇶🇦',
-  'KWD': '🇰🇼', 'CAD': '🇨🇦', 'AUD': '🇦🇺', 'JPY': '🇯🇵',
-  'CHF': '🇨🇭', 'RUB': '🇷🇺', 'SEK': '🇸🇪', 'NOK': '🇳🇴',
-  'DKK': '🇩🇰', 'NZD': '🇳🇿', 'SGD': '🇸🇬', 'MYR': '🇲🇾',
-  'THB': '🇹🇭', 'BDT': '🇧🇩', 'LKR': '🇱🇰', 'NPR': '🇳🇵',
-  'IQD': '🇮🇶', 'OMR': '🇴🇲', 'BHD': '🇧🇭', 'EGP': '🇪🇬',
-  'ZAR': '🇿🇦', 'BRL': '🇧🇷', 'KRW': '🇰🇷', 'HKD': '🇭🇰',
-  'PLN': '🇵🇱', 'CZK': '🇨🇿', 'HUF': '🇭🇺', 'UAH': '🇺🇦',
-  'GEL': '🇬🇪', 'AZN': '🇦🇿', 'KZT': '🇰🇿', 'UZS': '🇺🇿',
-  'TJS': '🇹🇯', 'TMT': '🇹🇲', 'KGS': '🇰🇬', 'MNT': '🇲🇳',
-  'IDR': '🇮🇩', 'PHP': '🇵🇭', 'VND': '🇻🇳', 'MMK': '🇲🇲',
-  'KHR': '🇰🇭', 'LAK': '🇱🇦', 'ARS': '🇦🇷', 'MXN': '🇲🇽',
-  'CLP': '🇨🇱', 'COP': '🇨🇴', 'PEN': '🇵🇪', 'NGN': '🇳🇬',
-  'KES': '🇰🇪', 'GHS': '🇬🇭', 'MAD': '🇲🇦', 'TND': '🇹🇳',
-  'DZD': '🇩🇿', 'ETB': '🇪🇹', 'XAF': '🌍', 'XOF': '🌍',
-  'ILS': '🇮🇱', 'JOD': '🇯🇴', 'LBP': '🇱🇧', 'SYP': '🇸🇾',
-  'YER': '🇾🇪', 'RON': '🇷🇴', 'BGN': '🇧🇬', 'HRK': '🇭🇷',
-  'RSD': '🇷🇸', 'ISK': '🇮🇸', 'ALL': '🇦🇱', 'MDL': '🇲🇩',
+  'CNH': '🇨🇳', 'TRY': '🇹🇷', 'AED': '🇦🇪', 'SAR': '🇸🇦',
+  'QAR': '🇶🇦', 'KWD': '🇰🇼', 'CAD': '🇨🇦', 'AUD': '🇦🇺',
+  'JPY': '🇯🇵', 'CHF': '🇨🇭', 'RUB': '🇷🇺', 'SEK': '🇸🇪',
+  'NOK': '🇳🇴', 'DKK': '🇩🇰', 'NZD': '🇳🇿', 'SGD': '🇸🇬',
+  'MYR': '🇲🇾', 'THB': '🇹🇭', 'BDT': '🇧🇩', 'LKR': '🇱🇰',
+  'NPR': '🇳🇵', 'IQD': '🇮🇶', 'OMR': '🇴🇲', 'BHD': '🇧🇭',
+  'EGP': '🇪🇬', 'ZAR': '🇿🇦', 'BRL': '🇧🇷', 'KRW': '🇰🇷',
+  'HKD': '🇭🇰', 'PLN': '🇵🇱', 'CZK': '🇨🇿', 'HUF': '🇭🇺',
+  'UAH': '🇺🇦', 'GEL': '🇬🇪', 'AZN': '🇦🇿', 'KZT': '🇰🇿',
+  'UZS': '🇺🇿', 'TJS': '🇹🇯', 'TMT': '🇹🇲', 'KGS': '🇰🇬',
+  'MNT': '🇲🇳', 'IDR': '🇮🇩', 'PHP': '🇵🇭', 'VND': '🇻🇳',
+  'MMK': '🇲🇲', 'KHR': '🇰🇭', 'LAK': '🇱🇦', 'ARS': '🇦🇷',
+  'MXN': '🇲🇽', 'CLP': '🇨🇱', 'COP': '🇨🇴', 'PEN': '🇵🇪',
+  'NGN': '🇳🇬', 'KES': '🇰🇪', 'GHS': '🇬🇭', 'MAD': '🇲🇦',
+  'TND': '🇹🇳', 'DZD': '🇩🇿', 'ETB': '🇪🇹', 'ILS': '🇮🇱',
+  'JOD': '🇯🇴', 'LBP': '🇱🇧', 'SYP': '🇸🇾', 'YER': '🇾🇪',
+  'RON': '🇷🇴', 'BGN': '🇧🇬', 'HRK': '🇭🇷', 'RSD': '🇷🇸',
+  'ISK': '🇮🇸', 'ALL': '🇦🇱', 'MDL': '🇲🇩', 'XAF': '🌍',
+  'XOF': '🌍', 'XPF': '🌍', 'XCD': '🌎', 'BAM': '🇧🇦',
+  'BBD': '🇧🇧', 'BMD': '🇧🇲', 'BSD': '🇧🇸', 'BND': '🇧🇳',
+  'BOB': '🇧🇴', 'BWP': '🇧🇼', 'BYN': '🇧🇾', 'BZD': '🇧🇿',
+  'CDF': '🇨🇩', 'CRC': '🇨🇷', 'CUP': '🇨🇺', 'CVE': '🇨🇻',
+  'DJF': '🇩🇯', 'DOP': '🇩🇴', 'ERN': '🇪🇷', 'FJD': '🇫🇯',
+  'GMD': '🇬🇲', 'GNF': '🇬🇳', 'GTQ': '🇬🇹', 'GYD': '🇬🇾',
+  'HNL': '🇭🇳', 'HTG': '🇭🇹', 'JMD': '🇯🇲', 'KHR': '🇰🇭',
+  'KMF': '🇰🇲', 'KYD': '🇰🇾', 'LAK': '🇱🇦', 'LRD': '🇱🇷',
+  'LSL': '🇱🇸', 'LYD': '🇱🇾', 'MGA': '🇲🇬', 'MKD': '🇲🇰',
+  'MMK': '🇲🇲', 'MOP': '🇲🇴', 'MRU': '🇲🇷', 'MUR': '🇲🇺',
+  'MVR': '🇲🇻', 'MWK': '🇲🇼', 'MZN': '🇲🇿', 'NAD': '🇳🇦',
+  'NIO': '🇳🇮', 'PAB': '🇵🇦', 'PGK': '🇵🇬', 'PYG': '🇵🇾',
+  'RWF': '🇷🇼', 'SBD': '🇸🇧', 'SCR': '🇸🇨', 'SDG': '🇸🇩',
+  'SLE': '🇸🇱', 'SOS': '🇸🇴', 'SRD': '🇸🇷', 'SSP': '🇸🇸',
+  'STN': '🇸🇹', 'SZL': '🇸🇿', 'TOP': '🇹🇴', 'TTD': '🇹🇹',
+  'TWD': '🇹🇼', 'TZS': '🇹🇿', 'UGX': '🇺🇬', 'UYU': '🇺🇾',
+  'VES': '🇻🇪', 'VUV': '🇻🇺', 'WST': '🇼🇸', 'ZMW': '🇿🇲',
+  'ZWG': '🇿🇼', 'ZWL': '🇿🇼',
 };
 
 const Map<String, Map<String, String>> currencyNames = {
@@ -47,6 +65,7 @@ const Map<String, Map<String, String>> currencyNames = {
     'QAR': 'قطري ریال', 'KWD': 'کویتي دینار', 'CAD': 'کاناډایي ډالر',
     'AUD': 'اسټرالیایي ډالر', 'JPY': 'جاپاني ین',
     'CHF': 'سویسي فرانک', 'RUB': 'روسي روبل',
+    'INR': 'هندي روپۍ', 'IRR': 'ایراني ریال',
   },
   'fa': {
     'AFN': 'افغانی', 'USD': 'دالر آمریکایی', 'EUR': 'یورو',
@@ -68,17 +87,19 @@ const Map<String, Map<String, String>> currencyNames = {
   },
 };
 
-String money(dynamic value) {
+String money(dynamic value, {int decimals = 2}) {
   final n = double.tryParse('$value');
   if (n == null || !n.isFinite) return '—';
-  return n.toStringAsFixed(2);
+  return n.toStringAsFixed(decimals);
 }
 
 double? toNumber(dynamic value) {
   if (value == null) return null;
-  return double.tryParse(
+  final n = double.tryParse(
     value.toString().replaceAll(',', '').replaceAll(' ', ''),
   );
+  if (n == null || !n.isFinite) return null;
+  return n;
 }
 
 String currencyName(String code, String lang) {
@@ -131,9 +152,7 @@ class _AfghaniExchangeAppState extends State<AfghaniExchangeApp> {
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xff07834f),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff07834f)),
         scaffoldBackgroundColor: const Color(0xfff4f6fa),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xff087d50),
@@ -179,17 +198,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int page = 0;
   bool loading = false;
+  bool offline = false;
   String error = '';
   String selectedMarket = 'bank';
   String updatedAt = '';
+  String worldUpdatedAt = '';
+  bool worldIsStale = false;
+
   Map<String, dynamic> markets = {};
   List<dynamic> world = [];
   String? photoPath;
 
   final picker = ImagePicker();
   final amountController = TextEditingController(text: '1');
-  final fromController = TextEditingController(text: 'USD');
-  final toController = TextEditingController(text: 'AFN');
+  String fromCurrency = 'USD';
+  String toCurrency = 'AFN';
 
   String get lang => widget.language;
 
@@ -231,19 +254,21 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     loadPhoto();
+    loadCachedRates();
     fetchRates();
   }
 
   @override
   void dispose() {
     amountController.dispose();
-    fromController.dispose();
-    toController.dispose();
     super.dispose();
   }
 
+  Future<SharedPreferences> get prefs async =>
+      SharedPreferences.getInstance();
+
   Future<void> loadPhoto() async {
-    final p = await SharedPreferences.getInstance();
+    final p = await prefs;
     final path = p.getString('developerPhoto');
     if (path != null && File(path).existsSync() && mounted) {
       setState(() => photoPath = path);
@@ -251,31 +276,68 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> changePhoto() async {
-    final image = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-    if (image == null) return;
+    try {
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (image == null) return;
 
-    final dir = await getApplicationDocumentsDirectory();
-    final saved = await File(image.path).copy(
-      '${dir.path}/developer_photo.jpg',
-    );
-    final p = await SharedPreferences.getInstance();
-    await p.setString('developerPhoto', saved.path);
+      final dir = await getApplicationDocumentsDirectory();
+      final saved = await File(image.path).copy(
+        '${dir.path}/developer_photo.jpg',
+      );
+      final p = await prefs;
+      await p.setString('developerPhoto', saved.path);
 
-    if (mounted) setState(() => photoPath = saved.path);
+      if (mounted) setState(() => photoPath = saved.path);
+    } catch (e) {
+      showMessage('$e');
+    }
+  }
+
+  void showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> loadCachedRates() async {
+    final p = await prefs;
+    final cached = p.getString('cachedRates');
+    if (cached == null) return;
+
+    try {
+      final data = jsonDecode(cached);
+      if (data is! Map) return;
+      if (!mounted) return;
+      setState(() {
+        markets = data['markets'] is Map
+            ? Map<String, dynamic>.from(data['markets'])
+            : {};
+        world = data['world'] is List ? data['world'] : [];
+        updatedAt = '${data['checkedAt'] ?? ''}';
+        worldUpdatedAt = '${data['worldUpdatedAt'] ?? ''}';
+        worldIsStale = data['worldIsStale'] == true;
+      });
+    } catch (_) {}
   }
 
   Future<void> fetchRates() async {
-    setState(() {
-      loading = true;
-      error = '';
-    });
+    if (mounted) {
+      setState(() {
+        loading = true;
+        error = '';
+      });
+    }
 
     try {
       final response = await http
-          .get(Uri.parse(workerUrl))
+          .get(
+            Uri.parse(workerUrl),
+            headers: {'Accept': 'application/json'},
+          )
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode != 200) {
@@ -283,25 +345,54 @@ class _HomePageState extends State<HomePage> {
       }
 
       final data = jsonDecode(response.body);
-      if (data is! Map) throw Exception('Invalid API response');
+      if (data is! Map || data['success'] != true) {
+        throw Exception('Invalid API response');
+      }
 
       final receivedMarkets = data['markets'];
       final receivedWorld = data['world'];
 
+      final newMarkets = receivedMarkets is Map
+          ? Map<String, dynamic>.from(receivedMarkets)
+          : <String, dynamic>{};
+      final newWorld = receivedWorld is List ? receivedWorld : <dynamic>[];
+
+      final checked = '${data['checkedAt'] ?? data['updatedAt'] ?? ''}';
+      final worldTime = '${data['worldUpdatedAt'] ?? ''}';
+      final stale = data['worldIsStale'] == true;
+
+      final cacheData = {
+        'markets': newMarkets,
+        'world': newWorld,
+        'checkedAt': checked,
+        'worldUpdatedAt': worldTime,
+        'worldIsStale': stale,
+      };
+
+      final p = await prefs;
+      await p.setString('cachedRates', jsonEncode(cacheData));
+
       if (!mounted) return;
       setState(() {
-        markets = receivedMarkets is Map
-            ? Map<String, dynamic>.from(receivedMarkets)
-            : {};
-        world = receivedWorld is List ? receivedWorld : [];
-        updatedAt = '${data['updatedAt'] ?? ''}';
+        markets = newMarkets;
+        world = newWorld;
+        updatedAt = checked;
+        worldUpdatedAt = worldTime;
+        worldIsStale = stale;
+        offline = false;
         loading = false;
+        error = '';
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         loading = false;
-        error = e.toString();
+        offline = true;
+        error = tr(
+          'مهرباني وکړئ انټرنېټ سره وصل شئ، څو د اسعارو تازه نرخونه ترلاسه کړئ.',
+          'لطفاً برای دریافت نرخ‌های تازه به اینترنت وصل شوید.',
+          'Please connect to the internet to receive updated exchange rates.',
+        );
       });
     }
   }
@@ -316,15 +407,32 @@ class _HomePageState extends State<HomePage> {
         .toList();
   }
 
-  double? rateFor(String code) {
-    for (final row in selectedRows) {
-      final label = '${row['label'] ?? ''}'.toUpperCase();
-      if (RegExp(r'\b' + RegExp.escape(code) + r'\b').hasMatch(label) ||
-          label.startsWith('$code/')) {
-        return toNumber(row['buy']) ?? toNumber(row['sell']);
+  List<String> get currencyCodes {
+    final codes = <String>{'AFN'};
+    for (final item in world) {
+      if (item is Map) {
+        final code = '${item['code'] ?? ''}'.toUpperCase();
+        if (RegExp(r'^[A-Z]{3}$').hasMatch(code)) codes.add(code);
       }
     }
+    for (final entry in markets.values) {
+      if (entry is Map && entry['rows'] is List) {
+        for (final row in entry['rows']) {
+          if (row is Map) {
+            final match = RegExp(
+              r'\b([A-Z]{3})/AFN',
+            ).firstMatch('${row['label']}'.toUpperCase());
+            if (match != null) codes.add(match.group(1)!);
+          }
+        }
+      }
+    }
+    final result = codes.toList()..sort();
+    return result;
+  }
 
+  double? worldRateFor(String code) {
+    if (code == 'AFN') return 1;
     for (final item in world) {
       if (item is Map &&
           '${item['code'] ?? ''}'.toUpperCase() == code.toUpperCase()) {
@@ -334,23 +442,53 @@ class _HomePageState extends State<HomePage> {
     return null;
   }
 
+  double? rateFor(String code) {
+    if (code == 'AFN') return 1;
+
+    for (final row in selectedRows) {
+      final label = '${row['label'] ?? ''}'.toUpperCase();
+      final match = RegExp(r'\b([A-Z]{3})/AFN').firstMatch(label);
+      if (match != null && match.group(1) == code.toUpperCase()) {
+        final buy = toNumber(row['buy']);
+        final unit = toNumber(row['unit']) ?? 1;
+        if (buy != null && unit > 0) return buy / unit;
+      }
+    }
+    return worldRateFor(code);
+  }
+
   double? get conversionResult {
     final amount = toNumber(amountController.text);
     if (amount == null) return null;
 
-    final from = fromController.text.trim().toUpperCase();
-    final to = toController.text.trim().toUpperCase();
-
-    if (from == to) return amount;
-
-    final fromRate = rateFor(from);
-    final toRate = rateFor(to);
+    final fromRate = rateFor(fromCurrency);
+    final toRate = rateFor(toCurrency);
 
     if (fromRate == null || toRate == null || toRate == 0) return null;
     return amount * fromRate / toRate;
   }
 
+  String formatDate(String value) {
+    if (value.isEmpty) return '—';
+    final date = DateTime.tryParse(value)?.toLocal();
+    if (date == null) return value;
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    final h = date.hour.toString().padLeft(2, '0');
+    final min = date.minute.toString().padLeft(2, '0');
+    return '$y-$m-$d  $h:$min';
+  }
+
   Widget marketSelector() {
+    const colors = {
+      'bank': Color(0xff07834f),
+      'sarai': Color(0xff0785c4),
+      'khorasan': Color(0xffe17b09),
+      'kandahar': Color(0xff7944ad),
+      'nangarhar': Color(0xffd83f78),
+    };
+
     return SizedBox(
       height: 112,
       child: ListView(
@@ -358,14 +496,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         children: marketLabels.entries.map((entry) {
           final active = selectedMarket == entry.key;
-          final colors = {
-            'bank': const Color(0xff07834f),
-            'sarai': const Color(0xff0785c4),
-            'khorasan': const Color(0xffe17b09),
-            'kandahar': const Color(0xff7944ad),
-            'nangarhar': const Color(0xffd83f78),
-          };
-
+          final color = colors[entry.key]!;
           return GestureDetector(
             onTap: () => setState(() => selectedMarket = entry.key),
             child: AnimatedContainer(
@@ -374,14 +505,14 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: colors[entry.key],
+                color: color,
                 borderRadius: BorderRadius.circular(16),
                 border: active
                     ? Border.all(color: Colors.white, width: 3)
                     : null,
                 boxShadow: [
                   BoxShadow(
-                    color: (colors[entry.key] ?? Colors.green).withOpacity(.2),
+                    color: color.withOpacity(.2),
                     blurRadius: 7,
                     offset: const Offset(0, 3),
                   ),
@@ -416,6 +547,9 @@ class _HomePageState extends State<HomePage> {
     final label = marketLabels[selectedMarket]?[lang] ?? selectedMarket;
     final market = markets[selectedMarket];
     final rateType = market is Map ? '${market['rateType'] ?? ''}' : '';
+    final stale = market is Map && market['stale'] == true;
+    final description =
+        market is Map ? '${market['rateDescription'] ?? ''}' : '';
 
     return Column(
       children: [
@@ -442,12 +576,32 @@ class _HomePageState extends State<HomePage> {
               ),
               if (rateType.isNotEmpty)
                 Text(
-                  rateType,
+                  rateType == 'official'
+                      ? tr('رسمي', 'رسمی', 'Official')
+                      : rateType == 'indicative'
+                          ? tr('اټکلي', 'تقریبی', 'Indicative')
+                          : tr('بازار', 'بازار', 'Market'),
                   style: const TextStyle(color: Colors.white70, fontSize: 10),
                 ),
             ],
           ),
         ),
+        if (description.isNotEmpty)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.all(8),
+            color: const Color(0xffeaf0f7),
+            child: Text(
+              description,
+              style: const TextStyle(fontSize: 11, color: Colors.black87),
+            ),
+          ),
+        if (stale)
+          _notice(
+            tr('دا معلومات پخواني دي.', 'این معلومات قدیمی است.', 'These rates are stale.'),
+            Colors.orange,
+          ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 12),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -468,7 +622,7 @@ class _HomePageState extends State<HomePage> {
               child: Text(
                 loading
                     ? tr('معلومات ترلاسه کېږي...', 'در حال دریافت معلومات...', 'Loading rates...')
-                    : tr('د دې بازار نرخونه اوس نشته', 'نرخ این بازار موجود نیست', 'No rates available for this market'),
+                    : tr('د دې بازار تایید شوي نرخونه اوس نشته', 'نرخ تاییدشده این بازار موجود نیست', 'No verified rates available for this market'),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -476,9 +630,18 @@ class _HomePageState extends State<HomePage> {
         ...List.generate(rows.length, (index) {
           final row = rows[index];
           final title = '${row['label'] ?? ''}';
-          final codeMatch = RegExp(r'([A-Z]{3})').firstMatch(title.toUpperCase());
+          final codeMatch = RegExp(
+            r'([A-Z]{3})/AFN',
+          ).firstMatch(title.toUpperCase());
           final code = codeMatch?.group(1) ?? '';
           final flag = flags[code] ?? '🌐';
+          final unit = toNumber(row['unit']) ?? 1;
+
+          String showRate(dynamic value) {
+            final n = toNumber(value);
+            if (n == null) return '—';
+            return money(n / (unit > 0 ? unit : 1), decimals: 4);
+          }
 
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -521,6 +684,11 @@ class _HomePageState extends State<HomePage> {
                                 fontSize: 11,
                               ),
                             ),
+                            if (unit > 1)
+                              Text(
+                                tr('د هر واحد نرخ', 'نرخ هر واحد', 'Per unit'),
+                                style: const TextStyle(fontSize: 9),
+                              ),
                           ],
                         ),
                       ),
@@ -529,14 +697,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: Text(
-                    money(row['buy']),
+                    showRate(row['buy']),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    money(row['sell']),
+                    showRate(row['sell']),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Color(0xff1598c7),
@@ -550,6 +718,19 @@ class _HomePageState extends State<HomePage> {
         }),
         const SizedBox(height: 15),
       ],
+    );
+  }
+
+  Widget _notice(String message, Color color) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: color.withOpacity(.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(message, style: TextStyle(color: color)),
     );
   }
 
@@ -579,7 +760,7 @@ class _HomePageState extends State<HomePage> {
                         'Afghani Exchange',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 19,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -597,20 +778,19 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+          if (offline)
+            _notice(error, Colors.red)
+          else if (error.isNotEmpty)
+            _notice(error, Colors.orange),
           if (updatedAt.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: Text(
-                '${tr('وروستی تازه کول', 'آخرین بروزرسانی', 'Last update')}: $updatedAt',
+                '${tr('وروستی تازه کول', 'آخرین بروزرسانی', 'Last checked')}: ${formatDate(updatedAt)}',
                 style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),
             ),
           marketSelector(),
-          if (error.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(error, style: const TextStyle(color: Colors.red)),
-            ),
           marketTable(),
           if (loading)
             const Padding(
@@ -633,10 +813,23 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              tr('د نړۍ ټول اسعار', 'تمام ارزهای جهان', 'World currencies'),
+              tr('د نړۍ ټول موجود اسعار', 'تمام ارزهای موجود جهان', 'World currencies'),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ),
+          if (worldIsStale)
+            _notice(
+              tr('د نړۍ نرخونه تازه نه دي؛ وروستی ثبت شوی وخت:', 'نرخ‌های جهانی تازه نیستند؛ آخرین زمان ثبت:', 'World rates are not fresh. Last recorded update:'),
+              Colors.orange,
+            ),
+          if (worldUpdatedAt.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                '${tr('د نړۍ د نرخونو وخت', 'زمان نرخ‌های جهانی', 'World rates update')}: ${formatDate(worldUpdatedAt)}',
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            ),
           if (items.isEmpty)
             Padding(
               padding: const EdgeInsets.all(20),
@@ -658,9 +851,9 @@ class _HomePageState extends State<HomePage> {
                 ),
                 subtitle: Text(currencyName(code, lang)),
                 trailing: Text(
-                  money(rate),
+                  money(rate, decimals: 4),
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     color: Color(0xff1598c7),
                     fontWeight: FontWeight.bold,
                   ),
@@ -670,6 +863,35 @@ class _HomePageState extends State<HomePage> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget currencyDropdown({
+    required String value,
+    required ValueChanged<String?> onChanged,
+    required String label,
+  }) {
+    final codes = currencyCodes;
+    final safeValue = codes.contains(value) ? value : 'AFN';
+
+    return DropdownButtonFormField<String>(
+      value: safeValue,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        prefixIcon: const Icon(Icons.currency_exchange),
+      ),
+      items: codes.map((code) {
+        return DropdownMenuItem(
+          value: code,
+          child: Text(
+            '${flags[code] ?? '🌐'}  $code - ${currencyName(code, lang)}',
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 
@@ -699,33 +921,32 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: fromController,
-                  decoration: InputDecoration(
-                    labelText: tr('له کوم اسعارو', 'از کدام ارز', 'From currency'),
-                    border: const OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => setState(() {}),
+                const SizedBox(height: 16),
+                currencyDropdown(
+                  value: fromCurrency,
+                  label: tr('له کوم اسعارو', 'از کدام ارز', 'From currency'),
+                  onChanged: (v) {
+                    if (v != null) setState(() => fromCurrency = v);
+                  },
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 12),
                 IconButton.filled(
                   onPressed: () {
-                    final old = fromController.text;
-                    fromController.text = toController.text;
-                    toController.text = old;
-                    setState(() {});
+                    setState(() {
+                      final old = fromCurrency;
+                      fromCurrency = toCurrency;
+                      toCurrency = old;
+                    });
                   },
                   icon: const Icon(Icons.swap_vert),
                 ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: toController,
-                  decoration: InputDecoration(
-                    labelText: tr('کوم اسعارو ته', 'به کدام ارز', 'To currency'),
-                    border: const OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => setState(() {}),
+                const SizedBox(height: 12),
+                currencyDropdown(
+                  value: toCurrency,
+                  label: tr('کوم اسعارو ته', 'به کدام ارز', 'To currency'),
+                  onChanged: (v) {
+                    if (v != null) setState(() => toCurrency = v);
+                  },
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -747,10 +968,11 @@ class _HomePageState extends State<HomePage> {
                       Text(
                         result == null
                             ? '—'
-                            : '${money(result)} ${toController.text.toUpperCase()}',
+                            : '${money(result, decimals: 4)} $toCurrency',
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 26,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -760,13 +982,21 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
                 Text(
                   tr(
-                    'تبدیل د ټاکل شوي بازار د موجود نرخ پر بنسټ کېږي.',
-                    'تبدیل بر اساس نرخ موجود بازار انتخاب‌شده انجام می‌شود.',
-                    'Conversion uses the available rate from the selected market.',
+                    'د تبدیل حساب د ټاکل شوي بازار د نرخ او د اړتیا پر مهال د نړیوال مرجع نرخ پر بنسټ کېږي.',
+                    'محاسبه بر اساس نرخ بازار انتخاب‌شده و در صورت نیاز نرخ مرجع جهانی انجام می‌شود.',
+                    'Conversion uses the selected market rate and falls back to the world reference rate when needed.',
                   ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12),
                 ),
+                if (worldIsStale)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      tr('یادونه: نړیوال نرخونه زاړه دي.', 'توجه: نرخ‌های جهانی قدیمی هستند.', 'Note: World reference rates are stale.'),
+                      style: const TextStyle(color: Colors.orange, fontSize: 12),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -909,10 +1139,7 @@ class _HomePageState extends State<HomePage> {
                     'The Afghani is our national identity!',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(height: 10),
                 Text(
