@@ -611,15 +611,12 @@ class _HomePageState extends State<HomePage> {
     final description =
         market is Map ? '${market['rateDescription'] ?? ''}' : '';
 
-    // د تکراري اسعارو قطارونه یو ځل ښکاره کوي.
     final seen = <String>{};
     final uniqueRows = <Map<String, dynamic>>[];
 
     for (final row in rows) {
       final code = marketCurrencyCode('${row['label'] ?? ''}');
-      final key = code.isEmpty
-          ? '${row['label'] ?? ''}'
-          : code;
+      final key = code.isEmpty ? '${row['label'] ?? ''}' : code;
       if (seen.add(key)) uniqueRows.add(row);
     }
 
@@ -818,7 +815,11 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     showRate(row['buy']),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Color(0xff07834f),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -828,6 +829,7 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(
                       color: Color(0xff1598c7),
                       fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -992,7 +994,7 @@ class _HomePageState extends State<HomePage> {
                   money(rate, decimals: 4),
                   style: const TextStyle(
                     fontSize: 15,
-                    color: Color(0xff1598c7),
+                    color: Color(0xff7944ad),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
