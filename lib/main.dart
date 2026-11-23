@@ -100,6 +100,7 @@ double? toNumber(dynamic value) {
   return n;
 }
 
+// ټول نرخونه دوه اعشاریو ته ښودل کېږي.
 String money(dynamic value, {int decimals = 2}) {
   final n = toNumber(value);
   return n == null ? '—' : n.toStringAsFixed(decimals);
@@ -112,19 +113,27 @@ String currencyName(String code, String lang) {
 String marketCurrencyCode(String label) {
   final s = label.toUpperCase().trim();
 
+  // لومړی د ISO کوډ معلومول، څو د اسعارو نومونه سره ګډ نه شي.
+  final match = RegExp(r'\b([A-Z]{3})\s*/\s*AFN\b').firstMatch(s);
+  if (match != null) return match.group(1)!;
+
   if (s.contains('PAKISTAN') || s.contains('PKR')) return 'PKR';
   if (s.contains('INDIAN') || s.contains('INR')) return 'INR';
   if (s.contains('EURO') || s.contains('EUR')) return 'EUR';
   if (s.contains('POUND') || s.contains('GBP')) return 'GBP';
   if (s.contains('SWISS') || s.contains('CHF')) return 'CHF';
-  if (s.contains('IRAN') || s.contains('TOMAN')) return 'IRT';
-  if (s.contains('UAE') || s.contains('DIRHAM')) return 'AED';
-  if (s.contains('SAUDI') || s.contains('RIYAL')) return 'SAR';
+  if (s.contains('TOMAN') || s.contains('IRT')) return 'IRT';
+  if (s.contains('IRAN') || s.contains('IRR')) return 'IRR';
+  if (s.contains('UAE') || s.contains('DIRHAM') || s.contains('AED')) return 'AED';
+  if (s.contains('SAUDI') || s.contains('SAR')) return 'SAR';
+  if (s.contains('QATAR') || s.contains('QAR')) return 'QAR';
+  if (s.contains('OMAN') || s.contains('OMR')) return 'OMR';
   if (s.contains('YUAN') || s.contains('CNY')) return 'CNY';
   if (s.contains('USD') || s.contains('DOLLAR')) return 'USD';
+  if (s.contains('TURK') || s.contains('TRY')) return 'TRY';
 
-  final match = RegExp(r'\b([A-Z]{3})/AFN').firstMatch(s);
-  if (match != null) return match.group(1)!;
+  final codeMatch = RegExp(r'\b([A-Z]{3})\b').firstMatch(s);
+  if (codeMatch != null) return codeMatch.group(1)!;
 
   return '';
 }
@@ -665,12 +674,12 @@ class _HomePageState extends State<HomePage> {
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 12),
             padding: const EdgeInsets.all(8),
-            color: const Color(0xffeaf0f7),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Text(
               description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -689,7 +698,7 @@ class _HomePageState extends State<HomePage> {
             vertical: 12,
             horizontal: 10,
           ),
-          color: const Color(0xffeaf0f7),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           child: Row(
             children: [
               Expanded(
@@ -743,7 +752,7 @@ class _HomePageState extends State<HomePage> {
           String showRate(dynamic value) {
             final n = toNumber(value);
             if (n == null) return '—';
-            return money(n / safeUnit, decimals: 4);
+            return money(n / safeUnit);
           }
 
           return Container(
@@ -759,8 +768,10 @@ class _HomePageState extends State<HomePage> {
                       .colorScheme
                       .surfaceContainerHighest
                       .withOpacity(.35),
-              border: const Border(
-                bottom: BorderSide(color: Color(0xffe5e9ef)),
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                ),
               ),
             ),
             child: Row(
@@ -991,10 +1002,10 @@ class _HomePageState extends State<HomePage> {
                 ),
                 subtitle: Text(currencyName(code, lang)),
                 trailing: Text(
-                  money(rate, decimals: 4),
+                  money(rate),
                   style: const TextStyle(
                     fontSize: 15,
-                    color: Color(0xff7944ad),
+                    color: Color(0xff9b59b6),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1128,7 +1139,7 @@ class _HomePageState extends State<HomePage> {
                       Text(
                         result == null
                             ? '—'
-                            : '${money(result, decimals: 4)} $toCurrency',
+                            : '${money(result)} $toCurrency',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white,
