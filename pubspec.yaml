@@ -1,3 +1,4 @@
+
 name: afghani_exchange
 description: Afghani Exchange currency rates app
 publish_to: 'none'
@@ -29,11 +30,11 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/app_icon.png
+    - assets/app_icon(2)-1.png
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/app_icon.png"
+  image_path: "assets/app_icon(2)-1.png"
   adaptive_icon_background: "#064E27"
-  adaptive_icon_foreground: "assets/app_icon.png"
+  adaptive_icon_foreground: "assets/app_icon(2)-1.png"
