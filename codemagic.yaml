@@ -23,7 +23,7 @@ workflows:
           fi
           echo "New app icon found successfully."
 
-      - name: Generate new app icons
+      - name: Generate Android app icons
         script: dart run flutter_launcher_icons -f pubspec.yaml
 
       - name: Build Android APK
@@ -31,4 +31,3 @@ workflows:
 
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
-      
