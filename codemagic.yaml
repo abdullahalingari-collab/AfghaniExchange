@@ -1,6 +1,7 @@
+
 workflows:
   afghani-exchange:
-    name: Afghani Exchange
+    name: Afghan Asaar - Android APK
     instance_type: mac_mini_m2
     max_build_duration: 60
 
@@ -8,14 +9,19 @@ workflows:
       flutter: stable
 
     scripts:
-      - name: Get Flutter packages
-        script: flutter pub get
-
       - name: Clean old build files
         script: flutter clean
 
-      - name: Get packages again
+      - name: Get Flutter packages
         script: flutter pub get
+
+      - name: Verify app icon
+        script: |
+          if [ ! -f "assets/app_icon(2)-1.png" ]; then
+            echo "ERROR: New app icon not found!"
+            exit 1
+          fi
+          echo "New app icon found successfully."
 
       - name: Generate new app icons
         script: dart run flutter_launcher_icons -f pubspec.yaml
