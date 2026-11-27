@@ -1,35 +1,39 @@
 name: afghani_exchange
-description: Afghani Exchange - Currency Rates App
+description: Afghani Exchange currency rates app
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  http: ^1.2.2
+  http: ^1.6.0
+  html: ^0.15.6
+  shared_preferences: ^2.5.3
   image_picker: ^1.1.2
   path_provider: ^2.1.5
-  shared_preferences: ^2.3.2
   url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/app_icon.png
+
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/app_icon.png"
-  min_sdk_android: 21
+  image_path: "assets/app_icon.png"
+  adaptive_icon_background: "#064E27"
+  adaptive_icon_foreground: "assets/app_icon.png"
