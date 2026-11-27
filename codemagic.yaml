@@ -11,8 +11,14 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
 
-      - name: Generate app icons
-        script: dart run flutter_launcher_icons
+      - name: Clean old build files
+        script: flutter clean
+
+      - name: Get packages again
+        script: flutter pub get
+
+      - name: Generate new app icons
+        script: dart run flutter_launcher_icons -f pubspec.yaml
 
       - name: Build Android APK
         script: flutter build apk --release
